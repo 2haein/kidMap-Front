@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/home"
+        android:enabled="true"
+        android:icon="@drawable/home"
+
+        android:title="홈"/>
+
+    <item
+        android:id="@+id/i_map"
+        android:enabled="true"
+        android:icon="@drawable/marker"
+        android:title="현재 아이 위치"/>
+
+    <item
+        android:id="@+id/notify_map"
+        android:enabled="true"
+        android:icon="@drawable/megaphone"
+        android:title="위험요소 알리기"/>
+
+    <item
+        android:id="@+id/settings"
+        android:enabled="true"
+        android:icon="@drawable/user"
+        android:title="마이페이지"/>
+</menu>
+
