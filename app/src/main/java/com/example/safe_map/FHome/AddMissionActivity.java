@@ -24,14 +24,20 @@ import com.example.safe_map.Login.Signup;
 import com.example.safe_map.Login.StdRecyclerAdapter;
 import com.example.safe_map.NetworkStatus;
 import com.example.safe_map.R;
+import com.example.safe_map.common.ProfileData;
+import com.example.safe_map.http.CommonMethod;
+import com.example.safe_map.http.RequestHttpURLConnection;
+
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.UUID;
 
 public class AddMissionActivity extends AppCompatActivity {
 
     // 초기변수설정
-    int y1=0, m1=0, d1=0, h1=0, mi1=0, s1=0;
+    int y1=0, m1=0, d1=0, h1=0, mi1=0;
     int y=0, m=0, d=0, h=0, mi=0;
 
     TextView edit_addr, date_view, time_view;
@@ -109,6 +115,7 @@ public class AddMissionActivity extends AppCompatActivity {
         });
 
 
+
         //심부름 시간 선택
         addTime = findViewById(R.id.time_btn);
         time_view = findViewById(R.id.timeView);
@@ -128,6 +135,7 @@ public class AddMissionActivity extends AppCompatActivity {
             }
         });
 
+        String E_date = y+"-"+m+"-"+d+"T"+h+":"+"mi";
         // UI 요소 연결
         edit_addr = findViewById(R.id.editaddr_target);
         addAddrBtn1 = findViewById(R.id.add_adr_button1);
@@ -172,6 +180,36 @@ public class AddMissionActivity extends AppCompatActivity {
                     }
                 }
                 break;
+        }
+    }
+
+
+
+    public void registerErrand(String user_Id, String UUID, String E_date, String E_content,
+                               double target_latitude, double target_longitude,
+                               double start_latitude, double start_longitude,
+                               boolean checking){
+        String url = CommonMethod.ipConfig + "/api/registerErrand";
+
+        try{
+            String jsonString = new JSONObject()
+                    .put("userId", user_Id)
+                    .put("E_date", E_date)
+                    .put("E_content", E_content)
+                    .put("target_latitude", target_latitude)
+                    .put("target_longitude", target_longitude)
+                    .put("start_latitude", start_latitude)
+                    .put("start_longitude", start_longitude)
+                    .put("checking", checking)
+                    .toString();
+
+            //REST API
+            RequestHttpURLConnection.NetworkAsyncTask networkTask = new RequestHttpURLConnection.NetworkAsyncTask(url, jsonString);
+            networkTask.execute().get();
+            Toast.makeText(AddMissionActivity.this, "심부름이 설정되었습니다", Toast.LENGTH_LONG).show();
+
+        }catch(Exception e){
+            e.printStackTrace();
         }
     }
 }

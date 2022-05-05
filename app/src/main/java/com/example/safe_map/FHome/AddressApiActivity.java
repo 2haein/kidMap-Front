@@ -3,6 +3,7 @@ package com.example.safe_map.FHome;
 import android.content.Intent;
 import android.os.Bundle;
 import android.webkit.JavascriptInterface;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -35,20 +36,22 @@ public class AddressApiActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_address_layout);
 
+
         webView = (WebView) findViewById(R.id.webView);
-        webView.getSettings().setJavaScriptEnabled(true);
+
+        WebSettings webSettings = webView.getSettings();
+        webSettings.setJavaScriptEnabled(true);
         webView.addJavascriptInterface(new MyJavaScriptInterface(), "Android");
 
-        webView.setWebViewClient(new WebViewClient() {
+        /*webView.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageFinished(WebView view, String url) {
-                webView.loadUrl("javascript:sample2_execDaumPostcode();");
+                //webView.loadUrl("javascript:sample2_execDaumPostcode();");
+                webView.loadUrl(CommonMethod.ipConfig+"/kakaoaddr");
             }
-        });
-
-        webView.loadUrl(CommonMethod.ipConfig+"/kakaoaddr");
-
-
+        });*/
+        //webView.loadUrl(CommonMethod.ipConfig+"/kakaoaddr");
+        webView.loadUrl("file:///android_asset/www/kakaoaddr.html");
     }
 
 }

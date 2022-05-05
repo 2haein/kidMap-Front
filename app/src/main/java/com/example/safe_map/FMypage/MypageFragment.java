@@ -167,7 +167,7 @@ public class MypageFragment extends Fragment {
         String rtnStr= "";
         try{
             String jsonString = new JSONObject()
-                    .put("userId", ProfileData.getUserId())
+                    .put("userId", userId)
                     .toString();
 
             //REST API
@@ -207,7 +207,7 @@ public class MypageFragment extends Fragment {
 
         try{
             String jsonString = new JSONObject()
-                    .put("userId", ProfileData.getUserId())
+                    .put("userId", userId)
                     .toString();
 
             //REST API
@@ -225,12 +225,12 @@ public class MypageFragment extends Fragment {
 
     }
 
-    public void registerHome(String latitude, String longitude){
+    public void registerHome(String userId, String latitude, String longitude){
         String url = CommonMethod.ipConfig + "/api/registerTelNum";
 
         try{
             String jsonString = new JSONObject()
-                    .put("userId", ProfileData.getUserId())
+                    .put("userId", userId)
                     .put("telNum", phone)
                     .toString();
 

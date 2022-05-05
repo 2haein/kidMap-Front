@@ -37,6 +37,9 @@
             android:name=".FHome.AddMissionActivity"
             android:exported="false" />
         <activity
+            android:name=".FHome.AddressApiActivity"
+            android:exported="false" />
+        <activity
             android:name=".ChildMain"
             android:exported="false" />
         <activity
