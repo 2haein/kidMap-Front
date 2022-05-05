@@ -32,6 +32,8 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 
 public class AddMissionActivity extends AppCompatActivity {
@@ -62,14 +64,27 @@ public class AddMissionActivity extends AppCompatActivity {
         /* initiate adapter */
         mRecyclerAdapter = new StdRecyclerAdapter(this);
 
+        String childnum = fetchChildNum(ProfileData.getUserId());
+        int childNum = Integer.parseInt(childnum);
         /* adapt data */
         mChildnum = new ArrayList<>();
-        /*for(int i=1;i<=5;i++){
-            mChildnum.add(new ChildnumItem(i+"명"));
-        }*/
-        mChildnum.add(new ChildnumItem("첫째아이"));
-        mChildnum.add(new ChildnumItem("둘째아이"));
-        mChildnum.add(new ChildnumItem("셋째아이"));
+        for(int i=1;i<=childNum;i++){
+            if (i==1){
+                mChildnum.add(new ChildnumItem("첫째아이"));
+            } else if (i==2){
+                mChildnum.add(new ChildnumItem("둘째아이"));
+            } else if (i==3){
+                mChildnum.add(new ChildnumItem("셋째아이"));
+            } else if (i==4){
+                mChildnum.add(new ChildnumItem("넷째아이"));
+            } else if (i==5) {
+                mChildnum.add(new ChildnumItem("다섯째아이"));
+            }
+
+        }
+        //mChildnum.add(new ChildnumItem("첫째아이"));
+        //mChildnum.add(new ChildnumItem("둘째아이"));
+        //mChildnum.add(new ChildnumItem("셋째아이"));
 
         mRecyclerAdapter.setChildNum(mChildnum);
         /* initiate recyclerview */
@@ -183,7 +198,53 @@ public class AddMissionActivity extends AppCompatActivity {
         }
     }
 
+    //리스트로 반환
+    public List fetchUUID(String userId){
+        String url = CommonMethod.ipConfig + "/api/fetchUUID";
+        List<String> data = new ArrayList<String>();;
 
+        try{
+            String jsonString = new JSONObject()
+                    .put("userId", userId)
+                    .toString();
+
+            //REST API
+            RequestHttpURLConnection.NetworkAsyncTask networkTask = new RequestHttpURLConnection.NetworkAsyncTask(url, jsonString);
+            data = Collections.singletonList(networkTask.execute().get());
+
+//          Toast.makeText(getActivity(), "자녀 등록을 완료하였습니다.", Toast.LENGTH_SHORT).show();
+//            Log.i(TAG, String.format("가져온 Phonenum: (%s)", rtnStr));
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return data;
+    }
+
+    //자녀 정보 가져오기 -> Child DB정보 가져옴
+    public String fetchChild(String UUID){
+        String url = CommonMethod.ipConfig + "/api/fetchChild";
+        String rtnStr= "";
+
+        try{
+            String jsonString = new JSONObject()
+                    .put("UUID", UUID)
+                    .toString();
+
+            //REST API
+            RequestHttpURLConnection.NetworkAsyncTask networkTask = new RequestHttpURLConnection.NetworkAsyncTask(url, jsonString);
+            rtnStr = networkTask.execute().get();
+
+//          Toast.makeText(getActivity(), "자녀 등록을 완료하였습니다.", Toast.LENGTH_SHORT).show();
+//           Log.i(TAG, String.format("가져온 Phonenum: (%s)", rtnStr));
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+
+        return rtnStr;
+
+    }
 
     public void registerErrand(String user_Id, String UUID, String E_date, String E_content,
                                double target_latitude, double target_longitude,
@@ -211,5 +272,24 @@ public class AddMissionActivity extends AppCompatActivity {
         }catch(Exception e){
             e.printStackTrace();
         }
+    }
+
+    public String fetchChildNum(String userId){
+        String url = CommonMethod.ipConfig + "/api/fetchChildNum";
+        String rtnStr= "";
+
+        try{
+            String jsonString = new JSONObject()
+                    .put("userId", ProfileData.getUserId())
+                    .toString();
+            //REST API
+            RequestHttpURLConnection.NetworkAsyncTask networkTask = new RequestHttpURLConnection.NetworkAsyncTask(url, jsonString);
+            rtnStr = networkTask.execute().get();
+//            Toast.makeText(Signup.this, "자녀 등록을 완료하였습니다.", Toast.LENGTH_SHORT).show();
+ //           Log.i(TAG, String.format("가져온 childNum: (%s)", rtnStr));
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return rtnStr;
     }
 }
