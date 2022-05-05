@@ -125,12 +125,12 @@ public class MypageFragment extends Fragment {
 
         //전화번호 불러오기
         TextView phonenum = (TextView) rootview.findViewById(R.id.mp_phonenum);
-        if (fetchPhone(ProfileData.getUserId()) == "") {
+        String phone1 = fetchPhone(ProfileData.getUserId());
+        if (phone1.equals("")) {
             phonenum.setText("등록된 전화번호가 없습니다.");
         }else{
-            String phone = fetchPhone(ProfileData.getUserId());
-            Log.d("phonenum", "Phonenumber : "+ phone);
-            phonenum.setText(phone);
+            Log.d("phonenum", "Phonenumber : "+ phone1);
+            phonenum.setText(phone1);
         }
 
         //전화번호 입력하기
@@ -142,12 +142,11 @@ public class MypageFragment extends Fragment {
             try {
                 phone = brand_phone.getText().toString();
                 registerPhone(phone);
-                Toast.makeText(getContext().getApplicationContext(), "전화번호가 저장되었습니다", Toast.LENGTH_LONG).show();
             } catch(NumberFormatException e) {
                 phone = "";
                 Toast.makeText(getContext().getApplicationContext(), "전화번호를 다시 입력해주세요", Toast.LENGTH_LONG).show();
             }
-            });
+        });
 
         //집주소 등록하기
         rootview.findViewById(R.id.addr_m).setOnClickListener(v -> {
@@ -194,8 +193,7 @@ public class MypageFragment extends Fragment {
             //REST API
             RequestHttpURLConnection.NetworkAsyncTask networkTask = new RequestHttpURLConnection.NetworkAsyncTask(url, jsonString);
             networkTask.execute().get();
-
-//          Toast.makeText(getActivity(), "자녀 등록을 완료하였습니다.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext().getApplicationContext(), "전화번호가 저장되었습니다", Toast.LENGTH_LONG).show();
             Log.i(TAG, String.format("등록한 Phonenum: " + phone));
 
         }catch(Exception e){
