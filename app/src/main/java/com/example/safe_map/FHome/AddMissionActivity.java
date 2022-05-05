@@ -10,6 +10,7 @@ import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -45,7 +46,7 @@ public class AddMissionActivity extends AppCompatActivity {
 
     TextView edit_addr, date_view, time_view;
     EditText edit_content;
-    Button addDate, addTime, addAddrBtn1, addAddrBtn2, checkDanger;
+    Button addDate, addTime, addAddrBtn1, addAddrBtn2, checkDanger, All;
 
     private RecyclerView mRecyclerView;
     private StdRecyclerAdapter mRecyclerAdapter;
@@ -80,6 +81,8 @@ public class AddMissionActivity extends AppCompatActivity {
                 mChildnum.add(new ChildnumItem("넷째아이"));
             } else if (i==5) {
                 mChildnum.add(new ChildnumItem("다섯째아이"));
+            } else {
+                mChildnum.add(new ChildnumItem("자녀가 없습니다"));
             }
 
         }
@@ -108,6 +111,8 @@ public class AddMissionActivity extends AppCompatActivity {
 
         //심부름 내용
         edit_content = findViewById(R.id.errandContent);
+        Editable errandContent = edit_content.getText();
+        String E_content = errandContent.toString();
 
         //심부름 날짜 선택
         Calendar cal = Calendar.getInstance();
@@ -185,6 +190,20 @@ public class AddMissionActivity extends AppCompatActivity {
                 }
             }
         });
+
+        All = findViewById(R.id.button4);
+        All.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                /*String user_Id, String UUID, String E_date, String E_content,
+                double target_latitude, double target_longitude,
+                double start_latitude, double start_longitude,
+                boolean checking*/
+                registerErrand(ProfileData.getUserId(), childUUID, E_date, E_content,
+                        0,0,0,0,true);
+            }
+        });
+
     }
 
 
@@ -262,6 +281,7 @@ public class AddMissionActivity extends AppCompatActivity {
         try{
             String jsonString = new JSONObject()
                     .put("userId", user_Id)
+                    .put("UUID", UUID)
                     .put("E_date", E_date)
                     .put("E_content", E_content)
                     .put("target_latitude", target_latitude)
@@ -292,8 +312,6 @@ public class AddMissionActivity extends AppCompatActivity {
             //REST API
             RequestHttpURLConnection.NetworkAsyncTask networkTask = new RequestHttpURLConnection.NetworkAsyncTask(url, jsonString);
             rtnStr = networkTask.execute().get();
-//            Toast.makeText(Signup.this, "자녀 등록을 완료하였습니다.", Toast.LENGTH_SHORT).show();
- //           Log.i(TAG, String.format("가져온 childNum: (%s)", rtnStr));
         }catch(Exception e){
             e.printStackTrace();
         }
