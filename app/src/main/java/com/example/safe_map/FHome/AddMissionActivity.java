@@ -39,6 +39,7 @@ import java.util.UUID;
 public class AddMissionActivity extends AppCompatActivity {
 
     // 초기변수설정
+    public Integer childnum1 = 0;
     int y1=0, m1=0, d1=0, h1=0, mi1=0;
     int y=0, m=0, d=0, h=0, mi=0;
 
@@ -64,11 +65,11 @@ public class AddMissionActivity extends AppCompatActivity {
         /* initiate adapter */
         mRecyclerAdapter = new StdRecyclerAdapter(this);
 
-        String childnum = fetchChildNum(ProfileData.getUserId());
-        int childNum = Integer.parseInt(childnum);
+        final String[] childnum = {fetchChildNum(ProfileData.getUserId())};
+        final int[] childNum = {Integer.parseInt(childnum[0])};
         /* adapt data */
         mChildnum = new ArrayList<>();
-        for(int i=1;i<=childNum;i++){
+        for(int i = 1; i<= childNum[0]; i++){
             if (i==1){
                 mChildnum.add(new ChildnumItem("첫째아이"));
             } else if (i==2){
@@ -92,12 +93,18 @@ public class AddMissionActivity extends AppCompatActivity {
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         //mRecyclerView.setLayoutManager(new LinearLayoutManager(this, RecyclerView.VERTICAL,false));
 
+
         mRecyclerAdapter.setOnItemClickListener(new StdRecyclerAdapter.OnItemClickEventListener() {
             @Override
             public void onItemClick(View a_view, int a_position) {
-                Toast.makeText(AddMissionActivity.this, a_position, Toast.LENGTH_LONG).show();
+                childnum1 = a_position;
+                Toast.makeText(AddMissionActivity.this, childnum1, Toast.LENGTH_LONG).show();
             }
         });
+
+        //자녀UUID 검색
+        List<String> child = fetchUUID(ProfileData.getUserId());
+        String childUUID = child.get(childnum1);
 
         //심부름 내용
         edit_content = findViewById(R.id.errandContent);

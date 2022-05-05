@@ -285,7 +285,7 @@ public class LoginActivity extends AppCompatActivity {
 
         try{
             String jsonString = new JSONObject()
-                    .put("userId", ProfileData.getUserId())
+                    .put("userId", userId)
                     .toString();
             //REST API
             RequestHttpURLConnection.NetworkAsyncTask networkTask = new RequestHttpURLConnection.NetworkAsyncTask(url, jsonString);
