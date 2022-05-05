@@ -6,13 +6,17 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.example.safe_map.Login.ChildnumItem;
@@ -22,12 +26,17 @@ import com.example.safe_map.NetworkStatus;
 import com.example.safe_map.R;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 
 public class AddMissionActivity extends AppCompatActivity {
 
     // 초기변수설정
-    TextView edit_addr;
-    Button addAddrBtn1, addAddrBtn2;
+    int y1=0, m1=0, d1=0, h1=0, mi1=0, s1=0;
+    int y=0, m=0, d=0, h=0, mi=0;
+
+    TextView edit_addr, date_view, time_view;
+    EditText edit_content;
+    Button addDate, addTime, addAddrBtn1, addAddrBtn2, checkDanger;
 
     private RecyclerView mRecyclerView;
     private StdRecyclerAdapter mRecyclerAdapter;
@@ -69,6 +78,55 @@ public class AddMissionActivity extends AppCompatActivity {
             }
         });
 
+        //심부름 내용
+        edit_content = findViewById(R.id.errandContent);
+
+        //심부름 날짜 선택
+        Calendar cal = Calendar.getInstance();
+        y1 = cal.get(Calendar.YEAR);
+        m1 = cal.get(Calendar.MONTH) +1;
+        d1 = cal.get(Calendar.DAY_OF_MONTH);
+        h1 = cal.get(Calendar.HOUR);
+        mi1 = cal.get(Calendar.MINUTE);
+        addDate = findViewById(R.id.date_btn);
+        date_view = findViewById(R.id.date_view);
+        addDate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DatePickerDialog datePickerDialog = new DatePickerDialog(AddMissionActivity.this, new DatePickerDialog.OnDateSetListener() {
+                    @Override
+                    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                        y = year;
+                        m = month+1;
+                        d = dayOfMonth;
+                        date_view.setText(y+"년  "+m+"월  "+d + "일");
+                    }
+                },y1, m1, d1);
+                datePickerDialog.setMessage("심부름 날짜");
+                datePickerDialog.show();
+            }
+
+        });
+
+
+        //심부름 시간 선택
+        addTime = findViewById(R.id.time_btn);
+        time_view = findViewById(R.id.timeView);
+        addTime.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                TimePickerDialog timePickerDialog = new TimePickerDialog(AddMissionActivity.this, new TimePickerDialog.OnTimeSetListener() {
+                    @Override
+                    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                        h = hourOfDay;
+                        mi = minute;
+                        time_view.setText(h+"시  "+mi+"분");
+                    }
+                }, h1, mi1, true);
+                timePickerDialog.setMessage("출발 시각");
+                timePickerDialog.show();
+            }
+        });
 
         // UI 요소 연결
         edit_addr = findViewById(R.id.editaddr_target);
@@ -98,6 +156,7 @@ public class AddMissionActivity extends AppCompatActivity {
             }
         });
     }
+
 
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
