@@ -43,15 +43,14 @@ public class AddressApiActivity extends AppCompatActivity {
         webSettings.setJavaScriptEnabled(true);
         webView.addJavascriptInterface(new MyJavaScriptInterface(), "Android");
 
-        /*webView.setWebViewClient(new WebViewClient() {
+        webView.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageFinished(WebView view, String url) {
-                //webView.loadUrl("javascript:sample2_execDaumPostcode();");
-                webView.loadUrl(CommonMethod.ipConfig+"/kakaoaddr");
+                webView.loadUrl("javascript:sample2_execDaumPostcode();");
+//                webView.loadUrl(CommonMethod.ipConfig+"/kakaoaddr");
             }
-        });*/
-        //webView.loadUrl(CommonMethod.ipConfig+"/kakaoaddr");
-        webView.loadUrl("file:///android_asset/www/kakaoaddr.html");
+        });
+        webView.loadUrl(CommonMethod.ipConfig+"/daumpost");
+//        webView.loadUrl("file:///android_asset/www/kakaoaddr.html");
     }
-
 }

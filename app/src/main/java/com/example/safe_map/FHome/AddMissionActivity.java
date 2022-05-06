@@ -66,11 +66,11 @@ public class AddMissionActivity extends AppCompatActivity {
         /* initiate adapter */
         mRecyclerAdapter = new StdRecyclerAdapter(this);
 
-        final String[] childnum = {fetchChildNum(ProfileData.getUserId())};
-        final int[] childNum = {Integer.parseInt(childnum[0])};
+        final String childnum = fetchChildNum(ProfileData.getUserId());
+        final int childNum = Integer.parseInt(childnum);
         /* adapt data */
         mChildnum = new ArrayList<>();
-        for(int i = 1; i<= childNum[0]; i++){
+        for(int i = 1; i<= childNum; i++){
             if (i==1){
                 mChildnum.add(new ChildnumItem("첫째아이"));
             } else if (i==2){
@@ -101,7 +101,7 @@ public class AddMissionActivity extends AppCompatActivity {
             @Override
             public void onItemClick(View a_view, int a_position) {
                 childnum1 = a_position;
-                Toast.makeText(AddMissionActivity.this, childnum1, Toast.LENGTH_LONG).show();
+                Toast.makeText(AddMissionActivity.this, Integer.toString(childnum1), Toast.LENGTH_LONG).show();
             }
         });
 
@@ -162,7 +162,7 @@ public class AddMissionActivity extends AppCompatActivity {
             }
         });
 
-        String E_date = y+"-"+m+"-"+d+"T"+h+":"+"mi";
+        String E_date = y+"-"+m+"-"+d+"T"+h+":"+mi;
         // UI 요소 연결
         edit_addr = findViewById(R.id.editaddr_target);
         addAddrBtn1 = findViewById(R.id.add_adr_button1);
@@ -294,7 +294,7 @@ public class AddMissionActivity extends AppCompatActivity {
             //REST API
             RequestHttpURLConnection.NetworkAsyncTask networkTask = new RequestHttpURLConnection.NetworkAsyncTask(url, jsonString);
             networkTask.execute().get();
-            Toast.makeText(AddMissionActivity.this, "심부름이 설정되었습니다", Toast.LENGTH_LONG).show();
+            //Toast.makeText(AddMissionActivity.this, "심부름이 설정되었습니다", Toast.LENGTH_LONG).show();
 
         }catch(Exception e){
             e.printStackTrace();
