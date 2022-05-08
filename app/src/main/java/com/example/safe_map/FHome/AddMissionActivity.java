@@ -9,6 +9,8 @@ import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
 import android.text.Editable;
 import android.util.Log;
@@ -31,6 +33,8 @@ import com.example.safe_map.http.RequestHttpURLConnection;
 
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.text.BreakIterator;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -47,12 +51,18 @@ public class AddMissionActivity extends AppCompatActivity {
     TextView edit_addr, date_view, time_view;
     Button addDate, addTime, addAddrBtn1, addAddrBtn2, checkDanger, All;
 
+    List<Address> address = null;
+    String target_name, start_name;
+    double target_longitude, target_latitude;
+    double start_longitude, start_latitude;
+    Boolean checking = false;
     private RecyclerView mRecyclerView;
     private StdRecyclerAdapter mRecyclerAdapter;
     private ArrayList<ChildnumItem> mChildnum;
 
     // 주소 요청코드 상수 requestCode
     private static final int SEARCH_ADDRESS_ACTIVITY = 10000;
+
 
 
     @SuppressLint("WrongViewCast")
@@ -203,8 +213,24 @@ public class AddMissionActivity extends AppCompatActivity {
                 String childUUID = child[childnum1];
                 String E_content = edit_content.getText().toString();
                 String E_date = y+"-"+m+"-"+d+"T"+h+":"+mi;
+                if (childUUID.equals(null)){
+                    Toast.makeText(AddMissionActivity.this, "자녀를 선택하세요", Toast.LENGTH_LONG);
+                } else if (E_content.equals(null)){
+                    Toast.makeText(AddMissionActivity.this, "심부름 내용을 입력하세요", Toast.LENGTH_LONG);
+                } else if (E_date.equals(null)){
+
+                } else if (target_longitude == 0 && target_latitude == 0){
+                    Toast.makeText(AddMissionActivity.this, "목적지 주소의 위도, 경도값이 올바르지 않습니다. 목적지를 다시 입력해주세요.", Toast.LENGTH_LONG);
+                } else if (start_latitude == 0 && start_longitude == 0){
+                    Toast.makeText(AddMissionActivity.this, "출발지 주소의 위도, 경도값이 올바르지 않습니다. 목적지를 다시 입력해주세요.", Toast.LENGTH_LONG);
+                } else if (checking != true) {
+                    Toast.makeText(AddMissionActivity.this, "위험지역 확인을 하시고 체크해주세요", Toast.LENGTH_LONG);
+                } else if (childUUID != null && E_content != null && E_date != null && target_latitude != 0 && target_longitude != 0 && start_longitude != 0 && start_latitude != 0 && checking == true){
+                    registerErrand(ProfileData.getUserId(), childUUID, E_date, E_content,
+                            target_latitude,target_longitude,start_latitude,start_longitude,true);
+                }
                 registerErrand(ProfileData.getUserId(), childUUID, E_date, E_content,
-                        0,0,0,0,true);
+                        target_latitude,target_longitude,0,0,true);
             }
         });
 
@@ -215,6 +241,7 @@ public class AddMissionActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, intent);
         Log.i("test", "onActivityResult");
 
+
         switch (requestCode) {
             case SEARCH_ADDRESS_ACTIVITY:
                 if (resultCode == RESULT_OK) {
@@ -222,6 +249,24 @@ public class AddMissionActivity extends AppCompatActivity {
                     if (data != null) {
                         Log.i("test", "data:" + data);
                         edit_addr.setText(data);
+                        Geocoder geocoder = new Geocoder(AddMissionActivity.this);
+                        try {
+                            address = geocoder.getFromLocationName(data, 10);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        if (address != null) {
+                            if (address.size() == 0){
+                                Log.i("nonono","0");
+                                Toast.makeText(AddMissionActivity.this,"해당되는 주소의 위도, 경도 값을 찾을 수 없습니다",Toast.LENGTH_LONG);
+                            } else {
+                                Address addr = address.get(0);
+                                Log.i("address 변환 ok" , String.valueOf(addr.getLatitude()));
+                                target_latitude = addr.getLatitude();
+                                target_longitude = addr.getLongitude();
+                                Toast.makeText(AddMissionActivity.this,"해당되는 주소의 위도, 경도 값을 설정하였습니다",Toast.LENGTH_LONG);
+                            }
+                        }
                     }
                 }
                 break;
