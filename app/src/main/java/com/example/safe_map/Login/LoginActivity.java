@@ -209,7 +209,6 @@ public class LoginActivity extends AppCompatActivity {
                     }else{
                         Log.i("KAKAO_API", "onSuccess: kakaoAccount null");
                     }
-
                     startActivity(intent);
                     finish();
                 }

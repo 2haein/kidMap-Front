@@ -60,6 +60,7 @@ public class HomeFragment extends Fragment {
                 Intent intent = new Intent(getActivity(), ChildLoginActivity.class); //fragment라서 activity intent와는 다른 방식
                 intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
                 startActivity(intent);
+                getActivity().finish();
             }
         });
 

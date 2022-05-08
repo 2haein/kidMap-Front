@@ -97,6 +97,7 @@ public class Signup extends AppCompatActivity{
                     registerChild(childNum);
                     Intent intent = new Intent(Signup.this, MainActivity.class);
                     startActivity(intent);
+                    finish();
                     break;
             }
         }

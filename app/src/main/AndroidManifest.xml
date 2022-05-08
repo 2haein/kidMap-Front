@@ -40,7 +40,7 @@
             android:name=".FHome.AddressApiActivity"
             android:exported="false" />
         <activity
-            android:name=".ChildMain"
+            android:name=".Child.ChildMain"
             android:exported="false" />
         <activity
             android:name=".Login.ChildLoginActivity"

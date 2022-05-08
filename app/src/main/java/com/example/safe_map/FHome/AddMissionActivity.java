@@ -45,7 +45,6 @@ public class AddMissionActivity extends AppCompatActivity {
     int y=0, m=0, d=0, h=0, mi=0;
 
     TextView edit_addr, date_view, time_view;
-    EditText edit_content;
     Button addDate, addTime, addAddrBtn1, addAddrBtn2, checkDanger, All;
 
     private RecyclerView mRecyclerView;
@@ -106,13 +105,12 @@ public class AddMissionActivity extends AppCompatActivity {
         });
 
         //자녀UUID 검색
-        List<String> child = fetchUUID(ProfileData.getUserId());
-        String childUUID = child.get(childnum1);
+        String[] child = fetchUUID(ProfileData.getUserId());
+
 
         //심부름 내용
-        edit_content = findViewById(R.id.errandContent);
-        Editable errandContent = edit_content.getText();
-        String E_content = errandContent.toString();
+        EditText edit_content = findViewById(R.id.errandContent);
+
 
         //심부름 날짜 선택
         Calendar cal = Calendar.getInstance();
@@ -130,8 +128,11 @@ public class AddMissionActivity extends AppCompatActivity {
                     @Override
                     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
                         y = year;
+                        Log.i("year", Integer.toString(year));
                         m = month+1;
+                        Log.i("year", Integer.toString(m));
                         d = dayOfMonth;
+                        Log.i("year", Integer.toString(d));
                         date_view.setText(y+"년  "+m+"월  "+d + "일");
                     }
                 },y1, m1, d1);
@@ -162,7 +163,7 @@ public class AddMissionActivity extends AppCompatActivity {
             }
         });
 
-        String E_date = y+"-"+m+"-"+d+"T"+h+":"+mi;
+
         // UI 요소 연결
         edit_addr = findViewById(R.id.editaddr_target);
         addAddrBtn1 = findViewById(R.id.add_adr_button1);
@@ -199,6 +200,9 @@ public class AddMissionActivity extends AppCompatActivity {
                 double target_latitude, double target_longitude,
                 double start_latitude, double start_longitude,
                 boolean checking*/
+                String childUUID = child[childnum1];
+                String E_content = edit_content.getText().toString();
+                String E_date = y+"-"+m+"-"+d+"T"+h+":"+mi;
                 registerErrand(ProfileData.getUserId(), childUUID, E_date, E_content,
                         0,0,0,0,true);
             }
@@ -224,11 +228,10 @@ public class AddMissionActivity extends AppCompatActivity {
         }
     }
 
-    //리스트로 반환
-    public List fetchUUID(String userId){
+    public String[] fetchUUID(String userId){
         String url = CommonMethod.ipConfig + "/api/fetchUUID";
-        List<String> data = new ArrayList<String>();;
-
+        String data = "";
+        String[] result = new String[0];
         try{
             String jsonString = new JSONObject()
                     .put("userId", userId)
@@ -236,40 +239,19 @@ public class AddMissionActivity extends AppCompatActivity {
 
             //REST API
             RequestHttpURLConnection.NetworkAsyncTask networkTask = new RequestHttpURLConnection.NetworkAsyncTask(url, jsonString);
-            data = Collections.singletonList(networkTask.execute().get());
-
-//          Toast.makeText(getActivity(), "자녀 등록을 완료하였습니다.", Toast.LENGTH_SHORT).show();
-//            Log.i(TAG, String.format("가져온 Phonenum: (%s)", rtnStr));
-
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-        return data;
-    }
-
-    //자녀 정보 가져오기 -> Child DB정보 가져옴
-    public String fetchChild(String UUID){
-        String url = CommonMethod.ipConfig + "/api/fetchChild";
-        String rtnStr= "";
-
-        try{
-            String jsonString = new JSONObject()
-                    .put("UUID", UUID)
-                    .toString();
-
-            //REST API
-            RequestHttpURLConnection.NetworkAsyncTask networkTask = new RequestHttpURLConnection.NetworkAsyncTask(url, jsonString);
-            rtnStr = networkTask.execute().get();
-
-//          Toast.makeText(getActivity(), "자녀 등록을 완료하였습니다.", Toast.LENGTH_SHORT).show();
-//           Log.i(TAG, String.format("가져온 Phonenum: (%s)", rtnStr));
+            data = networkTask.execute().get();
+            Log.i("data " , data);
+            String result2 = data.substring(1, data.length() - 1);
+            Log.i("data22 " , result2);
+            result = result2.split(",");
+            for (int i=0; i<result.length; i++){
+                result[i] = result[i].substring(1, result[i].length() - 1);
+            }
 
         }catch(Exception e){
             e.printStackTrace();
         }
-
-        return rtnStr;
-
+        return result;
     }
 
     public void registerErrand(String user_Id, String UUID, String E_date, String E_content,
