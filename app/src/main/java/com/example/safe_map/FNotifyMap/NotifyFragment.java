@@ -4,19 +4,30 @@ package com.example.safe_map.FNotifyMap;
 //==
 
 import android.Manifest;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
+import net.daum.android.map.MapViewEventListener;
+import net.daum.mf.map.api.MapReverseGeoCoder;
 import net.daum.mf.map.api.MapView;
 
+import com.example.safe_map.MainActivity;
 import com.example.safe_map.R;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -26,6 +37,7 @@ import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import net.daum.mf.map.api.MapPOIItem;
 import net.daum.mf.map.api.MapPoint;
@@ -35,7 +47,7 @@ import net.daum.mf.map.api.MapPoint;
  * Use the {@link NotifyFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class NotifyFragment extends Fragment implements OnMapReadyCallback{
+public class NotifyFragment extends Fragment implements OnMapReadyCallback {
 
 
     // TODO: Rename parameter arguments, choose names that match
@@ -48,8 +60,6 @@ public class NotifyFragment extends Fragment implements OnMapReadyCallback{
     private String mParam2;
 
 
-
-
     /**
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
@@ -59,8 +69,8 @@ public class NotifyFragment extends Fragment implements OnMapReadyCallback{
      * @return A new instance of fragment CheckMapFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static  NotifyFragment newInstance(String param1, String param2) {
-        NotifyFragment fragment = new  NotifyFragment();
+    public static NotifyFragment newInstance(String param1, String param2) {
+        NotifyFragment fragment = new NotifyFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -68,9 +78,16 @@ public class NotifyFragment extends Fragment implements OnMapReadyCallback{
         return fragment;
     }
 
+    private static final String LOG_TAG = "NotifyFragment";
     View rootView;
     MapView mapView;
 
+    FloatingActionButton mAddFab;
+    double cur_lon, cur_lat;
+
+    private static final int GPS_ENABLE_REQUEST_CODE = 2001;
+    private static final int PERMISSIONS_REQUEST_CODE = 100;
+    String[] REQUIRED_PERMISSIONS = {Manifest.permission.ACCESS_FINE_LOCATION};
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -81,16 +98,20 @@ public class NotifyFragment extends Fragment implements OnMapReadyCallback{
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Permission Setting
         checkDangerousPermissions();
-
         rootView = inflater.inflate(R.layout.fragment_notify, container, false);
         mapView = new net.daum.mf.map.api.MapView(getActivity());
         ViewGroup mapViewContainer = (ViewGroup) rootView.findViewById(R.id.notify_map);
         mapViewContainer.addView(mapView);
 
+        final LocationManager locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+
+        Location loc_Current = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        cur_lat = loc_Current.getLatitude();
+        cur_lon = loc_Current.getLongitude();
+
         // 중심점 변경 - 예제 좌표는 서울 남산
-        mapView.setMapCenterPoint(MapPoint.mapPointWithGeoCoord(37.5047735, 126.953764999), true);
+        mapView.setMapCenterPoint(MapPoint.mapPointWithGeoCoord(cur_lat, cur_lon), true);
 
         // 줌 레벨 변경
         mapView.setZoomLevel(4, true);
@@ -105,15 +126,25 @@ public class NotifyFragment extends Fragment implements OnMapReadyCallback{
         marker.setSelectedMarkerType(MapPOIItem.MarkerType.RedPin); // 마커를 클릭했을때, 기본으로 제공하는 RedPin 마커 모양.
 
         mapView.addPOIItem(marker);
+
+
        /* mapView = (MapView) rootView.findViewById(R.id.notify_map);
         // 0428 여기서 오류 뜸.
         mapView.onCreate(savedInstanceState);
 
         mapView.getMapAsync((OnMapReadyCallback) this);
         mapView.onResume(); // needed to get the map to display immediately*/
+        mAddFab = rootView.findViewById(R.id.add_fab);
+        mAddFab.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
 
+                    }
+                });
         return rootView;
     }
+
 
     @Override
     public void onResume() {
@@ -190,8 +221,8 @@ public class NotifyFragment extends Fragment implements OnMapReadyCallback{
             }
         }
     }
-
 }
+
 
 
 
