@@ -47,7 +47,7 @@ import net.daum.mf.map.api.MapPoint;
  * Use the {@link NotifyFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class NotifyFragment extends Fragment implements OnMapReadyCallback {
+public class NotifyFragment extends Fragment implements OnMapReadyCallback, NotifyFragment_finish {
 
 
     // TODO: Rename parameter arguments, choose names that match
@@ -81,6 +81,7 @@ public class NotifyFragment extends Fragment implements OnMapReadyCallback {
     private static final String LOG_TAG = "NotifyFragment";
     View rootView;
     MapView mapView;
+    ViewGroup mapViewContainer;
 
     FloatingActionButton mAddFab;
     double cur_lon, cur_lat;
@@ -100,8 +101,8 @@ public class NotifyFragment extends Fragment implements OnMapReadyCallback {
                              Bundle savedInstanceState) {
         checkDangerousPermissions();
         rootView = inflater.inflate(R.layout.fragment_notify, container, false);
-        mapView = new net.daum.mf.map.api.MapView(getActivity());
-        ViewGroup mapViewContainer = (ViewGroup) rootView.findViewById(R.id.notify_map);
+        mapView = new MapView(getActivity());
+        mapViewContainer = (ViewGroup) rootView.findViewById(R.id.notify_map);
         mapViewContainer.addView(mapView);
 
         final LocationManager locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
@@ -134,14 +135,14 @@ public class NotifyFragment extends Fragment implements OnMapReadyCallback {
 
         mapView.getMapAsync((OnMapReadyCallback) this);
         mapView.onResume(); // needed to get the map to display immediately*/
-        mAddFab = rootView.findViewById(R.id.add_fab);
+        /*mAddFab = rootView.findViewById(R.id.add_fab);
         mAddFab.setOnClickListener(
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
 
                     }
-                });
+                });*/
         return rootView;
     }
 
@@ -155,7 +156,13 @@ public class NotifyFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        //mapView.onDestroy();
+    }
+
+    @Override
+    public void onPause(){
+        mapViewContainer.removeView(mapView);
+        //getActivity().finish();
+        super.onPause();
     }
 
     @Override
@@ -196,7 +203,7 @@ public class NotifyFragment extends Fragment implements OnMapReadyCallback {
         }
 
         if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
-            Toast.makeText(this.getActivity(), "권한 있음", Toast.LENGTH_LONG).show();
+            //Toast.makeText(this.getActivity(), "권한 있음", Toast.LENGTH_LONG).show();
         } else {
             Toast.makeText(this.getActivity(), "권한 없음", Toast.LENGTH_LONG).show();
 
@@ -214,12 +221,17 @@ public class NotifyFragment extends Fragment implements OnMapReadyCallback {
         if (requestCode == 1) {
             for (int i = 0; i < permissions.length; i++) {
                 if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
-                    Toast.makeText(getActivity(), permissions[i] + " 권한이 승인됨.", Toast.LENGTH_LONG).show();
+                    //Toast.makeText(getActivity(), permissions[i] + " 권한이 승인됨.", Toast.LENGTH_LONG).show();
                 } else {
                     Toast.makeText(getActivity(), permissions[i] + " 권한이 승인되지 않음.", Toast.LENGTH_LONG).show();
                 }
             }
         }
+    }
+    @Override
+    public void finish() {
+        mapViewContainer.removeView(mapView);
+        getActivity().finish();
     }
 }
 

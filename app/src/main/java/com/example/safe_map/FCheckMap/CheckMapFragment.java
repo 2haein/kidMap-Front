@@ -70,7 +70,7 @@ public class CheckMapFragment extends Fragment implements OnMapReadyCallback{
 
     View rootView;
     MapView mapView;
-
+    ViewGroup mapViewContainer;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -84,10 +84,9 @@ public class CheckMapFragment extends Fragment implements OnMapReadyCallback{
         // Permission Setting
         checkDangerousPermissions();
 
-
         rootView = inflater.inflate(R.layout.fragment_check_map, container, false);
         mapView = new MapView(getActivity());
-        ViewGroup mapViewContainer = (ViewGroup) rootView.findViewById(R.id.check_map);
+        mapViewContainer = (ViewGroup) rootView.findViewById(R.id.check_map);
         mapViewContainer.addView(mapView);
 
         // 중심점 변경 - 예제 좌표는 서울 남산
@@ -120,6 +119,12 @@ public class CheckMapFragment extends Fragment implements OnMapReadyCallback{
     public void onResume() {
         mapView.onResume();
         super.onResume();
+    }
+    @Override
+    public void onPause(){
+        mapViewContainer.removeView(mapView);
+        //getActivity().finish();
+        super.onPause();
     }
 
     @Override
@@ -190,6 +195,11 @@ public class CheckMapFragment extends Fragment implements OnMapReadyCallback{
                 }
             }
         }
+    }
+
+    public void finish() {
+        mapViewContainer.removeView(mapView);
+        getActivity().finish();
     }
 
 }

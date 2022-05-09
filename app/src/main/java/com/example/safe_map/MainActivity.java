@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.example.safe_map.FCheckMap.CheckMapFragment;
@@ -29,6 +30,8 @@ import com.kakao.network.ErrorResult;
 import com.kakao.usermgmt.LoginButton;
 import com.kakao.usermgmt.UserManagement;
 import com.kakao.usermgmt.callback.LogoutResponseCallback;
+
+import net.daum.mf.map.api.MapView;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -121,4 +124,11 @@ public class MainActivity extends AppCompatActivity {
         Fragment fragment = getSupportFragmentManager().findFragmentByTag((String) MypageFragment);
         fragment.onActivityResult(request, resultCode, intent);*/
     }
+
+    /*MapView mapView;
+    ViewGroup mapViewContainer;
+    public void finish() {
+        mapViewContainer.removeView(mapView);
+        super.finish();
+    }*/
 }
