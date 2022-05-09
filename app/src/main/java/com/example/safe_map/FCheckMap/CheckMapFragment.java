@@ -16,10 +16,15 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.example.safe_map.R;
+
+import net.daum.mf.map.api.MapPOIItem;
+import net.daum.mf.map.api.MapPoint;
+import net.daum.mf.map.api.MapView;
+
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapView;
+//import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
@@ -81,12 +86,33 @@ public class CheckMapFragment extends Fragment implements OnMapReadyCallback{
 
 
         rootView = inflater.inflate(R.layout.fragment_check_map, container, false);
-        mapView = (MapView) rootView.findViewById(R.id.check_map);
+        mapView = new MapView(getActivity());
+        ViewGroup mapViewContainer = (ViewGroup) rootView.findViewById(R.id.check_map);
+        mapViewContainer.addView(mapView);
+
+        // 중심점 변경 - 예제 좌표는 서울 남산
+        mapView.setMapCenterPoint(MapPoint.mapPointWithGeoCoord(37.5047735, 126.953764999), true);
+
+        // 줌 레벨 변경
+        mapView.setZoomLevel(4, true);
+
+        //마커 찍기
+        MapPoint MARKER_POINT = MapPoint.mapPointWithGeoCoord(37.5047735, 126.953764999);
+        MapPOIItem marker = new MapPOIItem();
+        marker.setItemName("Default Marker");
+        marker.setTag(0);
+        marker.setMapPoint(MARKER_POINT);
+        marker.setMarkerType(MapPOIItem.MarkerType.BluePin); // 기본으로 제공하는 BluePin 마커 모양.
+        marker.setSelectedMarkerType(MapPOIItem.MarkerType.RedPin); // 마커를 클릭했을때, 기본으로 제공하는 RedPin 마커 모양.
+
+        mapView.addPOIItem(marker);
+
+        /*mapView = (MapView) rootView.findViewById(R.id.check_map);
         mapView.onCreate(savedInstanceState);
 
         mapView.getMapAsync((OnMapReadyCallback) this);
         mapView.onResume(); // needed to get the map to display immediately
-
+*/
         return rootView;
     }
 
@@ -99,13 +125,13 @@ public class CheckMapFragment extends Fragment implements OnMapReadyCallback{
     @Override
     public void onDestroy() {
         super.onDestroy();
-        mapView.onDestroy();
+        //mapView.onDestroy();
     }
 
     @Override
     public void onLowMemory() {
         super.onLowMemory();
-        mapView.onLowMemory();
+        //mapView.onLowMemory();
     }
 
     @Override
