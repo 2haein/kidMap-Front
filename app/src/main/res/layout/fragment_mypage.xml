@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:textAlignment="center"
+    android:id="@+id/MypageFragment"
     tools:context=".FMypage.MypageFragment">
 
     <LinearLayout
@@ -56,13 +57,17 @@
                     android:id="@+id/mp_childnum"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1" />
+                    android:layout_marginEnd="5dp"
+                    android:layout_weight="1"
+                    android:textAlignment="textEnd"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/textView6"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="0.3"
+                    android:layout_weight="0.6"
                     android:text="명" />
             </LinearLayout>
 

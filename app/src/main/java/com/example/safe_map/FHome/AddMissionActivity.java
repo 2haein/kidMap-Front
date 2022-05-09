@@ -48,7 +48,7 @@ public class AddMissionActivity extends AppCompatActivity {
     int y1=0, m1=0, d1=0, h1=0, mi1=0;
     int y=0, m=0, d=0, h=0, mi=0;
 
-    TextView edit_addr, date_view, time_view;
+    TextView edit_addr, edit_addr2, date_view, time_view;
     Button addDate, addTime, addAddrBtn1, addAddrBtn2, checkDanger, All;
 
     List<Address> address = null;
@@ -62,8 +62,7 @@ public class AddMissionActivity extends AppCompatActivity {
 
     // 주소 요청코드 상수 requestCode
     private static final int SEARCH_ADDRESS_ACTIVITY = 10000;
-
-
+    private static final int SEARCH_ADDRESS_ACTIVITY2 = 20000;
 
     @SuppressLint("WrongViewCast")
     @Override
@@ -93,7 +92,6 @@ public class AddMissionActivity extends AppCompatActivity {
             } else {
                 mChildnum.add(new ChildnumItem("자녀가 없습니다"));
             }
-
         }
         //mChildnum.add(new ChildnumItem("첫째아이"));
         //mChildnum.add(new ChildnumItem("둘째아이"));
@@ -117,15 +115,13 @@ public class AddMissionActivity extends AppCompatActivity {
         //자녀UUID 검색
         String[] child = fetchUUID(ProfileData.getUserId());
 
-
         //심부름 내용
         EditText edit_content = findViewById(R.id.errandContent);
-
 
         //심부름 날짜 선택
         Calendar cal = Calendar.getInstance();
         y1 = cal.get(Calendar.YEAR);
-        m1 = cal.get(Calendar.MONTH) +1;
+        m1 = cal.get(Calendar.MONTH);
         d1 = cal.get(Calendar.DAY_OF_MONTH);
         h1 = cal.get(Calendar.HOUR);
         mi1 = cal.get(Calendar.MINUTE);
@@ -149,10 +145,7 @@ public class AddMissionActivity extends AppCompatActivity {
                 datePickerDialog.setMessage("심부름 날짜");
                 datePickerDialog.show();
             }
-
         });
-
-
 
         //심부름 시간 선택
         addTime = findViewById(R.id.time_btn);
@@ -173,9 +166,9 @@ public class AddMissionActivity extends AppCompatActivity {
             }
         });
 
-
         // UI 요소 연결
         edit_addr = findViewById(R.id.editaddr_target);
+        edit_addr2 = findViewById(R.id.home_addr);
         addAddrBtn1 = findViewById(R.id.add_adr_button1);
         addAddrBtn2 = findViewById(R.id.add_addr_button2);
 
@@ -196,6 +189,24 @@ public class AddMissionActivity extends AppCompatActivity {
                     // 주소결과
                     startActivityForResult(i, SEARCH_ADDRESS_ACTIVITY);
 
+                }else {
+                    Toast.makeText(getApplicationContext(), "인터넷 연결을 확인해주세요.", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        addAddrBtn2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.i("주소설정페이지", "주소입력창 클릭");
+                int status = NetworkStatus.getConnectivityStatus(getApplicationContext());
+                if(status == NetworkStatus.TYPE_MOBILE || status == NetworkStatus.TYPE_WIFI) {
+                    Log.i("주소설정페이지", "주소입력창 클릭");
+                    Intent i = new Intent(AddMissionActivity.this, AddressApiActivity.class);
+                    // 화면전환 애니메이션 없애기
+                    overridePendingTransition(0, 0);
+                    // 주소결과
+                    startActivityForResult(i, SEARCH_ADDRESS_ACTIVITY2);
                 }else {
                     Toast.makeText(getApplicationContext(), "인터넷 연결을 확인해주세요.", Toast.LENGTH_SHORT).show();
                 }
@@ -240,8 +251,6 @@ public class AddMissionActivity extends AppCompatActivity {
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
         Log.i("test", "onActivityResult");
-
-
         switch (requestCode) {
             case SEARCH_ADDRESS_ACTIVITY:
                 if (resultCode == RESULT_OK) {
@@ -265,6 +274,33 @@ public class AddMissionActivity extends AppCompatActivity {
                                 target_latitude = addr.getLatitude();
                                 target_longitude = addr.getLongitude();
                                 Toast.makeText(AddMissionActivity.this,"해당되는 주소의 위도, 경도 값을 설정하였습니다",Toast.LENGTH_LONG);
+                            }
+                        }
+                    }
+                }
+                break;
+            case SEARCH_ADDRESS_ACTIVITY2:
+                if (resultCode == RESULT_OK) {
+                    String data = intent.getExtras().getString("data");
+                    if (data != null) {
+                        Log.i("test", "data:" + data);
+                        edit_addr2.setText(data);
+                        Geocoder geocoder = new Geocoder(AddMissionActivity.this);
+                        try {
+                            address = geocoder.getFromLocationName(data, 10);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        if (address != null) {
+                            if (address.size() == 0){
+                                Log.i("nonono","0");
+                                Toast.makeText(AddMissionActivity.this,"해당되는 주소의 위도, 경도 값을 찾을 수 없습니다",Toast.LENGTH_LONG);
+                            } else {
+                                Address addr = address.get(0);
+                                Log.i("address 변환 ok" , String.valueOf(addr.getLatitude()));
+                                start_latitude = addr.getLatitude();
+                                start_longitude = addr.getLongitude();
+                                Toast.makeText(AddMissionActivity.this,"출발지 주소의 위도, 경도 값을 설정하였습니다",Toast.LENGTH_LONG);
                             }
                         }
                     }

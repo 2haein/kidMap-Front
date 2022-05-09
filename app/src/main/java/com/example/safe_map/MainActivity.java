@@ -3,6 +3,7 @@ package com.example.safe_map;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.fragment.NavHostFragment;
 
 import android.content.Intent;
 import android.content.pm.PackageInfo;
@@ -15,6 +16,7 @@ import android.view.MenuItem;
 import android.widget.Button;
 
 import com.example.safe_map.FCheckMap.CheckMapFragment;
+import com.example.safe_map.FHome.AddressApiActivity;
 import com.example.safe_map.FHome.HomeFragment;
 import com.example.safe_map.FMypage.MypageFragment;
 import com.example.safe_map.FNotifyMap.NotifyFragment;
@@ -34,16 +36,14 @@ import java.security.NoSuchAlgorithmException;
 public class MainActivity extends AppCompatActivity {
 
     // menu item initialization
-
-
-
-
     BottomNavigationView BottomNavigationView;
     HomeFragment fragment1;
     CheckMapFragment fragment2;
     NotifyFragment fragment3;
     MypageFragment fragment4;
 
+    private static final int SEARCH_ADDRESS_ACTIVITY = 30000;
+    private Object MypageFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,4 +88,37 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    public void moveToAddressApi(){
+        Intent intent = new Intent(MainActivity.this, AddressApiActivity.class);
+        startActivityForResult(intent, 30000);
+    }
+
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        super.onActivityResult(requestCode, resultCode, intent);
+        Log.i("request Code : ", String.valueOf(requestCode));
+        if (requestCode == 30000) {
+            /*Fragment frag = (Fragment) getSupportFragmentManager().findFragmentById(R.id.MypageFragment);
+            if(frag.getChildFragmentManager().getFragments().get(0) instanceof MypageFragment){
+                MypageFragment MypageFragment = (MypageFragment) frag.getChildFragmentManager().getFragments().get(0);
+                MypageFragment.onActivityResult1(intent);
+            }*/
+            /*if (intent != null){
+                int request = requestCode & 0xffff;
+                Fragment fragment = getSupportFragmentManager().findFragmentByTag((String) MypageFragment);
+                fragment.onActivityResult(request, resultCode, intent);
+            }*/
+            for (Fragment fragment : getSupportFragmentManager().getFragments()) {
+                if (null != fragment) {
+                    fragment.onActivityResult(requestCode, resultCode, intent);
+                } else {
+                    new MypageFragment().onActivityResult(requestCode, resultCode, intent);
+                }
+            }
+         }
+
+        /*int request = requestCode & 0xffff;
+        Fragment fragment = getSupportFragmentManager().findFragmentByTag((String) MypageFragment);
+        fragment.onActivityResult(request, resultCode, intent);*/
+    }
 }

@@ -76,8 +76,6 @@ public class CheckMapFragment extends Fragment implements OnMapReadyCallback{
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
-
         // Permission Setting
         checkDangerousPermissions();
 
