@@ -3,39 +3,38 @@ package com.example.safe_map.FCheckMap;
 
 //==
 
-import android.Manifest;
-import android.content.pm.PackageManager;
+import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.example.safe_map.R;
 
+import net.daum.mf.map.api.MapCircle;
 import net.daum.mf.map.api.MapPOIItem;
 import net.daum.mf.map.api.MapPoint;
+import net.daum.mf.map.api.MapPolyline;
 import net.daum.mf.map.api.MapView;
 
-import com.google.android.gms.maps.CameraUpdate;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-//import com.google.android.gms.maps.MapView;
-import com.google.android.gms.maps.MapsInitializer;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
 
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link CheckMapFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class CheckMapFragment extends Fragment implements OnMapReadyCallback{
+public class CheckMapFragment extends Fragment {
 
 
     // TODO: Rename parameter arguments, choose names that match
@@ -47,6 +46,46 @@ public class CheckMapFragment extends Fragment implements OnMapReadyCallback{
     private String mParam1;
     private String mParam2;
 
+
+
+    //============================ GET ===================================
+
+    // 경로 찾기용
+    jPoint jp_src = null;
+    jPoint jp_dst = null;
+
+    // 지도에 마커로 띄우기용
+    //MapPoint mp_src = MapPoint.mapPointWithGeoCoord(jp_src.GetLat(),jp_src.GetLng());
+    // MapPoint mp_dst = MapPoint.mapPointWithGeoCoord(jp_dst.GetLat(),jp_dst.GetLng());
+
+
+    //============================= GET END ==================================
+
+
+
+
+    // 0509 테스트 좌표============================
+    jPoint jp_src_test = new jPoint(37.503604177, 126.951403055); //  # 70
+    jPoint jp_dst_test = new jPoint(37.504353194, 126.948863560); //  # 117
+
+    MapPoint mp_src_test = MapPoint.mapPointWithGeoCoord(jp_src_test.GetLat(),jp_src_test.GetLng());
+    MapPoint mp_dst_test = MapPoint.mapPointWithGeoCoord(jp_dst_test.GetLat(),jp_dst_test.GetLng());
+
+    // 지도 중심 용도.
+    double lat_d =  (jp_src_test.GetLat() + jp_dst_test.GetLat()) /2.0;
+    double lon_d =  (jp_src_test.GetLng() + jp_dst_test.GetLng()) /2.0;
+    MapPoint mid = MapPoint.mapPointWithGeoCoord(lat_d, lon_d);
+    //=============================== 테스트 좌표 끝
+
+
+
+    MapView  mapView;    //MapView  mapView = new MapView(getActivity());
+    Context mContext;
+
+    Astar as = new Astar();
+
+    // 위험지역
+    ArrayList<DangerPoint> DangerZone = new ArrayList<>();
 
 
 
@@ -68,9 +107,11 @@ public class CheckMapFragment extends Fragment implements OnMapReadyCallback{
         return fragment;
     }
 
-    View rootView;
-    MapView mapView;
-    ViewGroup mapViewContainer;
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mContext = context;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -81,125 +122,149 @@ public class CheckMapFragment extends Fragment implements OnMapReadyCallback{
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Permission Setting
-        checkDangerousPermissions();
+        // Inflate the layout for this fragment
+        View v = inflater.inflate(R.layout.fragment_check_map, container, false);
 
-        rootView = inflater.inflate(R.layout.fragment_check_map, container, false);
-        mapView = new MapView(getActivity());
-        mapViewContainer = (ViewGroup) rootView.findViewById(R.id.check_map);
+
+        //지도
+        mapView = new MapView(getContext());
+        ViewGroup mapViewContainer = (ViewGroup) v.findViewById(R.id.map_view);
         mapViewContainer.addView(mapView);
 
-        // 중심점 변경 - 예제 좌표는 서울 남산
-        mapView.setMapCenterPoint(MapPoint.mapPointWithGeoCoord(37.5047735, 126.953764999), true);
+        // 중심점 변경
+        mapView.setMapCenterPoint(mid, true);
 
         // 줌 레벨 변경
-        mapView.setZoomLevel(4, true);
+        mapView.setZoomLevel(2, true);
 
-        //마커 찍기
-        MapPoint MARKER_POINT = MapPoint.mapPointWithGeoCoord(37.5047735, 126.953764999);
-        MapPOIItem marker = new MapPOIItem();
-        marker.setItemName("Default Marker");
-        marker.setTag(0);
-        marker.setMapPoint(MARKER_POINT);
-        marker.setMarkerType(MapPOIItem.MarkerType.BluePin); // 기본으로 제공하는 BluePin 마커 모양.
-        marker.setSelectedMarkerType(MapPOIItem.MarkerType.RedPin); // 마커를 클릭했을때, 기본으로 제공하는 RedPin 마커 모양.
 
-        mapView.addPOIItem(marker);
+        // 0. 시작점, 도착점 지도에 마커로 띄우기
+        MapPOIItem marker_src = new MapPOIItem();
+        marker_src.setItemName("출발 지점");
+        marker_src.setTag(0);
+        marker_src.setMapPoint(mp_src_test);
+        marker_src.setMarkerType(MapPOIItem.MarkerType.BluePin); // 기본으로 제공하는 BluePin 마커 모양.
+        marker_src.setSelectedMarkerType(MapPOIItem.MarkerType.RedPin); // 마커를 클릭했을때, 기본으로 제공하는 RedPin 마커 모양.
 
-        /*mapView = (MapView) rootView.findViewById(R.id.check_map);
-        mapView.onCreate(savedInstanceState);
+        MapPOIItem marker_dst = new MapPOIItem();
+        marker_dst.setItemName("도착 지점");
+        marker_dst.setTag(0);
+        marker_dst.setMapPoint(mp_dst_test);
+        marker_dst.setMarkerType(MapPOIItem.MarkerType.BluePin);
+        marker_dst.setSelectedMarkerType(MapPOIItem.MarkerType.RedPin);
 
-        mapView.getMapAsync((OnMapReadyCallback) this);
-        mapView.onResume(); // needed to get the map to display immediately
-*/
-        return rootView;
+        mapView.addPOIItem(marker_src);
+        mapView.addPOIItem(marker_dst);
+
+
+
+
+        // 1. 위험 구역, 노드, 링크 파싱 후 위험 구역을 지도에 마커로 띄우기
+        ParseInfos();
+        as.FindDangerousNodeNum(DangerZone);
+        ShowDangerZoneOnMap();
+
+        // 2. 노드, 링크 파싱 후 안전 경로 찾기
+
+        SearchPath(jp_src_test, jp_dst_test);
+
+        // 3. 지도에 안전 경로 띄우기
+        ShowPathOnMap();
+
+        return v;
     }
 
-    @Override
-    public void onResume() {
-        mapView.onResume();
-        super.onResume();
-    }
-    @Override
-    public void onPause(){
-        mapViewContainer.removeView(mapView);
-        //getActivity().finish();
-        super.onPause();
+
+    // 1. 위험구역, 노드, 링크 파싱
+    void ParseInfos(){
+        ParseDangerZone();
+        as.ParseNode(mContext);
+        as.ParseLinks(mContext);
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        //mapView.onDestroy();
-    }
-
-    @Override
-    public void onLowMemory() {
-        super.onLowMemory();
-        //mapView.onLowMemory();
-    }
-
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-
-        MapsInitializer.initialize(this.getActivity());
-
-        // Updates the location and zoom of the MapView
-        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(new LatLng(37.5047735, 126.953764999), 14);
-
-        googleMap.animateCamera(cameraUpdate);
-
-        googleMap.addMarker(new MarkerOptions()
-                .position(new LatLng(37.5047735, 126.953764999))
-                .title("중대 후문 임시" ));
-
-    }
-
-    private void checkDangerousPermissions() {
-        String[] permissions = {
-                android.Manifest.permission.ACCESS_COARSE_LOCATION,
-                android.Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.ACCESS_WIFI_STATE
-        };
-
-        int permissionCheck = PackageManager.PERMISSION_GRANTED;
-        for (int i = 0; i < permissions.length; i++) {
-            permissionCheck = ContextCompat.checkSelfPermission(this.getActivity(), permissions[i]);
-            if (permissionCheck == PackageManager.PERMISSION_DENIED) {
-                break;
-            }
+    void ParseDangerZone(){
+        String jsonString = null;
+        try {
+            InputStream is = mContext.getAssets().open("test_danger.json");
+            int size = is.available();
+            byte[] buffer = new byte[size];
+            is.read(buffer);
+            is.close();
+            jsonString = new String(buffer, "UTF-8");
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+        try{
+            JSONObject jsonObject = new JSONObject(jsonString);
+            JSONArray nodeArray = jsonObject.getJSONArray("coords");
 
-        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
-            Toast.makeText(this.getActivity(), "권한 있음", Toast.LENGTH_LONG).show();
-        } else {
-            Toast.makeText(this.getActivity(), "권한 없음", Toast.LENGTH_LONG).show();
+            for(int i=0; i< nodeArray.length(); i++)
+            {
+                JSONArray Object =  (JSONArray) nodeArray.get(i);
+                DangerPoint dp = new DangerPoint();
 
-            if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), permissions[0])) {
-                Toast.makeText(this.getActivity(), "권한 설명 필요함.", Toast.LENGTH_LONG).show();
-            } else {
-                ActivityCompat.requestPermissions(this.getActivity(), permissions, 1);
+                dp.SetType((double) Object.get(0));
+                dp.SetLat((double) Object.get(1));
+                dp.SetLng((double) Object.get(2));
+                DangerZone.add(dp);
             }
+
+            // Log.d("test",""+"as.nodes size : " + nodes.size());
+        }catch (JSONException e) {
+            e.printStackTrace();
         }
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == 1) {
-            for (int i = 0; i < permissions.length; i++) {
-                if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
-                    Toast.makeText(getActivity(), permissions[i] + " 권한이 승인됨.", Toast.LENGTH_LONG).show();
-                } else {
-                    Toast.makeText(getActivity(), permissions[i] + " 권한이 승인되지 않음.", Toast.LENGTH_LONG).show();
-                }
-            }
+    // 위험 구역 지도에 띄우기
+    private void ShowDangerZoneOnMap() {
+        for(int o = 0 ; o < DangerZone.size() ; o++) {
+            MapCircle circle = new MapCircle(
+                    MapPoint.mapPointWithGeoCoord(DangerZone.get(o).GetLat(), DangerZone.get(o).GetLng()), // center
+                    5, // radius, meter
+
+                    // type에 따라 색 바꿀 예정
+                    Color.argb(128, 0, 0, 0), // strokeColor
+                    Color.argb(128, 255, 0, 0) // fillColor
+            );
+            mapView.addCircle(circle);
         }
     }
 
-    public void finish() {
-        mapViewContainer.removeView(mapView);
-        getActivity().finish();
+
+
+    // 2. 경로 찾기
+    void SearchPath(jPoint jp_src, jPoint jp_dst){
+
+
+        // 2-1. 출발지, 도착지와 가장 가까운 "노드 번호" 찾기
+        int start = as.findCloseNode(jp_src);
+        int end = as.findCloseNode(jp_dst);
+
+        //Log.d("test111",""+"startNum:"+start+" endNum:"+ end);
+
+        //as.TEST_print_parse();
+
+        // 2-2. 노드 번호를 기반으로 길 찾기
+        as.AstarSearch(start, end);
+        as.FindPath(start,end);
+
+    }
+
+
+    // 3. 경로를 지도에 폴리라인으로 띄우기
+    void ShowPathOnMap(){
+        MapPolyline pathLine = new MapPolyline();
+
+        //Log.d("test",""+"path size : " + as.path.size());
+
+        for(int i =0 ; i < as.path.size() ; i ++){
+            MapPoint tmp = MapPoint.mapPointWithGeoCoord(as.nodes.get(as.path.get(i)).lat, as.nodes.get(as.path.get(i)).lng);
+            pathLine.addPoint(tmp);
+
+        }
+
+        mapView.addPolyline(pathLine);
+
     }
 
 }

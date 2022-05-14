@@ -25,14 +25,7 @@
         android:usesCleartextTraffic="true">
 
 
-        <!--라이브러리 사용 설정-->
-        <uses-library android:name="com.google.android.maps"/>
-        <uses-library android:name="org.apache.http.legacy" android:required="false"/>
 
-        <!--구글 api key-->
-        <meta-data
-            android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyALeQKBdsN1JN9FRjDptl4APnDYUWc8Hqg" />
 
         <activity
             android:name=".FHome.AddMissionActivity"
