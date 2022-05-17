@@ -1,6 +1,9 @@
 package com.example.safe_map.FHome;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -8,12 +11,34 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
+import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.IntentSender;
+import android.content.ServiceConnection;
+import android.content.SharedPreferences;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+import android.content.res.AssetManager;
+import android.content.res.Configuration;
+import android.content.res.Resources;
+import android.database.DatabaseErrorHandler;
+import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Geocoder;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.UserHandle;
 import android.text.Editable;
 import android.util.Log;
+import android.view.Display;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -22,6 +47,7 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.example.safe_map.FCheckMap.CheckMapFragment;
 import com.example.safe_map.Login.ChildnumItem;
 import com.example.safe_map.Login.Signup;
 import com.example.safe_map.Login.StdRecyclerAdapter;
@@ -31,9 +57,16 @@ import com.example.safe_map.common.ProfileData;
 import com.example.safe_map.http.CommonMethod;
 import com.example.safe_map.http.RequestHttpURLConnection;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.BreakIterator;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -52,10 +85,14 @@ public class AddMissionActivity extends AppCompatActivity {
     Button addDate, addTime, addAddrBtn1, addAddrBtn2, checkDanger, All;
 
     List<Address> address = null;
-    String target_name, start_name;
+
+    String target_name = "출발";
+    String start_name= "도착";
+
     double target_longitude, target_latitude;
     double start_longitude, start_latitude;
-    Boolean checking = false;
+    //Boolean checking = false;
+    Boolean checking = true;
     private RecyclerView mRecyclerView;
     private StdRecyclerAdapter mRecyclerAdapter;
     private ArrayList<ChildnumItem> mChildnum;
@@ -63,6 +100,7 @@ public class AddMissionActivity extends AppCompatActivity {
     // 주소 요청코드 상수 requestCode
     private static final int SEARCH_ADDRESS_ACTIVITY = 10000;
     private static final int SEARCH_ADDRESS_ACTIVITY2 = 20000;
+
 
     @SuppressLint("WrongViewCast")
     @Override
@@ -221,6 +259,8 @@ public class AddMissionActivity extends AppCompatActivity {
                 double target_latitude, double target_longitude,
                 double start_latitude, double start_longitude,
                 boolean checking*/
+
+
                 String childUUID = child[childnum1];
                 String E_content = edit_content.getText().toString();
                 String E_date = y+"-"+m+"-"+d+"T"+h+":"+mi;
@@ -229,7 +269,6 @@ public class AddMissionActivity extends AppCompatActivity {
                 } else if (E_content.equals(null)){
                     Toast.makeText(AddMissionActivity.this, "심부름 내용을 입력하세요", Toast.LENGTH_LONG);
                 } else if (E_date.equals(null)){
-
                 } else if (target_longitude == 0 && target_latitude == 0){
                     Toast.makeText(AddMissionActivity.this, "목적지 주소의 위도, 경도값이 올바르지 않습니다. 목적지를 다시 입력해주세요.", Toast.LENGTH_LONG);
                 } else if (start_latitude == 0 && start_longitude == 0){
@@ -239,9 +278,11 @@ public class AddMissionActivity extends AppCompatActivity {
                 } else if (childUUID != null && E_content != null && E_date != null && target_latitude != 0 && target_longitude != 0 && start_longitude != 0 && start_latitude != 0 && checking == true){
                     registerErrand(ProfileData.getUserId(), childUUID, E_date, E_content,
                             target_latitude,target_longitude,start_latitude,start_longitude,true);
+                    // add to json
+                    AddErrandDataToJson();
                 }
-                registerErrand(ProfileData.getUserId(), childUUID, E_date, E_content,
-                        target_latitude,target_longitude,0,0,true);
+                //registerErrand(ProfileData.getUserId(), childUUID, E_date, E_content,
+                   //     target_latitude,target_longitude,0,0,true);
             }
         });
 
@@ -379,5 +420,38 @@ public class AddMissionActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         return rtnStr;
+    }
+
+    public void AddErrandDataToJson(){
+        String filename = "ErrandInfo.json";
+
+        JSONObject sObject = new JSONObject();//배열 내에 들어갈 json
+
+        // 1. json에 넣을 데이터 만들기
+        try {
+
+            sObject.put("src_lat", start_latitude);
+            sObject.put("src_lon", start_longitude);
+            sObject.put("src_name", start_name);
+            sObject.put("dst_lat", target_latitude);
+            sObject.put("dst_lon", target_longitude);
+            sObject.put("dst_name", target_name);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        // 2. json파일을 열어 데이터 저장.
+        try {
+            String jsonStr = sObject.toString();
+
+            Log.d("resttt",""+jsonStr);
+            FileOutputStream fos = new FileOutputStream(getFilesDir()+"/"+filename);
+            fos.write(jsonStr.getBytes());
+            fos.close();
+        } catch (FileNotFoundException fileNotFound) {
+            fileNotFound.printStackTrace();
+        } catch (IOException ioException) {
+            ioException.printStackTrace();
+        }
     }
 }

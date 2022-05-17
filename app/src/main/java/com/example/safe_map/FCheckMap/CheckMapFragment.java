@@ -11,6 +11,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.safe_map.R;
@@ -25,6 +27,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -42,42 +46,20 @@ public class CheckMapFragment extends Fragment {
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
 
-
-
-    //============================ GET ===================================
 
     // 경로 찾기용
-    jPoint jp_src = null;
-    jPoint jp_dst = null;
+    jPoint jp_src = new jPoint();
+    jPoint jp_dst = new jPoint();
 
-    // 지도에 마커로 띄우기용
-    //MapPoint mp_src = MapPoint.mapPointWithGeoCoord(jp_src.GetLat(),jp_src.GetLng());
-    // MapPoint mp_dst = MapPoint.mapPointWithGeoCoord(jp_dst.GetLat(),jp_dst.GetLng());
+    // 출발, 도착 지점 이름
+    String src_name = "";
+    String dst_name = "";
 
-
-    //============================= GET END ==================================
-
-
-
-
-    // 0509 테스트 좌표============================
-    jPoint jp_src_test = new jPoint(37.503604177, 126.951403055); //  # 70
-    jPoint jp_dst_test = new jPoint(37.504353194, 126.948863560); //  # 117
-
-    MapPoint mp_src_test = MapPoint.mapPointWithGeoCoord(jp_src_test.GetLat(),jp_src_test.GetLng());
-    MapPoint mp_dst_test = MapPoint.mapPointWithGeoCoord(jp_dst_test.GetLat(),jp_dst_test.GetLng());
-
-    // 지도 중심 용도.
-    double lat_d =  (jp_src_test.GetLat() + jp_dst_test.GetLat()) /2.0;
-    double lon_d =  (jp_src_test.GetLng() + jp_dst_test.GetLng()) /2.0;
-    MapPoint mid = MapPoint.mapPointWithGeoCoord(lat_d, lon_d);
-    //=============================== 테스트 좌표 끝
-
-
+    // 디폴트 : 중앙대 310관 운동장
+    boolean isDefault = true;
+    jPoint jp_src_default = new jPoint(37.503619745977055, 126.95668175768733);
+    jPoint jp_dst_default = new jPoint(37.503619745977055, 126.95668175768733);
 
     MapView  mapView;    //MapView  mapView = new MapView(getActivity());
     Context mContext;
@@ -88,21 +70,21 @@ public class CheckMapFragment extends Fragment {
     ArrayList<DangerPoint> DangerZone = new ArrayList<>();
 
 
-
     /**
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
      * @param param1 Parameter 1.
      * @param param2 Parameter 2.
+
      * @return A new instance of fragment CheckMapFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static CheckMapFragment newInstance(String param1, String param2) {
+    public static CheckMapFragment newInstance(double param1, double param2) {
         CheckMapFragment fragment = new CheckMapFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
+        args.putDouble(ARG_PARAM1, param1);
+        args.putDouble(ARG_PARAM2, param2);
         fragment.setArguments(args);
         return fragment;
     }
@@ -117,16 +99,30 @@ public class CheckMapFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         setHasOptionsMenu(true);
         super.onCreate(savedInstanceState);
+
     }
 
+    @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState
+    ) {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_check_map, container, false);
 
+        // json으로부터 심부름 설정 정보 불러옴.
+        GetErrandDataFromJson();
 
-        //지도
+
+        // 지도에 띄우기 용도의 좌표 객체
+        MapPoint mp_src_test = MapPoint.mapPointWithGeoCoord(jp_src.GetLat(),jp_src.GetLng());
+        MapPoint mp_dst_test = MapPoint.mapPointWithGeoCoord(jp_dst.GetLat(),jp_dst.GetLng());
+
+        // 지도 중심을 설정하기 위한 좌표
+        double lat_d =  (jp_src.GetLat() + jp_dst.GetLat()) /2.0;
+        double lon_d =  (jp_src.GetLng() + jp_dst.GetLng()) /2.0;
+        MapPoint mid = MapPoint.mapPointWithGeoCoord(lat_d, lon_d);
+
+        // 카카오 지도
         mapView = new MapView(getContext());
         ViewGroup mapViewContainer = (ViewGroup) v.findViewById(R.id.map_view);
         mapViewContainer.addView(mapView);
@@ -140,14 +136,14 @@ public class CheckMapFragment extends Fragment {
 
         // 0. 시작점, 도착점 지도에 마커로 띄우기
         MapPOIItem marker_src = new MapPOIItem();
-        marker_src.setItemName("출발 지점");
+        marker_src.setItemName(src_name);
         marker_src.setTag(0);
         marker_src.setMapPoint(mp_src_test);
         marker_src.setMarkerType(MapPOIItem.MarkerType.BluePin); // 기본으로 제공하는 BluePin 마커 모양.
         marker_src.setSelectedMarkerType(MapPOIItem.MarkerType.RedPin); // 마커를 클릭했을때, 기본으로 제공하는 RedPin 마커 모양.
 
         MapPOIItem marker_dst = new MapPOIItem();
-        marker_dst.setItemName("도착 지점");
+        marker_dst.setItemName(dst_name);
         marker_dst.setTag(0);
         marker_dst.setMapPoint(mp_dst_test);
         marker_dst.setMarkerType(MapPOIItem.MarkerType.BluePin);
@@ -165,13 +161,44 @@ public class CheckMapFragment extends Fragment {
         ShowDangerZoneOnMap();
 
         // 2. 노드, 링크 파싱 후 안전 경로 찾기
-
-        SearchPath(jp_src_test, jp_dst_test);
+        SearchPath(jp_src, jp_dst);
 
         // 3. 지도에 안전 경로 띄우기
         ShowPathOnMap();
 
         return v;
+    }
+
+    private void GetErrandDataFromJson() {
+        String jsonString = null;
+        try {
+            String filename = "ErrandInfo.json";
+            FileInputStream fos = new FileInputStream(getActivity().getFilesDir()+"/"+filename);
+           // InputStream is = mContext.getAssets().open(getFilesDir()+ErrandInfo.json");
+            Log.d("resttt",""+fos.available());
+            int size = fos.available();
+            byte[] buffer = new byte[size];
+            fos .read(buffer);
+            fos .close();
+            jsonString = new String(buffer, "UTF-8");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try{
+            JSONObject jsonObject = new JSONObject(jsonString);
+
+            jp_src.SetLat(Double.parseDouble(String.valueOf(jsonObject.get("src_lat"))));
+            jp_src.SetLng(Double.parseDouble(String.valueOf(jsonObject.get("src_lon"))));
+            src_name = String.valueOf(jsonObject.get("src_name"));
+
+            jp_dst.SetLat(Double.parseDouble(String.valueOf(jsonObject.get("dst_lat"))));
+            jp_dst.SetLng(Double.parseDouble(String.valueOf(jsonObject.get("dst_lon"))));
+            dst_name = String.valueOf(jsonObject.get("dst_name"));
+
+
+        }catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
 

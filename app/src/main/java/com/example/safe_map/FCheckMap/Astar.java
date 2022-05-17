@@ -22,7 +22,7 @@ public class Astar {
 
     ArrayList<Integer> path = new ArrayList<>();  // paths
     ArrayList<jPoint> nodes = new ArrayList<>();    // nodes
-    ArrayList<int[]>[] links = new ArrayList[129];  // links
+    ArrayList<int[]>[] links = new ArrayList[131];  // links
     ArrayList<Integer> dangerNodeNum = new ArrayList<>(); // 위험 지역에 속하는 노드 번호들
 
     int ClosePointer = 0; // 닫힌 리스트 pointer
