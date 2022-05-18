@@ -30,10 +30,10 @@
 
             <ImageButton
                 android:id="@+id/childButton2"
-                android:layout_width="59dp"
-                android:layout_height="50dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="8dp"
+                android:layout_width="49dp"
+                android:layout_height="40dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="16dp"
                 android:background="@android:color/transparent"
                 android:minWidth="48dp"
                 android:minHeight="48dp"
@@ -115,6 +115,17 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/textView8" />
+
+            <TextView
+                android:id="@+id/textView29"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="5dp"
+                android:text="아이모드"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.954"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/childButton2" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </LinearLayout>

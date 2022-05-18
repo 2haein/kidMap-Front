@@ -49,31 +49,9 @@ import net.daum.mf.map.api.MapPoint;
  */
 public class NotifyFragment extends Fragment implements OnMapReadyCallback, NotifyFragment_finish {
 
-
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment CheckMapFragment.
-     */
-    // TODO: Rename and change types and number of parameters
     public static NotifyFragment newInstance(String param1, String param2) {
         NotifyFragment fragment = new NotifyFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
         fragment.setArguments(args);
         return fragment;
     }
@@ -82,8 +60,9 @@ public class NotifyFragment extends Fragment implements OnMapReadyCallback, Noti
     View rootView;
     MapView mapView;
     ViewGroup mapViewContainer;
+    private LocationManager locationManager;
+    private static final int REQUEST_CODE_LOCATION = 2;
 
-    FloatingActionButton mAddFab;
     double cur_lon, cur_lat;
 
     private static final int GPS_ENABLE_REQUEST_CODE = 2001;
@@ -105,9 +84,8 @@ public class NotifyFragment extends Fragment implements OnMapReadyCallback, Noti
         mapViewContainer = (ViewGroup) rootView.findViewById(R.id.notify_map);
         mapViewContainer.addView(mapView);
 
-        final LocationManager locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
-
-        Location loc_Current = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        locationManager = (LocationManager)getContext().getSystemService(Context.LOCATION_SERVICE);
+        Location loc_Current = getMyLocation();
         cur_lat = loc_Current.getLatitude();
         cur_lon = loc_Current.getLongitude();
 
@@ -118,7 +96,7 @@ public class NotifyFragment extends Fragment implements OnMapReadyCallback, Noti
         mapView.setZoomLevel(4, true);
 
         //마커 찍기
-        MapPoint MARKER_POINT = MapPoint.mapPointWithGeoCoord(37.5047735, 126.953764999);
+        MapPoint MARKER_POINT = MapPoint.mapPointWithGeoCoord(cur_lat, cur_lon);
         MapPOIItem marker = new MapPOIItem();
         marker.setItemName("Default Marker");
         marker.setTag(0);
@@ -128,22 +106,29 @@ public class NotifyFragment extends Fragment implements OnMapReadyCallback, Noti
 
         mapView.addPOIItem(marker);
 
-
-       /* mapView = (MapView) rootView.findViewById(R.id.notify_map);
-        // 0428 여기서 오류 뜸.
-        mapView.onCreate(savedInstanceState);
-
-        mapView.getMapAsync((OnMapReadyCallback) this);
-        mapView.onResume(); // needed to get the map to display immediately*/
-        /*mAddFab = rootView.findViewById(R.id.add_fab);
-        mAddFab.setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-
-                    }
-                });*/
         return rootView;
+    }
+
+    private Location getMyLocation() {
+        Location currentLocation = null;
+        // Register the listener with the Location Manager to receive location updates
+        if (ActivityCompat.checkSelfPermission(getContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            System.out.println("////////////사용자에게 권한을 요청해야함");
+            ActivityCompat.requestPermissions(getActivity(), new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, this.REQUEST_CODE_LOCATION);
+            getMyLocation();
+        }
+        else {
+            System.out.println("////////////권한요청 안해도됨");
+
+            // 수동으로 위치 구하기
+            String locationProvider = LocationManager.GPS_PROVIDER;
+            currentLocation = locationManager.getLastKnownLocation(locationProvider);
+            if (currentLocation != null) {
+                double lng = currentLocation.getLongitude();
+                double lat = currentLocation.getLatitude();
+            }
+        }
+        return currentLocation;
     }
 
 

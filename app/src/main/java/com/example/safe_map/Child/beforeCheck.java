@@ -47,8 +47,8 @@ public class beforeCheck extends AppCompatActivity implements CompoundButton.OnC
 
             @Override
             public void onClick(View v) {
-                if(checkbox1.isChecked()){
-                    Intent intent = new Intent(getApplicationContext(), ChildMapView.class);
+                if(checkbox1.isChecked() && checkbox2.isChecked() && checkbox3.isChecked()){
+                    Intent intent = new Intent(getApplicationContext(), QuestBeforeCheck.class);
                     startActivity(intent);
                 } else {
                     AlertDialog.Builder dlg = new AlertDialog.Builder(beforeCheck.this);

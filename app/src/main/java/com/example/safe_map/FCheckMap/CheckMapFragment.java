@@ -28,7 +28,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -124,7 +123,7 @@ public class CheckMapFragment extends Fragment {
 
         // 카카오 지도
         mapView = new MapView(getContext());
-        ViewGroup mapViewContainer = (ViewGroup) v.findViewById(R.id.map_view);
+        ViewGroup mapViewContainer = (ViewGroup) v.findViewById(R.id.childMapView);
         mapViewContainer.addView(mapView);
 
         // 중심점 변경

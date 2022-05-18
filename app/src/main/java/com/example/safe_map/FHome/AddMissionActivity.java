@@ -41,12 +41,15 @@ import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.example.safe_map.Child.beforeCheck;
 import com.example.safe_map.FCheckMap.CheckMapFragment;
 import com.example.safe_map.Login.ChildnumItem;
 import com.example.safe_map.Login.Signup;
@@ -74,7 +77,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-public class AddMissionActivity extends AppCompatActivity {
+public class AddMissionActivity extends AppCompatActivity implements CompoundButton.OnCheckedChangeListener {
 
     // 초기변수설정
     public Integer childnum1 = 0;
@@ -83,7 +86,7 @@ public class AddMissionActivity extends AppCompatActivity {
 
     TextView edit_addr, edit_addr2, date_view, time_view;
     Button addDate, addTime, addAddrBtn1, addAddrBtn2, checkDanger, All;
-
+    CheckBox risk_chk;
     List<Address> address = null;
 
     String target_name = "출발";
@@ -250,6 +253,8 @@ public class AddMissionActivity extends AppCompatActivity {
                 }
             }
         });
+        risk_chk = (CheckBox) findViewById(R.id.risk_chk);
+        risk_chk.setOnCheckedChangeListener(AddMissionActivity.this);
 
         All = findViewById(R.id.button4);
         All.setOnClickListener(new View.OnClickListener() {
@@ -273,9 +278,9 @@ public class AddMissionActivity extends AppCompatActivity {
                     Toast.makeText(AddMissionActivity.this, "목적지 주소의 위도, 경도값이 올바르지 않습니다. 목적지를 다시 입력해주세요.", Toast.LENGTH_LONG);
                 } else if (start_latitude == 0 && start_longitude == 0){
                     Toast.makeText(AddMissionActivity.this, "출발지 주소의 위도, 경도값이 올바르지 않습니다. 목적지를 다시 입력해주세요.", Toast.LENGTH_LONG);
-                } else if (checking != true) {
+                } else if (risk_chk.isChecked()!=true) {
                     Toast.makeText(AddMissionActivity.this, "위험지역 확인을 하시고 체크해주세요", Toast.LENGTH_LONG);
-                } else if (childUUID != null && E_content != null && E_date != null && target_latitude != 0 && target_longitude != 0 && start_longitude != 0 && start_latitude != 0 && checking == true){
+                } else if (childUUID != null && E_content != null && E_date != null && target_latitude != 0 && target_longitude != 0 && start_longitude != 0 && start_latitude != 0 && risk_chk.isChecked()){
                     registerErrand(ProfileData.getUserId(), childUUID, E_date, E_content,
                             target_latitude,target_longitude,start_latitude,start_longitude,true);
                     // add to json
@@ -453,5 +458,10 @@ public class AddMissionActivity extends AppCompatActivity {
         } catch (IOException ioException) {
             ioException.printStackTrace();
         }
+    }
+
+    @Override
+    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+
     }
 }
