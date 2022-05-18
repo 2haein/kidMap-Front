@@ -161,7 +161,12 @@ public class LoginActivity extends AppCompatActivity {
                 @Override
                 public void onSuccess(MeV2Response result) {
                     Intent intent;
+
+                    Log.i("KAKAO_API", "사용자 아이디: " + result.getId());
+                    String id = String.valueOf(result.getId());
+                    UserAccount kakaoAccount = result.getKakaoAccount();
                     String childNum = fetchChildNum(ProfileData.getUserId());
+
                     if ( childNum.equals("")){
                         intent = new Intent(getApplicationContext(), Signup.class);
                         Log.i("자녀수", "wjwd: " + "("+ childNum + ")");
@@ -169,11 +174,6 @@ public class LoginActivity extends AppCompatActivity {
                         intent = new Intent(getApplicationContext(), MainActivity.class);
                         Log.i("자녀수", "이미 저장된 자녀수: " + "("+ childNum + ")");
                     }
-
-
-                    Log.i("KAKAO_API", "사용자 아이디: " + result.getId());
-                    String id = String.valueOf(result.getId());
-                    UserAccount kakaoAccount = result.getKakaoAccount();
 
                     if (kakaoAccount != null) {
                         // 이메일
