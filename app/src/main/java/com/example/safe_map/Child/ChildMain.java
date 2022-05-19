@@ -24,6 +24,8 @@ public class ChildMain extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_child);
 
+
+
         parentButton = (ImageButton) findViewById(R.id.parent);
         parentButton.setOnClickListener(new View.OnClickListener() {
             @Override

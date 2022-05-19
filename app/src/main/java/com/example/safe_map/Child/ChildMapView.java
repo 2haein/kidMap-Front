@@ -9,13 +9,20 @@ import android.os.Bundle;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.example.safe_map.R;
+import com.example.safe_map.common.ProfileData;
+import com.example.safe_map.http.CommonMethod;
+import com.example.safe_map.http.RequestHttpURLConnection;
 
 import net.daum.mf.map.api.MapView;
+
+import org.json.JSONObject;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -23,6 +30,7 @@ import net.daum.mf.map.api.MapView;
  * create an instance of this fragment.
  */
 public class ChildMapView extends Fragment {
+    String UUID;
 
     MapView mapView;
     private LocationManager locationManager;
@@ -44,6 +52,8 @@ public class ChildMapView extends Fragment {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_child_map_view, container, false);
 
+
+
         // 아이의 위치 수신을 위한 세팅
         locationManager = (LocationManager)getContext().getSystemService(Context.LOCATION_SERVICE);
         // 아이의 현재 위치
@@ -52,13 +62,14 @@ public class ChildMapView extends Fragment {
             double latitude = userLocation.getLatitude();
             double longitude = userLocation.getLongitude();
             System.out.println("아이 현재 위치값 : "+latitude+","+longitude);
+            registerChildLocation(UUID, latitude, longitude);
         }
 
         return rootView;
     }
 
     /**
-     * 사용자의 위치를 수신
+     * 아이의 위치를 수신
      */
     private Location getMyLocation() {
         Location currentLocation = null;
@@ -80,6 +91,27 @@ public class ChildMapView extends Fragment {
             }
         }
         return currentLocation;
+    }
+
+    public void registerChildLocation(String UUID, double current_latitude, double current_longitude){
+        String url = CommonMethod.ipConfig + "/api/savePositionChild";
+
+        try{
+            String jsonString = new JSONObject()
+                    .put("UUID", UUID)
+                    .put("current_latitude", current_latitude)
+                    .put("current_longitude", current_longitude)
+                    .toString();
+
+            //REST API
+            RequestHttpURLConnection.NetworkAsyncTask networkTask = new RequestHttpURLConnection.NetworkAsyncTask(url, jsonString);
+            networkTask.execute().get();
+            Toast.makeText(getContext().getApplicationContext(), "전화번호가 저장되었습니다", Toast.LENGTH_LONG).show();
+            Log.i("현재위치 전송", String.format("등록한 현재 위치 : lat " + current_latitude + ", long " + current_longitude));
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }
     }
 
 }

@@ -100,17 +100,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
         Log.i("request Code : ", String.valueOf(requestCode));
-        if (requestCode == 30000) {
-            /*Fragment frag = (Fragment) getSupportFragmentManager().findFragmentById(R.id.MypageFragment);
-            if(frag.getChildFragmentManager().getFragments().get(0) instanceof MypageFragment){
-                MypageFragment MypageFragment = (MypageFragment) frag.getChildFragmentManager().getFragments().get(0);
-                MypageFragment.onActivityResult1(intent);
-            }*/
-            /*if (intent != null){
-                int request = requestCode & 0xffff;
-                Fragment fragment = getSupportFragmentManager().findFragmentByTag((String) MypageFragment);
-                fragment.onActivityResult(request, resultCode, intent);
-            }*/
+        if (requestCode == 30000) { //mypage 부모 집주소
             for (Fragment fragment : getSupportFragmentManager().getFragments()) {
                 if (null != fragment) {
                     fragment.onActivityResult(requestCode, resultCode, intent);
@@ -118,17 +108,16 @@ public class MainActivity extends AppCompatActivity {
                     new MypageFragment().onActivityResult(requestCode, resultCode, intent);
                 }
             }
-         }
-
-        /*int request = requestCode & 0xffff;
-        Fragment fragment = getSupportFragmentManager().findFragmentByTag((String) MypageFragment);
-        fragment.onActivityResult(request, resultCode, intent);*/
+        } else if (requestCode == 40000) { //notify 위험지역 주소
+            for (Fragment fragment : getSupportFragmentManager().getFragments()) {
+                if (null != fragment) {
+                    fragment.onActivityResult(requestCode, resultCode, intent);
+                } else {
+                    new NotifyFragment().onActivityResult(requestCode, resultCode, intent);
+                }
+            }
+        }
     }
 
-    /*MapView mapView;
-    ViewGroup mapViewContainer;
-    public void finish() {
-        mapViewContainer.removeView(mapView);
-        super.finish();
-    }*/
+
 }
