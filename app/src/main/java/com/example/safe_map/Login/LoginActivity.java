@@ -81,6 +81,8 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(LoginActivity.this, ChildLoginActivity.class);
                 startActivity(intent);
+                finish();
+
             }
         });
 
@@ -103,6 +105,8 @@ public class LoginActivity extends AppCompatActivity {
 
         getAppKeyHash();
     }
+
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         Log.i("KAKAO_API", "onActivityResult " + requestCode+ ":"+ resultCode+"::"+ data);
@@ -156,24 +160,13 @@ public class LoginActivity extends AppCompatActivity {
                     Log.e("KAKAO_API", "사용자 정보 요청 실패: " + errorResult);
                 }
 
-
-
                 @Override
                 public void onSuccess(MeV2Response result) {
-                    Intent intent;
+                    Intent intent = null;
 
                     Log.i("KAKAO_API", "사용자 아이디: " + result.getId());
                     String id = String.valueOf(result.getId());
                     UserAccount kakaoAccount = result.getKakaoAccount();
-                    String childNum = fetchChildNum(ProfileData.getUserId());
-
-                    if ( childNum.equals("")){
-                        intent = new Intent(getApplicationContext(), Signup.class);
-                        Log.i("자녀수", "wjwd: " + "("+ childNum + ")");
-                    } else {
-                        intent = new Intent(getApplicationContext(), MainActivity.class);
-                        Log.i("자녀수", "이미 저장된 자녀수: " + "("+ childNum + ")");
-                    }
 
                     if (kakaoAccount != null) {
                         // 이메일
@@ -182,6 +175,18 @@ public class LoginActivity extends AppCompatActivity {
                         // 프로필 (닉네임, 프로필 사진 경로
                         Profile profile = kakaoAccount.getProfile();
                         new ProfileData(id, profile.getNickname(), profile.getProfileImageUrl(), profile.getThumbnailImageUrl());
+
+                        // login 함수안에 연결할 서버 IP주소 설정 후 주석 풀기, (설정 안할 시 서버 접속 오류 남)
+                        login(id, profile.getNickname());
+                        String childNum = fetchChildNum(ProfileData.getUserId());
+                        if (childNum.equals("")) {
+                            intent = new Intent(getApplicationContext(), Signup.class);
+                            Log.i("자녀수", "wjwd: " + "("+ childNum + ")");
+                        } else {
+                            intent = new Intent(getApplicationContext(), MainActivity.class);
+                            Log.i("자녀수", "이미 저장된 자녀수: " + "("+ childNum + ")");
+                        }
+
                         intent.putExtra("userId", id);
                         intent.putExtra("nickName", profile.getNickname());
                         intent.putExtra("profile", profile.getProfileImageUrl());
@@ -191,9 +196,6 @@ public class LoginActivity extends AppCompatActivity {
                             intent.putExtra("email", result.getKakaoAccount().getEmail());
                         else
                             intent.putExtra("email", "none");
-
-                        // login 함수안에 연결할 서버 IP주소 설정 후 주석 풀기, (설정 안할 시 서버 접속 오류 남)
-                        login(id, profile.getNickname());
 
                         // LOGGING
                         if (profile ==null){
