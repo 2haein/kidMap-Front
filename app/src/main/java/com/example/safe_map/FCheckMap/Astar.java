@@ -118,7 +118,7 @@ public class Astar {
                 jPoint tmp = new jPoint(dp.get(j).GetLat(),dp.get(j).GetLng());
                 double res = GetDistanceWithCoords(nodes.get(i),tmp);
                // Log.d("test","넘버 : "+ i+ "거리 :"+res);
-                if(res <= 5.0){
+                if(res <= 10.0){
                     dangerNodeNum.add(i);
                 }
             }
