@@ -77,15 +77,12 @@
                 android:id="@+id/button4"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
                 android:layout_marginBottom="16dp"
                 android:text="확인"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.498"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/button2"
-                app:layout_constraintVertical_bias="0.0" />
+                app:layout_constraintStart_toStartOf="parent" />
 
             <TextView
                 android:id="@+id/textView18"
@@ -97,18 +94,6 @@
                 app:layout_constraintHorizontal_bias="0.067"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/errandContent" />
-
-            <Button
-                android:id="@+id/button2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:layout_marginEnd="8dp"
-                android:text="위험요소 보기"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.75"
-                app:layout_constraintStart_toEndOf="@+id/risk_chk"
-                app:layout_constraintTop_toBottomOf="@+id/addQuestRecyclerView" />
 
             <TextView
                 android:id="@+id/editaddr_target"
@@ -151,18 +136,6 @@
                 app:layout_constraintHorizontal_bias="0.537"
                 app:layout_constraintStart_toEndOf="@+id/textView16"
                 app:layout_constraintTop_toBottomOf="@+id/add_adr_button1" />
-
-            <CheckBox
-                android:id="@+id/risk_chk"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="16dp"
-                android:text="심부름 가는 길 위험요소 파악하기"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.035"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/addQuestRecyclerView" />
 
             <Button
                 android:id="@+id/add_adr_button1"
@@ -267,7 +240,10 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="15dp"
                 android:layout_marginRight="15dp"
+                android:layout_marginBottom="8dp"
+                app:layout_constraintBottom_toTopOf="@+id/button4"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.551"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/addQuest" />
 

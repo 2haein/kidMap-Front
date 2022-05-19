@@ -11,6 +11,7 @@ import android.os.Bundle;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
+import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,10 +20,14 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import com.example.safe_map.MainActivity;
 import com.example.safe_map.R;
 import com.example.safe_map.common.ProfileData;
 import com.example.safe_map.http.CommonMethod;
 import com.example.safe_map.http.RequestHttpURLConnection;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.maps.android.SphericalUtil;
 
 import net.daum.mf.map.api.MapView;
 
@@ -42,6 +47,10 @@ public class ChildMapView extends Fragment {
 
     ImageButton home, camera, call, qr;
     String number = "0100000000";
+
+    LatLng previousPosition = null;
+    Marker addedMarker = null;
+    int tracking = 0;
 
     public ChildMapView() {
         // Required empty public constructor
@@ -99,10 +108,13 @@ public class ChildMapView extends Fragment {
             registerChildLocation(UUID, latitude, longitude);
         }
 
+        // 아이의 현재 위치와 가까운 노드와의 거리 재기
 
 
         return rootView;
     }
+
+
 
     /**
      * 아이의 위치를 수신
@@ -128,6 +140,24 @@ public class ChildMapView extends Fragment {
         }
         return currentLocation;
     }
+
+    private float getDistance(double lat1, double lon1, double lat2, double lon2) {
+        float[] distance = new float[2];
+        Location.distanceBetween(lat1, lon1, lat2, lon2, distance);
+        return distance[0];
+    }
+
+    /*private static double distance_in_meter(final double lat1, final double lon1, final double lat2, final double lon2) {
+        double R = 6371000f; // Radius of the earth in m
+        double dLat = (lat1 - lat2) * Math.PI / 180f;
+        double dLon = (lon1 - lon2) * Math.PI / 180f;
+        double a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(latlong1.latitude * Math.PI / 180f) * Math.cos(latlong2.latitude * Math.PI / 180f) *
+                        Math.sin(dLon/2) * Math.sin(dLon/2);
+        double c = 2f * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        double d = R * c;
+        return d;
+    }*/
 
     // 자녀의 정보 불러오기
     public String fetchChild(String UUID){

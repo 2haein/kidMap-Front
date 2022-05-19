@@ -305,8 +305,8 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
 
 
         // 위험 지역 확인 체크
-        risk_chk = (CheckBox) findViewById(R.id.risk_chk);
-        risk_chk.setOnCheckedChangeListener(AddMissionActivity.this);
+        //risk_chk = (CheckBox) findViewById(R.id.risk_chk);
+        //risk_chk.setOnCheckedChangeListener(AddMissionActivity.this);
 
         All = findViewById(R.id.button4);
         All.setOnClickListener(new View.OnClickListener() {
@@ -317,34 +317,30 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
                 double start_latitude, double start_longitude,
                 boolean checking*/
 
-
                 String childUUID = child[childnum1];
                 String E_content = edit_content.getText().toString();
                 String E_date = y+"-"+m+"-"+d+"T"+h+":"+mi;
                 if (childUUID.equals(null)){
-                    Toast.makeText(AddMissionActivity.this, "자녀를 선택하세요", Toast.LENGTH_LONG);
+                    Toast.makeText(AddMissionActivity.this, "자녀를 선택하세요", Toast.LENGTH_LONG).show();
                 } else if (E_content.equals(null)){
-                    Toast.makeText(AddMissionActivity.this, "심부름 내용을 입력하세요", Toast.LENGTH_LONG);
+                    Toast.makeText(AddMissionActivity.this, "심부름 내용을 입력하세요", Toast.LENGTH_LONG).show();
                 } else if (E_date.equals(null)){
                 } else if (target_longitude == 0 && target_latitude == 0){
-                    Toast.makeText(AddMissionActivity.this, "목적지 주소의 위도, 경도값이 올바르지 않습니다. 목적지를 다시 입력해주세요.", Toast.LENGTH_LONG);
+                    Toast.makeText(AddMissionActivity.this, "목적지 주소의 위도, 경도값이 올바르지 않습니다. 목적지를 다시 입력해주세요.", Toast.LENGTH_LONG).show();
                 } else if (start_latitude == 0 && start_longitude == 0){
-                    Toast.makeText(AddMissionActivity.this, "출발지 주소의 위도, 경도값이 올바르지 않습니다. 목적지를 다시 입력해주세요.", Toast.LENGTH_LONG);
-                } else if (risk_chk.isChecked()!=true) {
-                    Toast.makeText(AddMissionActivity.this, "위험지역 확인을 하시고 체크해주세요", Toast.LENGTH_LONG);
-                } else if (childUUID != null && E_content != null && E_date != null && target_latitude != 0 && target_longitude != 0 && start_longitude != 0 && start_latitude != 0 && risk_chk.isChecked()){
+                    Toast.makeText(AddMissionActivity.this, "출발지 주소의 위도, 경도값이 올바르지 않습니다. 목적지를 다시 입력해주세요.", Toast.LENGTH_LONG).show();
+                } else if (childUUID != null && E_content != null && E_date != null && target_latitude != 0 && target_longitude != 0 && start_longitude != 0 && start_latitude != 0){
                     registerErrand(ProfileData.getUserId(), childUUID, E_date, E_content,
                             target_latitude,target_longitude,edit_addr.getText().toString(), edit_addr2.getText().toString(),start_latitude,start_longitude,true);
                     Toast.makeText(AddMissionActivity.this, "심부름을 시작합니다", Toast.LENGTH_LONG).show();
-                    finish();
                     // add to json
                     AddErrandDataToJson();
+                    finish();
                 }
                 //registerErrand(ProfileData.getUserId(), childUUID, E_date, E_content,
                    //     target_latitude,target_longitude,0,0,true);
                 //Activity MainActivity = new MainActivity;
                 //((com.example.safe_map.MainActivity) MainActivity).CallCheckMap();
-
             }
         });
 

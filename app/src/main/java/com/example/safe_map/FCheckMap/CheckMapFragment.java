@@ -101,6 +101,8 @@ public class CheckMapFragment extends Fragment {
 
     }
 
+
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState
@@ -166,6 +168,24 @@ public class CheckMapFragment extends Fragment {
         ShowPathOnMap();
 
         return v;
+    }
+
+    @Override
+    public void onResume() {
+        mapView.onResume();
+        super.onResume();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+    }
+
+    @Override
+    public void onPause(){
+        //mapViewContainer.removeView(mapView);
+        //getActivity().finish();
+        super.onPause();
     }
 
     private void GetErrandDataFromJson() {
