@@ -243,16 +243,61 @@ public class CheckMapFragment extends Fragment {
 
     // 위험 구역 지도에 띄우기
     private void ShowDangerZoneOnMap() {
-        for(int o = 0 ; o < DangerZone.size() ; o++) {
-            MapCircle circle = new MapCircle(
-                    MapPoint.mapPointWithGeoCoord(DangerZone.get(o).GetLat(), DangerZone.get(o).GetLng()), // center
-                    5, // radius, meter
 
-                    // type에 따라 색 바꿀 예정
+        int RED = 0;
+        int GREEN = 0;
+        int BLUE = 0;
+        String TAG = "";
+
+
+        for (int o = 0; o < DangerZone.size(); o++) {
+
+            // 만약 위험 지역이 성범죄자 거주 구역이라면
+            if (DangerZone.get(o).GetType() == 1.0) {
+               RED = 255;
+               GREEN = 0;
+               BLUE = 0;
+               TAG = "성범죄자 거주 구역";
+            }
+            // 보행자 사고 다발 지역인 경우
+            else if(DangerZone.get(o).GetType() == 2.0){
+                RED = 0;
+                GREEN = 255;
+                BLUE = 0;
+                TAG = "보행자 사고 다발 구역";
+            }
+            // 자전거 사고 다발 지역인 경우
+            else if(DangerZone.get(o).GetType() == 3.0){
+                RED = 0;
+                GREEN = 0;
+                BLUE = 255;
+                TAG = "자전거 사고 다발 구역";
+            }
+            // 교통사고 주의 구간인 경우
+            else{
+                RED = 255;
+                GREEN = 255;
+                BLUE = 255;
+                TAG = "교통사고 주의 구역";
+            }
+
+            MapCircle circle = new MapCircle(
+                    MapPoint.mapPointWithGeoCoord(DangerZone.get(o).GetLat(), DangerZone.get(o).GetLng()),
+                    5, // radius, meter
                     Color.argb(128, 0, 0, 0), // strokeColor
-                    Color.argb(128, 255, 0, 0) // fillColor
+                    Color.argb(128, RED, GREEN, BLUE) // fillColor
             );
+
+            MapPoint mark_point = MapPoint.mapPointWithGeoCoord(DangerZone.get(o).GetLat(), DangerZone.get(o).GetLng());
+            MapPOIItem marker = new MapPOIItem();
+            marker.setItemName(TAG);
+            marker.setTag(0);
+            marker.setMapPoint(mark_point);
+            marker.setMarkerType(MapPOIItem.MarkerType.RedPin); // 기본으로 제공하는 BluePin 마커 모양.
+            marker.setSelectedMarkerType(MapPOIItem.MarkerType.RedPin); // 마커를 클릭했을때, 기본으로 제공하는 RedPin 마커 모양.
+
             mapView.addCircle(circle);
+            mapView.addPOIItem(marker);
         }
     }
 
