@@ -96,9 +96,19 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
     double start_longitude, start_latitude;
     //Boolean checking = false;
     Boolean checking = true;
+
+    // 아이 목록 리사이클러뷰
     private RecyclerView mRecyclerView;
     private StdRecyclerAdapter mRecyclerAdapter;
     private ArrayList<ChildnumItem> mChildnum;
+
+    // 퀘스트 목록 리사이클러뷰
+    private Context mContext;
+    private ArrayList<QuestData> mArrayList;
+    private QuestAdapter mQuestAdapter;
+    private RecyclerView mQuestRecyclerView;
+    private EditText quest_name;
+    private Button quest_save;
 
     // 주소 요청코드 상수 requestCode
     private static final int SEARCH_ADDRESS_ACTIVITY = 10000;
@@ -149,7 +159,7 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
             @Override
             public void onItemClick(View a_view, int a_position) {
                 childnum1 = a_position;
-                Toast.makeText(AddMissionActivity.this, Integer.toString(childnum1), Toast.LENGTH_LONG).show();
+                //Toast.makeText(AddMissionActivity.this, Integer.toString(childnum1), Toast.LENGTH_LONG).show();
             }
         });
 
@@ -253,6 +263,49 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
                 }
             }
         });
+
+        // 퀘스트 목록 리사이클러뷰
+        /*private Context mContext;
+        private ArrayList<QuestData> mArrayList;
+        private QuestAdapter mQuestAdapter;
+        private RecyclerView mQuestRecyclerView;
+        private EditText quest_name;
+        private Button quest_save;
+        */
+        mContext = getApplicationContext();
+        quest_name = findViewById(R.id.addQuest);
+        quest_save = findViewById(R.id.addQuestButton);
+        mQuestRecyclerView = findViewById(R.id.addQuestRecyclerView);
+
+        LinearLayoutManager layoutManager = new LinearLayoutManager(mContext, LinearLayoutManager.VERTICAL, false);
+        mQuestRecyclerView.setLayoutManager(layoutManager);
+
+        mArrayList = new ArrayList<>();
+        mArrayList.add(new QuestData("(필수) 중간 지점에서 사진 찍어 보내기"));
+
+        mQuestAdapter = new QuestAdapter(mContext, mArrayList);
+        mQuestRecyclerView.setAdapter(mQuestAdapter);
+
+        quest_save.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                if (quest_name.getText().length()==0){
+                    Toast.makeText(mContext, "퀘스트 내용을 입력하세요", Toast.LENGTH_LONG).show();
+                } else {
+                    String quest = quest_name.getText().toString();
+                    quest_name.setText("");
+                    QuestData data = new QuestData(quest);
+
+                    mArrayList.add(data);
+                    mQuestAdapter.notifyItemInserted(mArrayList.size()-1);
+
+                }
+            }
+        });
+
+
+        // 위험 지역 확인 체크
         risk_chk = (CheckBox) findViewById(R.id.risk_chk);
         risk_chk.setOnCheckedChangeListener(AddMissionActivity.this);
 

@@ -23,6 +23,7 @@ public class QuestBeforeCheck extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(getApplicationContext(), ChildMap.class);
                 startActivity(intent);
+                finish();
             }
         });
     }
