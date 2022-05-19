@@ -74,6 +74,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.BreakIterator;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
@@ -90,6 +91,7 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
     Button addDate, addTime, addAddrBtn1, addAddrBtn2, checkDanger, All;
     CheckBox risk_chk;
     List<Address> address = null;
+    List<String> quest = null;
 
     String target_name = "출발";
     String start_name= "도착";
@@ -281,12 +283,13 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
 
         mArrayList = new ArrayList<>();
         mArrayList.add(new QuestData("(필수) 중간 지점에서 사진 찍어 보내기"));
+        mArrayList.add(new QuestData("(필수) 신호등 있으면 안전하게 건너기"));
+        mArrayList.add(new QuestData("(필수) 심부름 내용 잘 수행하기"));
 
         mQuestAdapter = new QuestAdapter(mContext, mArrayList);
         mQuestRecyclerView.setAdapter(mQuestAdapter);
 
         quest_save.setOnClickListener(new View.OnClickListener() {
-
             @Override
             public void onClick(View v) {
                 if (quest_name.getText().length()==0){
@@ -298,11 +301,10 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
 
                     mArrayList.add(data);
                     mQuestAdapter.notifyItemInserted(mArrayList.size()-1);
-
                 }
             }
         });
-
+        quest = new ArrayList<String>();
 
         // 위험 지역 확인 체크
         //risk_chk = (CheckBox) findViewById(R.id.risk_chk);
@@ -330,9 +332,13 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
                 } else if (start_latitude == 0 && start_longitude == 0){
                     Toast.makeText(AddMissionActivity.this, "출발지 주소의 위도, 경도값이 올바르지 않습니다. 목적지를 다시 입력해주세요.", Toast.LENGTH_LONG).show();
                 } else if (childUUID != null && E_content != null && E_date != null && target_latitude != 0 && target_longitude != 0 && start_longitude != 0 && start_latitude != 0){
-                    try {
+                    for (int i =0; i < mArrayList.size(); i++) {
+                        Log.i("퀘스트 내용 ", String.valueOf(mArrayList.get(i).getQuest()));
+                        quest.add(mArrayList.get(i).getQuest().toString());
+                    }
+                     try {
                         registerErrand(childUUID, E_date, E_content,
-                                target_latitude,target_longitude,edit_addr.getText().toString(), edit_addr2.getText().toString(),start_latitude,start_longitude,true);
+                                target_latitude,target_longitude,edit_addr.getText().toString(), edit_addr2.getText().toString(), quest, start_latitude,start_longitude,true);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -370,13 +376,13 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
                         if (address != null) {
                             if (address.size() == 0){
                                 Log.i("nonono","0");
-                                Toast.makeText(AddMissionActivity.this,"해당되는 주소의 위도, 경도 값을 찾을 수 없습니다",Toast.LENGTH_LONG);
+                                Toast.makeText(AddMissionActivity.this,"해당되는 주소의 위도, 경도 값을 찾을 수 없습니다",Toast.LENGTH_LONG).show();
                             } else {
                                 Address addr = address.get(0);
                                 Log.i("address 변환 ok" , String.valueOf(addr.getLatitude()));
                                 target_latitude = addr.getLatitude();
                                 target_longitude = addr.getLongitude();
-                                Toast.makeText(AddMissionActivity.this,"해당되는 주소의 위도, 경도 값을 설정하였습니다",Toast.LENGTH_LONG);
+                                //Toast.makeText(AddMissionActivity.this,"해당되는 주소의 위도, 경도 값을 설정하였습니다",Toast.LENGTH_LONG).show();
                             }
                         }
                     }
@@ -397,13 +403,13 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
                         if (address != null) {
                             if (address.size() == 0){
                                 Log.i("nonono","0");
-                                Toast.makeText(AddMissionActivity.this,"해당되는 주소의 위도, 경도 값을 찾을 수 없습니다",Toast.LENGTH_LONG);
+                                Toast.makeText(AddMissionActivity.this,"해당되는 주소의 위도, 경도 값을 찾을 수 없습니다",Toast.LENGTH_LONG).show();
                             } else {
                                 Address addr = address.get(0);
                                 Log.i("address 변환 ok" , String.valueOf(addr.getLatitude()));
                                 start_latitude = addr.getLatitude();
                                 start_longitude = addr.getLongitude();
-                                Toast.makeText(AddMissionActivity.this,"출발지 주소의 위도, 경도 값을 설정하였습니다",Toast.LENGTH_LONG);
+                                //Toast.makeText(AddMissionActivity.this,"출발지 주소의 위도, 경도 값을 설정하였습니다",Toast.LENGTH_LONG).show();
                             }
                         }
                     }
@@ -431,7 +437,6 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
             for (int i=0; i<result.length; i++){
                 result[i] = result[i].substring(1, result[i].length() - 1);
             }
-
         }catch(Exception e){
             e.printStackTrace();
         }
@@ -440,7 +445,7 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
 
     public void registerErrand(String UUID, String E_date, String E_content,
                                double target_latitude, double target_longitude, String target_name,
-                               String start_name, double start_latitude, double start_longitude,
+                               String start_name, List<String> quest,double start_latitude, double start_longitude,
                                boolean checking) throws JSONException {
         String url = CommonMethod.ipConfig + "/api/registerErrand";
 
@@ -455,15 +460,20 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
                     .put("target_longitude", target_longitude)
                     .put("target_name", target_name)
                     .put("start_name", start_name)
+                    .put("quest", quest)
                     .put("start_latitude", start_latitude)
                     .put("start_longitude", start_longitude)
                     .put("checking", checking)
                     .toString();
-
             //REST API
             RequestHttpURLConnection.NetworkAsyncTask networkTask = new RequestHttpURLConnection.NetworkAsyncTask(url, jsonString);
             networkTask.execute().get();
             Toast.makeText(AddMissionActivity.this, "심부름이 설정되었습니다", Toast.LENGTH_LONG).show();
+
+            Log.i("심부름 설정하기 - target name 추가", target_name);
+            for (int i =0; i < quest.size(); i++) {
+                Log.i("퀘스트 내용 ", String.valueOf(quest.get(i)));
+            }
             Log.i("심부름 설정하기-target name 추가", target_name);
 
         }catch(Exception e){

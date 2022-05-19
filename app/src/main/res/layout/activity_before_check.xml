@@ -45,6 +45,7 @@
         android:layout_marginTop="60dp"
         android:text="심부름 가기 전 알아야할 것이 있어요"
         android:textSize="20sp"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
