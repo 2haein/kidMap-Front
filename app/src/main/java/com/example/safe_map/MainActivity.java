@@ -1,40 +1,24 @@
 package com.example.safe_map;
 
+import static java.security.AccessController.getContext;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.fragment.NavHostFragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.content.Intent;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.Signature;
 import android.os.Bundle;
-import android.util.Base64;
 import android.util.Log;
 import android.view.MenuItem;
-import android.view.ViewGroup;
-import android.widget.Button;
 
 import com.example.safe_map.FCheckMap.CheckMapFragment;
 import com.example.safe_map.FHome.AddressApiActivity;
 import com.example.safe_map.FHome.HomeFragment;
 import com.example.safe_map.FMypage.MypageFragment;
 import com.example.safe_map.FNotifyMap.NotifyFragment;
-import com.example.safe_map.Login.LoginActivity;
-import com.example.safe_map.callback.SessionCallback;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.kakao.auth.AuthType;
-import com.kakao.auth.Session;
-import com.kakao.network.ErrorResult;
-import com.kakao.usermgmt.LoginButton;
-import com.kakao.usermgmt.UserManagement;
-import com.kakao.usermgmt.callback.LogoutResponseCallback;
-
-import net.daum.mf.map.api.MapView;
-
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -118,6 +102,13 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
-
+    public void CallCheckMap(){
+        CheckMapFragment fr = new CheckMapFragment();
+        FragmentManager fm = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fm.beginTransaction();
+        fragmentTransaction.replace(R.id.home_ly, fr);
+        fragmentTransaction.commit();
+        //getSupportFragmentManager().beginTransaction().replace(R.id.home_ly, new CheckMapFragment()).commitAllowingStateLoss();
+    }
 
 }

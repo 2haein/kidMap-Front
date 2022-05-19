@@ -17,6 +17,8 @@ import android.widget.ImageView;
 import com.example.safe_map.R;
 
 public class beforeCheck extends AppCompatActivity implements CompoundButton.OnCheckedChangeListener{
+    String UUID;
+
     Button next;
     ImageView image1, image2, image3;
     CheckBox checkbox1, checkbox2, checkbox3;
@@ -24,6 +26,10 @@ public class beforeCheck extends AppCompatActivity implements CompoundButton.OnC
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_before_check);
+        Intent intent = getIntent();
+        Bundle data = getIntent().getExtras();
+        //UUID = data.getString("childId");
+
         //imageview 색상 바꾸기
         image1 = (ImageView) findViewById(R.id.imageView6);
         image2 = (ImageView) findViewById(R.id.imageView7);
@@ -49,6 +55,7 @@ public class beforeCheck extends AppCompatActivity implements CompoundButton.OnC
             public void onClick(View v) {
                 if(checkbox1.isChecked() && checkbox2.isChecked() && checkbox3.isChecked()){
                     Intent intent = new Intent(getApplicationContext(), QuestBeforeCheck.class);
+                    //intent.putExtra("childId", UUID);
                     startActivity(intent);
                     finish();
                 } else {

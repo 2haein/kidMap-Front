@@ -107,7 +107,7 @@ public class NotifyFragment extends Fragment implements OnMapReadyCallback, Noti
         cur_lat = loc_Current.getLatitude();
         cur_lon = loc_Current.getLongitude();
 
-        // 중심점 변경 - 예제 좌표는 서울 남산
+        // 중심점
         mapView.setMapCenterPoint(MapPoint.mapPointWithGeoCoord(cur_lat, cur_lon), true);
 
         // 줌 레벨 변경

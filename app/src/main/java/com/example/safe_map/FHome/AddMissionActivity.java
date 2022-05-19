@@ -3,6 +3,7 @@ package com.example.safe_map.FHome;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -54,6 +55,7 @@ import com.example.safe_map.FCheckMap.CheckMapFragment;
 import com.example.safe_map.Login.ChildnumItem;
 import com.example.safe_map.Login.Signup;
 import com.example.safe_map.Login.StdRecyclerAdapter;
+import com.example.safe_map.MainActivity;
 import com.example.safe_map.NetworkStatus;
 import com.example.safe_map.R;
 import com.example.safe_map.common.ProfileData;
@@ -94,8 +96,6 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
 
     double target_longitude, target_latitude;
     double start_longitude, start_latitude;
-    //Boolean checking = false;
-    Boolean checking = true;
 
     // 아이 목록 리사이클러뷰
     private RecyclerView mRecyclerView;
@@ -113,7 +113,6 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
     // 주소 요청코드 상수 requestCode
     private static final int SEARCH_ADDRESS_ACTIVITY = 10000;
     private static final int SEARCH_ADDRESS_ACTIVITY2 = 20000;
-
 
     @SuppressLint("WrongViewCast")
     @Override
@@ -337,10 +336,18 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
                     registerErrand(ProfileData.getUserId(), childUUID, E_date, E_content,
                             target_latitude,target_longitude,start_latitude,start_longitude,true);
                     // add to json
+                    Toast.makeText(AddMissionActivity.this, "심부름을 시작합니다", Toast.LENGTH_LONG);
+                    finish();
+
+
                     AddErrandDataToJson();
+
                 }
                 //registerErrand(ProfileData.getUserId(), childUUID, E_date, E_content,
                    //     target_latitude,target_longitude,0,0,true);
+                //Activity MainActivity = new MainActivity;
+                //((com.example.safe_map.MainActivity) MainActivity).CallCheckMap();
+
             }
         });
 

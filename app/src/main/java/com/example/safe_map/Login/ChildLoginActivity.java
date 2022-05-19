@@ -29,6 +29,7 @@ import java.util.List;
 public class ChildLoginActivity extends AppCompatActivity {
     TextView idlist;
     Button ok;
+    String ID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,8 +42,9 @@ public class ChildLoginActivity extends AppCompatActivity {
         ok.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String ID = uuid.getText().toString();
+                ID = uuid.getText().toString();
                 Log.i("login " ,findUUID(ID));
+                Log.i("login222222", ID);
                 Intent intent;
                 if (findUUID(ID).equals("true")){
                      intent = new Intent(ChildLoginActivity.this, ChildMain.class);
