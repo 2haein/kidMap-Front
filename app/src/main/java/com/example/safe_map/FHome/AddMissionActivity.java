@@ -330,8 +330,12 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
                 } else if (start_latitude == 0 && start_longitude == 0){
                     Toast.makeText(AddMissionActivity.this, "출발지 주소의 위도, 경도값이 올바르지 않습니다. 목적지를 다시 입력해주세요.", Toast.LENGTH_LONG).show();
                 } else if (childUUID != null && E_content != null && E_date != null && target_latitude != 0 && target_longitude != 0 && start_longitude != 0 && start_latitude != 0){
-                    registerErrand(ProfileData.getUserId(), childUUID, E_date, E_content,
-                            target_latitude,target_longitude,edit_addr.getText().toString(), edit_addr2.getText().toString(),start_latitude,start_longitude,true);
+                    try {
+                        registerErrand(childUUID, E_date, E_content,
+                                target_latitude,target_longitude,edit_addr.getText().toString(), edit_addr2.getText().toString(),start_latitude,start_longitude,true);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                     Toast.makeText(AddMissionActivity.this, "심부름을 시작합니다", Toast.LENGTH_LONG).show();
                     // add to json
                     AddErrandDataToJson();
@@ -434,15 +438,16 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
         return result;
     }
 
-    public void registerErrand(String user_Id, String UUID, String E_date, String E_content,
+    public void registerErrand(String UUID, String E_date, String E_content,
                                double target_latitude, double target_longitude, String target_name,
                                String start_name, double start_latitude, double start_longitude,
-                               boolean checking){
+                               boolean checking) throws JSONException {
         String url = CommonMethod.ipConfig + "/api/registerErrand";
+
+//        System.out.println(UUID+ E_date+ E_content+ target_latitude+ target_longitude+ target_name+ start_name+ start_latitude+ start_longitude+ checking +"확인하기11");
 
         try{
             String jsonString = new JSONObject()
-                    .put("userId", user_Id)
                     .put("UUID", UUID)
                     .put("E_date", E_date)
                     .put("E_content", E_content)
@@ -459,7 +464,8 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
             RequestHttpURLConnection.NetworkAsyncTask networkTask = new RequestHttpURLConnection.NetworkAsyncTask(url, jsonString);
             networkTask.execute().get();
             Toast.makeText(AddMissionActivity.this, "심부름이 설정되었습니다", Toast.LENGTH_LONG).show();
-            Log.i("심부름 설정하기 - target name 추가", target_name);
+            Log.i("심부름 설정하기-target name 추가", target_name);
+
         }catch(Exception e){
             e.printStackTrace();
         }
