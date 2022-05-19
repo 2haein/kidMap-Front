@@ -1,9 +1,11 @@
 package com.example.safe_map.Child;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.core.app.ActivityCompat;
@@ -13,6 +15,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.example.safe_map.R;
@@ -36,6 +40,9 @@ public class ChildMapView extends Fragment {
     private LocationManager locationManager;
     private static final int REQUEST_CODE_LOCATION = 2;
 
+    ImageButton home, camera, call, qr;
+    String number = "0100000000";
+
     public ChildMapView() {
         // Required empty public constructor
     }
@@ -52,6 +59,33 @@ public class ChildMapView extends Fragment {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_child_map_view, container, false);
 
+        home = (ImageButton) rootView.findViewById(R.id.homeaddr);
+        camera = (ImageButton) rootView.findViewById(R.id.camera);
+        call = (ImageButton) rootView.findViewById(R.id.call);
+
+        home.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+
+        camera.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+
+        call.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                number = fetchPhone(ProfileData.getUserId());
+                Intent tt = new Intent("android.intent.action.DIAL", Uri.parse("tel:" + number));
+                startActivity(tt);
+            }
+        });
 
 
         // 아이의 위치 수신을 위한 세팅
@@ -64,6 +98,8 @@ public class ChildMapView extends Fragment {
             System.out.println("아이 현재 위치값 : "+latitude+","+longitude);
             registerChildLocation(UUID, latitude, longitude);
         }
+
+
 
         return rootView;
     }
@@ -93,6 +129,28 @@ public class ChildMapView extends Fragment {
         return currentLocation;
     }
 
+    // 자녀의 정보 불러오기
+    public String fetchChild(String UUID){
+        String url = CommonMethod.ipConfig + "/api/fetchChild";
+        String rtnStr= "";
+
+        try{
+            String jsonString = new JSONObject()
+                    .put("UUID", UUID)
+                    .toString();
+
+            //REST API
+            RequestHttpURLConnection.NetworkAsyncTask networkTask = new RequestHttpURLConnection.NetworkAsyncTask(url, jsonString);
+            rtnStr = networkTask.execute().get();
+//          Toast.makeText(getActivity(), "자녀 등록을 완료하였습니다.", Toast.LENGTH_SHORT).show();
+//           Log.i(TAG, String.format("가져온 Phonenum: (%s)", rtnStr));
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return rtnStr;
+
+    }
+
     public void registerChildLocation(String UUID, double current_latitude, double current_longitude){
         String url = CommonMethod.ipConfig + "/api/savePositionChild";
 
@@ -112,6 +170,28 @@ public class ChildMapView extends Fragment {
         }catch(Exception e){
             e.printStackTrace();
         }
+    }
+
+    public String fetchPhone(String userId){
+        String url = CommonMethod.ipConfig + "/api/fetchTelNum";
+        String rtnStr= "";
+
+        try{
+            String jsonString = new JSONObject()
+                    .put("userId", userId)
+                    .toString();
+
+            //REST API
+            RequestHttpURLConnection.NetworkAsyncTask networkTask = new RequestHttpURLConnection.NetworkAsyncTask(url, jsonString);
+            rtnStr = networkTask.execute().get();
+
+//          Toast.makeText(getActivity(), "자녀 등록을 완료하였습니다.", Toast.LENGTH_SHORT).show();
+            //Log.i(TAG, String.format("가져온 Phonenum: (%s)", rtnStr));
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return rtnStr;
     }
 
 }

@@ -158,7 +158,7 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
             @Override
             public void onItemClick(View a_view, int a_position) {
                 childnum1 = a_position;
-                //Toast.makeText(AddMissionActivity.this, Integer.toString(childnum1), Toast.LENGTH_LONG).show();
+                Toast.makeText(AddMissionActivity.this, Integer.toString(childnum1+1), Toast.LENGTH_LONG).show();
             }
         });
 
@@ -334,14 +334,11 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
                     Toast.makeText(AddMissionActivity.this, "위험지역 확인을 하시고 체크해주세요", Toast.LENGTH_LONG);
                 } else if (childUUID != null && E_content != null && E_date != null && target_latitude != 0 && target_longitude != 0 && start_longitude != 0 && start_latitude != 0 && risk_chk.isChecked()){
                     registerErrand(ProfileData.getUserId(), childUUID, E_date, E_content,
-                            target_latitude,target_longitude,start_latitude,start_longitude,true);
-                    // add to json
-                    Toast.makeText(AddMissionActivity.this, "심부름을 시작합니다", Toast.LENGTH_LONG);
+                            target_latitude,target_longitude,edit_addr.getText().toString(), edit_addr2.getText().toString(),start_latitude,start_longitude,true);
+                    Toast.makeText(AddMissionActivity.this, "심부름을 시작합니다", Toast.LENGTH_LONG).show();
                     finish();
-
-
+                    // add to json
                     AddErrandDataToJson();
-
                 }
                 //registerErrand(ProfileData.getUserId(), childUUID, E_date, E_content,
                    //     target_latitude,target_longitude,0,0,true);
@@ -442,8 +439,8 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
     }
 
     public void registerErrand(String user_Id, String UUID, String E_date, String E_content,
-                               double target_latitude, double target_longitude,
-                               double start_latitude, double start_longitude,
+                               double target_latitude, double target_longitude, String target_name,
+                               String start_name, double start_latitude, double start_longitude,
                                boolean checking){
         String url = CommonMethod.ipConfig + "/api/registerErrand";
 
@@ -455,6 +452,8 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
                     .put("E_content", E_content)
                     .put("target_latitude", target_latitude)
                     .put("target_longitude", target_longitude)
+                    .put("target_name", target_name)
+                    .put("start_name", start_name)
                     .put("start_latitude", start_latitude)
                     .put("start_longitude", start_longitude)
                     .put("checking", checking)
@@ -463,8 +462,8 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
             //REST API
             RequestHttpURLConnection.NetworkAsyncTask networkTask = new RequestHttpURLConnection.NetworkAsyncTask(url, jsonString);
             networkTask.execute().get();
-            //Toast.makeText(AddMissionActivity.this, "심부름이 설정되었습니다", Toast.LENGTH_LONG).show();
-
+            Toast.makeText(AddMissionActivity.this, "심부름이 설정되었습니다", Toast.LENGTH_LONG).show();
+            Log.i("심부름 설정하기 - target name 추가", target_name);
         }catch(Exception e){
             e.printStackTrace();
         }

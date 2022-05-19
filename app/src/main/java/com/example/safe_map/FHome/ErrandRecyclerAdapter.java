@@ -71,6 +71,7 @@ public class ErrandRecyclerAdapter  extends RecyclerView.Adapter<ErrandRecyclerA
                 @Override
                 public void onClick(View a_view) {
                     final int position = getAdapterPosition();
+                    mItemClickListener.onItemClick(a_view, position);
                     //a_view.setBackgroundColor(Color.YELLOW);
                     //Log.d("Recyclerview", "position = "+ getAdapterPosition());
                     //mItemClickListener.onItemClick(a_view, position);

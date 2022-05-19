@@ -19,7 +19,7 @@ public class QuestBeforeCheck extends AppCompatActivity {
         setContentView(R.layout.activity_quest_before_check);
 
         Intent intent = getIntent();
-        //UUID = intent.getExtras().getString("childId");
+        UUID = intent.getExtras().getString("childId");
 
         quest = (Button) findViewById(R.id.realstart);
         quest.setOnClickListener(new View.OnClickListener() {
@@ -27,7 +27,7 @@ public class QuestBeforeCheck extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getApplicationContext(), ChildMap.class);
-                //intent.putExtra("childId", UUID);
+                intent.putExtra("childId", UUID);
                 startActivity(intent);
                 finish();
             }

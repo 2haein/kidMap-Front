@@ -2,6 +2,8 @@ package com.example.safe_map.Child;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -12,14 +14,28 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import com.example.safe_map.FHome.ErrandRecyclerAdapter;
+import com.example.safe_map.FHome.errandHome;
 import com.example.safe_map.Login.ChildLoginActivity;
+import com.example.safe_map.Login.LoginActivity;
 import com.example.safe_map.Login.Signup;
 import com.example.safe_map.R;
+import com.example.safe_map.http.CommonMethod;
+import com.example.safe_map.http.RequestHttpURLConnection;
+
+import org.json.JSONObject;
+
+import java.util.ArrayList;
 
 public class ChildMain extends AppCompatActivity {
     ImageButton parentButton, errandStart;
     TextView errandContent, target_name;
     String UUID;
+
+    //심부름 목록
+    private RecyclerView mRecyclerView;
+    private ErrandRecyclerAdapter mRecyclerAdapter;
+    private ArrayList<errandHome> mErrandHome;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,6 +46,7 @@ public class ChildMain extends AppCompatActivity {
         UUID = intent.getExtras().getString("childId");
         Log.i("child ID 22222", UUID);
 
+        // 부모 모드로 전환
         parentButton = (ImageButton) findViewById(R.id.parent);
         parentButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -41,8 +58,7 @@ public class ChildMain extends AppCompatActivity {
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 // 처리할 코드 작성
-                                Intent intent2 = new Intent(ChildMain.this, beforeCheck.class);
-                                intent2.putExtra("childId", UUID);
+                                Intent intent2 = new Intent(ChildMain.this, LoginActivity.class);
                                 startActivity(intent2);
                                 finish();
                             }
@@ -50,16 +66,59 @@ public class ChildMain extends AppCompatActivity {
                 dlg.show();
             }
         });
+        //심부름 목록 불러오기
+        mRecyclerView = (RecyclerView) findViewById(R.id.recyclerView4);
+        /* initiate adapter */
+        mRecyclerAdapter = new ErrandRecyclerAdapter(this);
 
+        /* adapt data */
+        mErrandHome = new ArrayList<>();
+        /*for(int i=1;i<=5;i++){
+            mErrandHome.add(new errandHome(Integer.toString(i), Integer.toString(i), Integer.toString(i),Integer.toString(i)));
+        }*/
+
+        //fetchChild(UUID);
+        mErrandHome.add(new errandHome("첫째아이", "2022-02-22", "빵 사오기","뚜레쥴"));
+        mErrandHome.add(new errandHome("첫째아이", "2022-02-23", "빵 사오기","뚜레쥴"));
+
+        mRecyclerAdapter.setErrandHome(mErrandHome);
+        /* initiate recyclerview */
+        mRecyclerView.setAdapter(mRecyclerAdapter);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        //mRecyclerView.setLayoutManager(new LinearLayoutManager(this, RecyclerView.VERTICAL,false));
+
+
+        // 심부름 시작하기 버튼
         errandStart = (ImageButton) findViewById(R.id.start);
         errandStart.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getApplicationContext(), beforeCheck.class);
+                intent.putExtra("childId", UUID);
                 startActivity(intent);
             }
         });
     }
 
+    public String fetchChild(String UUID){
+        String url = CommonMethod.ipConfig + "/api/fetchChild";
+        String rtnStr= "";
+
+        try{
+            String jsonString = new JSONObject()
+                    .put("UUID", UUID)
+                    .toString();
+
+            //REST API
+            RequestHttpURLConnection.NetworkAsyncTask networkTask = new RequestHttpURLConnection.NetworkAsyncTask(url, jsonString);
+            rtnStr = networkTask.execute().get();
+//          Toast.makeText(getActivity(), "자녀 등록을 완료하였습니다.", Toast.LENGTH_SHORT).show();
+//           Log.i(TAG, String.format("가져온 Phonenum: (%s)", rtnStr));
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return rtnStr;
+
+    }
 
 }

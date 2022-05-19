@@ -28,7 +28,7 @@ public class beforeCheck extends AppCompatActivity implements CompoundButton.OnC
         setContentView(R.layout.activity_before_check);
         Intent intent = getIntent();
         Bundle data = getIntent().getExtras();
-        //UUID = data.getString("childId");
+        UUID = data.getString("childId");
 
         //imageview 색상 바꾸기
         image1 = (ImageView) findViewById(R.id.imageView6);
@@ -55,7 +55,7 @@ public class beforeCheck extends AppCompatActivity implements CompoundButton.OnC
             public void onClick(View v) {
                 if(checkbox1.isChecked() && checkbox2.isChecked() && checkbox3.isChecked()){
                     Intent intent = new Intent(getApplicationContext(), QuestBeforeCheck.class);
-                    //intent.putExtra("childId", UUID);
+                    intent.putExtra("childId", UUID);
                     startActivity(intent);
                     finish();
                 } else {
