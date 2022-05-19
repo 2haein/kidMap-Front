@@ -68,6 +68,8 @@ public class CheckMapFragment extends Fragment {
     // 위험지역
     ArrayList<DangerPoint> DangerZone = new ArrayList<>();
 
+    ViewGroup mapViewContainer;
+
 
     /**
      * Use this factory method to create a new instance of
@@ -125,7 +127,7 @@ public class CheckMapFragment extends Fragment {
 
         // 카카오 지도
         mapView = new MapView(getContext());
-        ViewGroup mapViewContainer = (ViewGroup) v.findViewById(R.id.childMapView);
+        mapViewContainer = (ViewGroup) v.findViewById(R.id.childMapView);
         mapViewContainer.addView(mapView);
 
         // 중심점 변경
@@ -183,10 +185,16 @@ public class CheckMapFragment extends Fragment {
 
     @Override
     public void onPause(){
-        //mapViewContainer.removeView(mapView);
+        mapViewContainer.removeView(mapView);
         //getActivity().finish();
         super.onPause();
     }
+
+    public void finish() {
+        mapViewContainer.removeView(mapView);
+        getActivity().finish();
+    }
+
 
     private void GetErrandDataFromJson() {
         String jsonString = null;
