@@ -123,10 +123,38 @@ public class StdRecyclerAdapter extends RecyclerView.Adapter<StdRecyclerAdapter.
                     //}
                 }
             });
+
+
+
         }
         void onBind(ChildnumItem item){
             childNum.setText(item.getChildNum());
         }
+    }
+    private void toggleItemSelected(int position) {
+
+        if (mSelectedItems.get(position, false) == true) {
+            mSelectedItems.delete(position);
+            notifyItemChanged(position);
+        } else {
+            mSelectedItems.put(position, true);
+            notifyItemChanged(position);
+        }
+    }
+    private boolean isItemSelected(int position) {
+        return mSelectedItems.get(position, false);
+    }
+
+    public void clearSelectedItem() {
+        int position;
+
+        for (int i = 0; i < mSelectedItems.size(); i++) {
+            position = mSelectedItems.keyAt(i);
+            mSelectedItems.put(position, false);
+//            notifyItemChanged(position);
+        }
+
+        mSelectedItems.clear();
     }
 
 
