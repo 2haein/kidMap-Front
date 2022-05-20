@@ -32,6 +32,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Geocoder;
+import android.net.TrafficStats;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -98,6 +99,17 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
 
     double target_longitude, target_latitude;
     double start_longitude, start_latitude;
+
+    // 길 찾기 관련 변수들
+    ArrayList<jPoint> safe_path = new ArrayList<>(); // 안전 경로
+
+    // 퀘스트 관련 변수들
+    int trafficLight_num = 0;// 신호등
+    int crossWalk_num = 0; // 횡단보도
+    int onFoot_num = 0;  // 도보
+    int alley_num = 0;  // 골목
+    int driveWay_num = 0;
+
 
     // 아이 목록 리사이클러뷰
     private RecyclerView mRecyclerView;
@@ -260,6 +272,11 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
                     overridePendingTransition(0, 0);
                     // 주소결과
                     startActivityForResult(i, SEARCH_ADDRESS_ACTIVITY2);
+
+// 여기서 경로 찾기 및 퀘스트가 이뤄져야 한다.
+                  //  Find_Safe_Path(start_latitude,start_longitude,target_latitude, target_longitude);
+                   // Quest_Maker();
+
                 }else {
                     Toast.makeText(getApplicationContext(), "인터넷 연결을 확인해주세요.", Toast.LENGTH_SHORT).show();
                 }
@@ -284,11 +301,11 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
 
         mArrayList = new ArrayList<>();
         mArrayList.add(new QuestData("(필수) 중간 지점에서 사진 찍어 보내기"));
-        mArrayList.add(new QuestData("(필수) 신호등 있으면 안전하게 건너기"));
         mArrayList.add(new QuestData("(필수) 심부름 내용 잘 수행하기"));
 
         mQuestAdapter = new QuestAdapter(mContext, mArrayList);
         mQuestRecyclerView.setAdapter(mQuestAdapter);
+
 
         quest_save.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -346,10 +363,11 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
                         e.printStackTrace();
                     }
                     Toast.makeText(AddMissionActivity.this, "심부름을 시작합니다", Toast.LENGTH_LONG).show();
-                    // add to json
-                    AddErrandDataToJson();
                     finish();
                 }
+
+  // 여기서 퀘스트 메이커가 이뤄주ㅝ얗 ㅏㄴ다.
+
                 //registerErrand(ProfileData.getUserId(), childUUID, E_date, E_content,
                    //     target_latitude,target_longitude,0,0,true);
                 //Activity MainActivity = new MainActivity;
@@ -358,6 +376,78 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
         });
 
     }
+
+
+    // 지오코딩 된 출발, 도착지를 이용하여 1)안전 경로를 찾고, 2) 경로 환경을 파악하고, 3)제이슨에 저장한다.
+    private void Find_Safe_Path(double start_latitude, double start_longitude, double target_latitude, double target_longitude) {
+        Astar astar = new Astar();
+        jPoint jp_start = new jPoint(start_latitude, start_longitude);
+        jPoint jp_end = new jPoint(target_latitude, target_longitude);
+
+        // 1-1) 노드, 링크, 위험 지역 파싱
+        astar.ParseNode(mContext);
+        astar.ParseLinks(mContext);
+        astar.ParseDanger(mContext);
+
+        // 1-2) 출발, 도착지와 인접한 노드 번호를 찾는다.
+        astar.FindDangerousNodeNum();
+        int start = astar.findCloseNode(jp_start);
+        int end = astar.findCloseNode(jp_end);
+
+       // Log.d("test","1. start :"+ start);
+       // Log.d("test","1. end: "+ end);
+
+        // 1-3) 위에서 찾은 노드 번호를 이용하여 길 찾기 수행
+        astar.AstarSearch(start, end);
+        astar.FindPath(start, end);
+        astar.CoordPath(start_latitude, start_longitude, target_latitude, target_longitude);
+        //Log.d("test","2. path size: "+ astar.jp_path.size());
+
+        // 1-4) 경로로부터 요소 정보 추출
+        astar.GetPathInfo();
+        trafficLight_num = astar.traffic;
+        crossWalk_num = astar.crosswalk;
+        onFoot_num = astar.onfoot;
+        alley_num = astar.alley;
+      //  Log.d("test","3. t: "+ trafficLight_num);
+      //  Log.d("test","3. c: "+ crossWalk_num);
+       // Log.d("test","3. o: "+ onFoot_num);
+
+        // 1-5) Json에 경로 저장.
+        astar.Save_SafePath_To_Json(getFilesDir());
+
+    }
+
+
+    // 출발지와 목적지가 정해지면 신호등, 육교, 횡단보도, 골목길 등을 찾는다.
+    // 찾은 결과에 따라 맞는 필수 퀘스트를 지정해준다.
+    private void Quest_Maker(){
+
+        String TrafficLight = "초록불일 때 만 길을 건너세요. 불이 깜빡거리면 멈춰서 다음 신호를 기다려요";
+        String CrossWalk = "건너기 전 항상 양 옆을 확인하여 차가 오는지 확인하고 건너세요";
+        String Alley = "갑자기 차가 튀어나올 수 있습니다. 주변을 살피며 가세요.";
+        String DriveWay = "차가 지나다닙니다. 끝에 붙어서 다니세요";
+
+        if(trafficLight_num >= 1){
+            mArrayList.add(new QuestData(TrafficLight));
+        }
+        if(crossWalk_num >= 1){
+            mArrayList.add(new QuestData(CrossWalk));
+        }
+        if(alley_num >= 1){
+            mArrayList.add(new QuestData(Alley));
+        }
+        if(driveWay_num >= 1){
+            mArrayList.add(new QuestData(DriveWay));
+        }
+
+        mQuestAdapter = new QuestAdapter(mContext, mArrayList);
+
+        Log.d("test","QuestMaker 1");
+        mQuestRecyclerView.setAdapter(mQuestAdapter);
+        Log.d("test","QuestMaker 2");
+    }
+
 
 
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
@@ -385,6 +475,7 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
                                 Log.i("address 변환 ok" , String.valueOf(addr.getLatitude()));
                                 target_latitude = addr.getLatitude();
                                 target_longitude = addr.getLongitude();
+                               // Log.i("test","GEO  lat : "+target_latitude + "lon : "+target_longitude );
                                 //Toast.makeText(AddMissionActivity.this,"해당되는 주소의 위도, 경도 값을 설정하였습니다",Toast.LENGTH_LONG).show();
                             }
                         }
@@ -413,6 +504,9 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
                                 start_latitude = addr.getLatitude();
                                 start_longitude = addr.getLongitude();
                                 //Toast.makeText(AddMissionActivity.this,"출발지 주소의 위도, 경도 값을 설정하였습니다",Toast.LENGTH_LONG).show();
+                               // Log.i("test","GEO2  lat : "+start_latitude + "lon : "+start_longitude );
+                                Find_Safe_Path(start_latitude,start_longitude,target_latitude, target_longitude);
+                                Quest_Maker();
                             }
                         }
                     }
@@ -501,38 +595,6 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
         return rtnStr;
     }
 
-    public void AddErrandDataToJson(){
-        String filename = "ErrandInfo.json";
-
-        JSONObject sObject = new JSONObject();//배열 내에 들어갈 json
-
-        // 1. json에 넣을 데이터 만들기
-        try {
-
-            sObject.put("src_lat", start_latitude);
-            sObject.put("src_lon", start_longitude);
-            sObject.put("src_name", start_name);
-            sObject.put("dst_lat", target_latitude);
-            sObject.put("dst_lon", target_longitude);
-            sObject.put("dst_name", target_name);
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        // 2. json파일을 열어 데이터 저장.
-        try {
-            String jsonStr = sObject.toString();
-
-            Log.d("resttt",""+jsonStr);
-            FileOutputStream fos = new FileOutputStream(getFilesDir()+"/"+filename);
-            fos.write(jsonStr.getBytes());
-            fos.close();
-        } catch (FileNotFoundException fileNotFound) {
-            fileNotFound.printStackTrace();
-        } catch (IOException ioException) {
-            ioException.printStackTrace();
-        }
-    }
 
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {

@@ -1,4 +1,4 @@
-package com.example.safe_map.FCheckMap;
+package com.example.safe_map.FHome;
 
 public class jLink {
 

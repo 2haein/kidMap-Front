@@ -15,6 +15,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.example.safe_map.FHome.DangerPoint;
+import com.example.safe_map.FHome.jPoint;
 import com.example.safe_map.R;
 
 import net.daum.mf.map.api.MapCircle;
@@ -47,23 +49,20 @@ public class CheckMapFragment extends Fragment {
 
 
 
-    // 경로 찾기용
-    jPoint jp_src = new jPoint();
-    jPoint jp_dst = new jPoint();
+   // json에서 받아온다.
+    ArrayList<MapPoint> safe_path = new ArrayList<>();
 
     // 출발, 도착 지점 이름
     String src_name = "";
     String dst_name = "";
 
-    // 디폴트 : 중앙대 310관 운동장
+    // 디폴트 좌표 : 중앙대 310관 운동장
     boolean isDefault = true;
-    jPoint jp_src_default = new jPoint(37.503619745977055, 126.95668175768733);
-    jPoint jp_dst_default = new jPoint(37.503619745977055, 126.95668175768733);
+    MapPoint mp_default = MapPoint.mapPointWithGeoCoord(37.503619745977055,126.95668175768733);
 
     MapView  mapView;    //MapView  mapView = new MapView(getActivity());
     Context mContext;
 
-    Astar as = new Astar();
 
     // 위험지역
     ArrayList<DangerPoint> DangerZone = new ArrayList<>();
@@ -114,13 +113,9 @@ public class CheckMapFragment extends Fragment {
         GetErrandDataFromJson();
 
 
-        // 지도에 띄우기 용도의 좌표 객체
-        MapPoint mp_src_test = MapPoint.mapPointWithGeoCoord(jp_src.GetLat(),jp_src.GetLng());
-        MapPoint mp_dst_test = MapPoint.mapPointWithGeoCoord(jp_dst.GetLat(),jp_dst.GetLng());
-
         // 지도 중심을 설정하기 위한 좌표
-        double lat_d =  (jp_src.GetLat() + jp_dst.GetLat()) /2.0;
-        double lon_d =  (jp_src.GetLng() + jp_dst.GetLng()) /2.0;
+        double lat_d = 0.0;
+        double lon_d = 0.0;
         MapPoint mid = MapPoint.mapPointWithGeoCoord(lat_d, lon_d);
 
         // 카카오 지도
@@ -129,40 +124,15 @@ public class CheckMapFragment extends Fragment {
         mapViewContainer.addView(mapView);
 
         // 중심점 변경
-        mapView.setMapCenterPoint(mid, true);
+        mapView.setMapCenterPoint(mp_default, true);
 
         // 줌 레벨 변경
         mapView.setZoomLevel(2, true);
 
 
-        // 0. 시작점, 도착점 지도에 마커로 띄우기
-        MapPOIItem marker_src = new MapPOIItem();
-        marker_src.setItemName(src_name);
-        marker_src.setTag(0);
-        marker_src.setMapPoint(mp_src_test);
-        marker_src.setMarkerType(MapPOIItem.MarkerType.BluePin); // 기본으로 제공하는 BluePin 마커 모양.
-        marker_src.setSelectedMarkerType(MapPOIItem.MarkerType.RedPin); // 마커를 클릭했을때, 기본으로 제공하는 RedPin 마커 모양.
-
-        MapPOIItem marker_dst = new MapPOIItem();
-        marker_dst.setItemName(dst_name);
-        marker_dst.setTag(0);
-        marker_dst.setMapPoint(mp_dst_test);
-        marker_dst.setMarkerType(MapPOIItem.MarkerType.BluePin);
-        marker_dst.setSelectedMarkerType(MapPOIItem.MarkerType.RedPin);
-
-        mapView.addPOIItem(marker_src);
-        mapView.addPOIItem(marker_dst);
-
-
-
-
+        ParseDangerZone();
         // 1. 위험 구역, 노드, 링크 파싱 후 위험 구역을 지도에 마커로 띄우기
-        ParseInfos();
-        as.FindDangerousNodeNum(DangerZone);
         ShowDangerZoneOnMap();
-
-        // 2. 노드, 링크 파싱 후 안전 경로 찾기
-        SearchPath(jp_src, jp_dst);
 
         // 3. 지도에 안전 경로 띄우기
         ShowPathOnMap();
@@ -172,6 +142,7 @@ public class CheckMapFragment extends Fragment {
 
     @Override
     public void onResume() {
+        Log.d("test",""+"onResume Started");
         mapView.onResume();
         super.onResume();
     }
@@ -183,6 +154,7 @@ public class CheckMapFragment extends Fragment {
 
     @Override
     public void onPause(){
+        Log.d("test",""+"onPause Started");
         mapViewContainer.removeView(mapView);
         //getActivity().finish();
         super.onPause();
@@ -197,42 +169,39 @@ public class CheckMapFragment extends Fragment {
     private void GetErrandDataFromJson() {
         String jsonString = null;
         try {
-            String filename = "ErrandInfo.json";
+            String filename = "PathInfo.json";
             FileInputStream fos = new FileInputStream(getActivity().getFilesDir()+"/"+filename);
            // InputStream is = mContext.getAssets().open(getFilesDir()+ErrandInfo.json");
-            Log.d("resttt",""+fos.available());
+            //Log.d("resttt",""+fos.available());
             int size = fos.available();
             byte[] buffer = new byte[size];
             fos .read(buffer);
             fos .close();
             jsonString = new String(buffer, "UTF-8");
+            Log.d("test","Parse jsonString : "+ jsonString);
         } catch (IOException e) {
             e.printStackTrace();
         }
         try{
+            safe_path.clear();
             JSONObject jsonObject = new JSONObject(jsonString);
+            JSONArray jsonarray2 = (JSONArray) jsonObject.get("coords");
+            Log.d("test","Parse 2: "+ jsonarray2);
 
-            jp_src.SetLat(Double.parseDouble(String.valueOf(jsonObject.get("src_lat"))));
-            jp_src.SetLng(Double.parseDouble(String.valueOf(jsonObject.get("src_lon"))));
-            src_name = String.valueOf(jsonObject.get("src_name"));
+            for (int i = 0; i < jsonarray2.length(); i++) {
+                JSONObject jsonobject = jsonarray2.getJSONObject(i);
 
-            jp_dst.SetLat(Double.parseDouble(String.valueOf(jsonObject.get("dst_lat"))));
-            jp_dst.SetLng(Double.parseDouble(String.valueOf(jsonObject.get("dst_lon"))));
-            dst_name = String.valueOf(jsonObject.get("dst_name"));
-
+                double lat = Double.parseDouble(String.valueOf(jsonobject.getString("lat")));
+                double lon = Double.parseDouble(String.valueOf(jsonobject.getString("lng")));
+                MapPoint mp = MapPoint.mapPointWithGeoCoord(lat,lon);
+                safe_path.add(mp);
+            }
 
         }catch (JSONException e) {
             e.printStackTrace();
         }
     }
 
-
-    // 1. 위험구역, 노드, 링크 파싱
-    void ParseInfos(){
-        ParseDangerZone();
-        as.ParseNode(mContext);
-        as.ParseLinks(mContext);
-    }
 
     void ParseDangerZone(){
         String jsonString = null;
@@ -266,6 +235,7 @@ public class CheckMapFragment extends Fragment {
             e.printStackTrace();
         }
     }
+
 
     // 위험 구역 지도에 띄우기
     private void ShowDangerZoneOnMap() {
@@ -329,38 +299,44 @@ public class CheckMapFragment extends Fragment {
 
 
 
-    // 2. 경로 찾기
-    void SearchPath(jPoint jp_src, jPoint jp_dst){
-
-
-        // 2-1. 출발지, 도착지와 가장 가까운 "노드 번호" 찾기
-        int start = as.findCloseNode(jp_src);
-        int end = as.findCloseNode(jp_dst);
-
-        //Log.d("test111",""+"startNum:"+start+" endNum:"+ end);
-
-        //as.TEST_print_parse();
-
-        // 2-2. 노드 번호를 기반으로 길 찾기
-        as.AstarSearch(start, end);
-        as.FindPath(start,end);
-
-    }
 
 
     // 3. 경로를 지도에 폴리라인으로 띄우기
     void ShowPathOnMap(){
         MapPolyline pathLine = new MapPolyline();
 
-        //Log.d("test",""+"path size : " + as.path.size());
+        int size =  safe_path.size();
 
-        for(int i =0 ; i < as.path.size() ; i ++){
-            MapPoint tmp = MapPoint.mapPointWithGeoCoord(as.nodes.get(as.path.get(i)).lat, as.nodes.get(as.path.get(i)).lng);
+        MapPoint mark_point1 = MapPoint.mapPointWithGeoCoord(safe_path.get(0).getMapPointGeoCoord().latitude,safe_path.get(0).getMapPointGeoCoord().longitude);
+        MapPOIItem marker1 = new MapPOIItem();
+        marker1.setItemName("출발");
+        marker1.setTag(0);
+        marker1.setMapPoint(mark_point1);
+        marker1.setMarkerType(MapPOIItem.MarkerType.RedPin); // 기본으로 제공하는 BluePin 마커 모양.
+        marker1.setSelectedMarkerType(MapPOIItem.MarkerType.RedPin); // 마커를 클릭했을때, 기본으로 제공하는 RedPin 마커 모양.
+
+        MapPoint mark_point2 = MapPoint.mapPointWithGeoCoord(safe_path.get(size-1).getMapPointGeoCoord().latitude,safe_path.get(size-1).getMapPointGeoCoord().longitude);
+        MapPOIItem marker2 = new MapPOIItem();
+        marker2.setItemName("도착");
+        marker2.setTag(0);
+        marker2.setMapPoint(mark_point2);
+        marker2.setMarkerType(MapPOIItem.MarkerType.RedPin); // 기본으로 제공하는 BluePin 마커 모양.
+        marker2.setSelectedMarkerType(MapPOIItem.MarkerType.RedPin); // 마커를 클릭했을때, 기본으로 제공하는 RedPin 마커 모양.
+
+        mapView.addPOIItem(marker1);
+        mapView.addPOIItem(marker2);
+
+
+        for(int i =1 ; i < safe_path.size()-1 ; i ++){
+            MapPoint tmp = MapPoint.mapPointWithGeoCoord(safe_path.get(i).getMapPointGeoCoord().latitude,safe_path.get(i).getMapPointGeoCoord().longitude );
             pathLine.addPoint(tmp);
-
         }
 
         mapView.addPolyline(pathLine);
+
+        MapPoint mid = MapPoint.mapPointWithGeoCoord(safe_path.get((int)size/2).getMapPointGeoCoord().latitude,safe_path.get((int)size/2).getMapPointGeoCoord().longitude );
+        mapView.setMapCenterPoint(mid, true);
+
 
     }
 

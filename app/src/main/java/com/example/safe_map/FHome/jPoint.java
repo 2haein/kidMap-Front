@@ -1,4 +1,4 @@
-package com.example.safe_map.FCheckMap;
+package com.example.safe_map.FHome;
 
 public class jPoint {
 
@@ -11,7 +11,7 @@ public class jPoint {
 
     }
 
-    jPoint(double lat, double lng){
+    public jPoint(double lat, double lng){
         this.lat = lat;
         this.lng = lng;
     }

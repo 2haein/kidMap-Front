@@ -1,4 +1,4 @@
-package com.example.safe_map.FCheckMap;
+package com.example.safe_map.FHome;
 
 public class DangerPoint {
 
@@ -7,23 +7,23 @@ public class DangerPoint {
     double lng;
 
 
-    void SetType(double i ){
+    public void SetType(double i){
         type = i;
     }
-    void SetLat(double lat){
+    public void SetLat(double lat){
         this.lat = lat;
     }
-    void SetLng(double lng){
+    public void SetLng(double lng){
         this.lng = lng;
     }
 
-    double GetType(){
+    public double GetType(){
         return type;
     }
-    double GetLat(){
+    public double GetLat(){
         return lat;
     }
-    double GetLng(){
+    public double GetLng(){
         return lng;
     }
 
