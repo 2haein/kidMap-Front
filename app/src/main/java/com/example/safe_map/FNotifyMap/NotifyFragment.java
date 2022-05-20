@@ -103,6 +103,7 @@ public class NotifyFragment extends Fragment implements OnMapReadyCallback, Noti
         mapViewContainer.addView(mapView);
 
         locationManager = (LocationManager)getContext().getSystemService(Context.LOCATION_SERVICE);
+
         Location loc_Current = getMyLocation();
         cur_lat = loc_Current.getLatitude();
         cur_lon = loc_Current.getLongitude();

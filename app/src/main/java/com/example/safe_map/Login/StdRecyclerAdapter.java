@@ -3,6 +3,7 @@ package com.example.safe_map.Login;
 import android.content.Context;
 import android.graphics.Color;
 import android.util.Log;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +18,7 @@ import java.util.ArrayList;
 
 public class StdRecyclerAdapter extends RecyclerView.Adapter<StdRecyclerAdapter.ViewHolder>{
     private ArrayList<ChildnumItem> mChildnum;
+    private SparseBooleanArray mSelectedItems = new SparseBooleanArray(0);
 
     public StdRecyclerAdapter(Context context) {
         this.mcontext = context;
@@ -106,7 +108,14 @@ public class StdRecyclerAdapter extends RecyclerView.Adapter<StdRecyclerAdapter.
                 @Override
                 public void onClick(View a_view) {
                     final int position = getAdapterPosition();
-                    a_view.setBackgroundColor(Color.YELLOW);
+                    if(mSelectedItems.get(position,false)){
+                        mSelectedItems.put(position,false);
+                        a_view.setBackgroundColor(Color.WHITE);
+                    } else {
+                        mSelectedItems.put(position,true);
+                        a_view.setBackgroundColor(Color.YELLOW);
+                    }
+
                     Log.d("Recyclerview", "position = "+ getAdapterPosition());
                     mItemClickListener.onItemClick(a_view, position);
                     //if (position != RecyclerView.NO_POSITION) {

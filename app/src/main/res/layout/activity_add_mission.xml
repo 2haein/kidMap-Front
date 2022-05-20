@@ -218,7 +218,7 @@
                 android:layout_height="48dp"
                 android:layout_marginStart="12dp"
                 android:ems="10"
-                android:hint="예) 신호등 건널 때 손 들고 건너기"
+                android:hint="예) 자동차 조심해서 인도로 걷기"
                 android:inputType="textPersonName"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/textView30" />
