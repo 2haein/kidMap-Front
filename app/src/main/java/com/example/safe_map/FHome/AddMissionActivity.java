@@ -159,8 +159,7 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
         mRecyclerAdapter.setOnItemClickListener(new StdRecyclerAdapter.OnItemClickEventListener() {
             @Override
             public void onItemClick(View a_view, int a_position) {
-                mRecyclerAdapter.clearSelectedItem();
-                System.out.println("122");
+//                mRecyclerAdapter.clearSelectedItem();
                 selectChild = a_position;
                 Toast.makeText(AddMissionActivity.this, Integer.toString(selectChild+1), Toast.LENGTH_SHORT).show();
             }
@@ -451,7 +450,7 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
                                double target_latitude, double target_longitude, String target_name,
                                String start_name, List<String> quest,double start_latitude, double start_longitude,
                                boolean checking) throws JSONException {
-        String url = CommonMethod.ipConfig + "/api/registerErrand";
+        String url = CommonMethod.ipDefault + "/api/registerErrand";
 
 //        System.out.println(UUID+ E_date+ E_content+ target_latitude+ target_longitude+ target_name+ start_name+ start_latitude+ start_longitude+ checking +"확인하기11");
 
