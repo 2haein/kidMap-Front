@@ -11,6 +11,7 @@ import android.os.Bundle;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentContainerView;
 
 import android.os.Environment;
 import android.os.Looper;
@@ -21,6 +22,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.example.safe_map.MainActivity;
@@ -30,7 +33,7 @@ import com.example.safe_map.http.CommonMethod;
 import com.example.safe_map.http.RequestHttpURLConnection;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
-import com.google.maps.android.SphericalUtil;
+import com.skt.Tmap.TMapView;
 
 import net.daum.mf.map.api.MapView;
 
@@ -46,7 +49,9 @@ import java.io.File;
 public class ChildMapView extends Fragment {
     String UUID;
 
-    MapView mapView;
+    TMapView tMapView;
+    RelativeLayout mapView;
+
     ViewGroup mapViewContainer;
     private LocationManager locationManager;
     private static final int REQUEST_CODE_LOCATION = 2;
@@ -77,6 +82,24 @@ public class ChildMapView extends Fragment {
         home = (ImageButton) v.findViewById(R.id.homeaddr);
         camera = (ImageButton) v.findViewById(R.id.camera);
         call = (ImageButton) v.findViewById(R.id.call);
+
+        mapView = (RelativeLayout) v.findViewById(R.id.childMapView);
+        tMapView = new TMapView(getActivity());
+
+        tMapView.setSKTMapApiKey("l7xx94f3b9ca30ba4d16850a60f2c3ebfdd5");
+        tMapView.setLocationPoint(126.9559522,37.50372984);
+        tMapView.setCenterPoint(126.9559522,37.50372984);
+        tMapView.setCompassMode(false);
+        tMapView.setIconVisibility(true);
+        tMapView.setZoomLevel(18); // 클수록 확대
+        tMapView.setMapType(TMapView.MAPTYPE_STANDARD);  //일반지도
+        tMapView.setLanguage(TMapView.LANGUAGE_KOREAN);
+        tMapView.setTrackingMode(false);
+        tMapView.setSightVisible(false);
+        mapView.addView(tMapView);
+
+
+
 
         home.setOnClickListener(new View.OnClickListener() {
             @Override

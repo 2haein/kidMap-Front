@@ -47,6 +47,7 @@ dependencies {
     implementation "com.kakao.sdk:v2-user:2.9.0"
     implementation 'com.kakao.sdk:usermgmt:1.30.7'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation files('libs\\com.skt.Tmap_1.70.jar')
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
