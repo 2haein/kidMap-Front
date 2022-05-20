@@ -337,7 +337,7 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
                 } else if (childUUID != null && E_content != null && E_date != null && target_latitude != 0 && target_longitude != 0 && start_longitude != 0 && start_latitude != 0){
                     for (int i =0; i < mArrayList.size(); i++) {
                         Log.i("퀘스트 내용 ", String.valueOf(mArrayList.get(i).getQuest()));
-                        quest.add(mArrayList.get(i).getQuest().toString());
+                        quest.add("\""+mArrayList.get(i).getQuest().toString()+"\"");
                     }
                      try {
                         registerErrand(childUUID, E_date, E_content,
@@ -452,7 +452,7 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
                                boolean checking) throws JSONException {
         String url = CommonMethod.ipDefault + "/api/registerErrand";
 
-//        System.out.println(UUID+ E_date+ E_content+ target_latitude+ target_longitude+ target_name+ start_name+ start_latitude+ start_longitude+ checking +"확인하기11");
+//        System.out.println(quest);
 
         try{
             String jsonString = new JSONObject()
@@ -473,7 +473,7 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
             networkTask.execute().get();
             Toast.makeText(AddMissionActivity.this, "심부름이 설정되었습니다", Toast.LENGTH_LONG).show();
 
-            Log.i("심부름 설정하기 - target name 추가", target_name);
+            Log.i("심부름 설정하기-target name 추가", target_name);
             for (int i =0; i < quest.size(); i++) {
                 Log.i("퀘스트 내용 ", String.valueOf(quest.get(i)));
             }
