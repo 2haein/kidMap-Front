@@ -82,7 +82,7 @@ import java.util.UUID;
 public class AddMissionActivity extends AppCompatActivity implements CompoundButton.OnCheckedChangeListener {
 
     // 초기변수설정
-    public Integer childnum1 = 0;
+    public Integer childnum1 = 0, selectChild = null;
     int y1=0, m1=0, d1=0, h1=0, mi1=0;
     int y=0, m=0, d=0, h=0, mi=0;
 
@@ -157,8 +157,10 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
         mRecyclerAdapter.setOnItemClickListener(new StdRecyclerAdapter.OnItemClickEventListener() {
             @Override
             public void onItemClick(View a_view, int a_position) {
-                childnum1 = a_position;
-                Toast.makeText(AddMissionActivity.this, Integer.toString(childnum1+1), Toast.LENGTH_LONG).show();
+                mRecyclerAdapter.clearSelectedItem();
+                System.out.println("122");
+                selectChild = a_position;
+                Toast.makeText(AddMissionActivity.this, Integer.toString(selectChild+1), Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -316,11 +318,13 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
                 double target_latitude, double target_longitude,
                 double start_latitude, double start_longitude,
                 boolean checking*/
-
-                String childUUID = child[childnum1];
+                String childUUID = "";
+                if(selectChild != null) {
+                    childUUID = child[selectChild];
+                }
                 String E_content = edit_content.getText().toString();
                 String E_date = y+"-"+m+"-"+d+"T"+h+":"+mi;
-                if (childUUID.equals(null)){
+                if (childUUID.equals("")){
                     Toast.makeText(AddMissionActivity.this, "자녀를 선택하세요", Toast.LENGTH_LONG).show();
                 } else if (E_content.equals(null)){
                     Toast.makeText(AddMissionActivity.this, "심부름 내용을 입력하세요", Toast.LENGTH_LONG).show();
