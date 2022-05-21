@@ -27,6 +27,7 @@ import com.example.safe_map.http.RequestHttpURLConnection;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -102,31 +103,22 @@ public class HomeFragment extends Fragment {
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         //mRecyclerView.setLayoutManager(new LinearLayoutManager(this, RecyclerView.VERTICAL,false));
 
+
+        // 자녀 목록 불러오기
+        String[] array = fetchUUID(ProfileData.getUserId());
+
+        for(int i=0; i < array.length; i++){
+            fetchChild(array[i]);
+        }
+
         return view;
     }
 
-    public String fetchChildNum(String userId){
-        String url = CommonMethod.ipConfig + "/api/fetchChildNum";
-        String rtnStr= "";
-        try{
-            String jsonString = new JSONObject()
-                    .put("userId", userId)
-                    .toString();
-
-            //REST API
-            RequestHttpURLConnection.NetworkAsyncTask networkTask = new RequestHttpURLConnection.NetworkAsyncTask(url, jsonString);
-            rtnStr = networkTask.execute().get();
-
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-        return rtnStr;
-
-    }
 
     public String fetchChild(String UUID){
         String url = CommonMethod.ipConfig + "/api/fetchChild";
         String rtnStr= "";
+        String[] result = new String[0];
 
         try{
             String jsonString = new JSONObject()
@@ -136,12 +128,45 @@ public class HomeFragment extends Fragment {
             //REST API
             RequestHttpURLConnection.NetworkAsyncTask networkTask = new RequestHttpURLConnection.NetworkAsyncTask(url, jsonString);
             rtnStr = networkTask.execute().get();
-//          Toast.makeText(getActivity(), "자녀 등록을 완료하였습니다.", Toast.LENGTH_SHORT).show();
-//           Log.i(TAG, String.format("가져온 Phonenum: (%s)", rtnStr));
+            Log.i("wkwkkwk" , rtnStr);
+            //String result2 = rtnStr.substring(1, rtnStr.length() - 1);
+            //Log.i("data22 " , result2);
+
+            /*result = result2.split(",");
+            for (int i=0; i<result.length; i++){
+                result[i] = result[i].substring(1, result[i].length() - 1);
+            }*/
         }catch(Exception e){
             e.printStackTrace();
         }
         return rtnStr;
 
+    }
+    //리스트로 반환
+    public String[] fetchUUID(String userId){
+        String url = CommonMethod.ipConfig + "/api/fetchUUID";
+        List<String> arrayList = new ArrayList<String>();
+        String data = "";
+        String[] result = new String[0];
+        try{
+            String jsonString = new JSONObject()
+                    .put("userId", userId)
+                    .toString();
+
+            //REST API
+            RequestHttpURLConnection.NetworkAsyncTask networkTask = new RequestHttpURLConnection.NetworkAsyncTask(url, jsonString);
+            data = networkTask.execute().get();
+            Log.i("data " , data);
+            String result2 = data.substring(1, data.length() - 1);
+            Log.i("data22 " , result2);
+            result = result2.split(",");
+            for (int i=0; i<result.length; i++){
+                result[i] = result[i].substring(1, result[i].length() - 1);
+            }
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return result;
     }
 }
