@@ -123,7 +123,8 @@ public class NotifyFragment extends Fragment implements NotifyFragment_finish, M
 
     //위험 지역 등록
     TextView addr_result;
-    String notify_content;
+    EditText notify_content_editText;
+    String notify_content_string;
     Button addr_search, notify_add;
     private static final int SEARCH_ADDRESS_ACTIVITY = 40000;
     public double notify_longitude, notify_latitude;
@@ -211,28 +212,34 @@ public class NotifyFragment extends Fragment implements NotifyFragment_finish, M
         addr_result = (TextView) rootView.findViewById(R.id.addr_result);
         addr_search = (Button) rootView.findViewById(R.id.search_addr);
         notify_add = (Button) rootView.findViewById(R.id.notify_add);
-        EditText notify_content_editText = (EditText) rootView.findViewById(R.id.notify_content);
-        notify_content = notify_content_editText.getText().toString();
+        notify_content_editText = (EditText) rootView.findViewById(R.id.notify_content);
+
         addr_search.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                try {
-                    Log.i("주소설정페이지", "주소입력창 클릭");
-                    int status = NetworkStatus.getConnectivityStatus(getContext());
-                    if(status == NetworkStatus.TYPE_MOBILE || status == NetworkStatus.TYPE_WIFI) {
+                if(markers.size() == 0) {
+
+                    try {
                         Log.i("주소설정페이지", "주소입력창 클릭");
-                        Intent i = new Intent(getContext(), AddressApiActivity.class);
-                        // 화면전환 애니메이션 없애기
-                        // overridePendingTransition(0, 0);
-                        // 주소결과
-                        getActivity().startActivityForResult(i, SEARCH_ADDRESS_ACTIVITY);
-                        //MainActivity.moveToAddressApi();
-                    }else {
-                        Toast.makeText(getContext(), "인터넷 연결을 확인해주세요.", Toast.LENGTH_SHORT).show();
-                    }} catch(NumberFormatException e) {
-                    notify_latitude = 0;
-                    notify_longitude = 0;
-                    Toast.makeText(getContext().getApplicationContext(), "집 주소를 다시 입력해주세요", Toast.LENGTH_LONG).show();
+                        int status = NetworkStatus.getConnectivityStatus(getContext());
+                        if (status == NetworkStatus.TYPE_MOBILE || status == NetworkStatus.TYPE_WIFI) {
+                            Log.i("주소설정페이지", "주소입력창 클릭");
+                            Intent i = new Intent(getContext(), AddressApiActivity.class);
+                            // 화면전환 애니메이션 없애기
+                            // overridePendingTransition(0, 0);
+                            // 주소결과
+                            getActivity().startActivityForResult(i, SEARCH_ADDRESS_ACTIVITY);
+                            //MainActivity.moveToAddressApi();
+                        } else {
+                            Toast.makeText(getContext(), "인터넷 연결을 확인해주세요.", Toast.LENGTH_SHORT).show();
+                        }
+                    } catch (NumberFormatException e) {
+                        notify_latitude = 0;
+                        notify_longitude = 0;
+                        Toast.makeText(getContext().getApplicationContext(), "집 주소를 다시 입력해주세요", Toast.LENGTH_LONG).show();
+                    }
+                } else {
+                    Toast.makeText(getContext().getApplicationContext(), "마커 삭제 후 주소 검색해주세요", Toast.LENGTH_LONG).show();
                 }
             }
         });
@@ -240,13 +247,13 @@ public class NotifyFragment extends Fragment implements NotifyFragment_finish, M
         notify_add.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                System.out.println("1111"+notify_content);
+                notify_content_string = notify_content_editText.getText().toString();
                     if(markers.size() == 0) {
                         Toast.makeText(getContext(), "위험 지역 표시를 등록해주세요", Toast.LENGTH_SHORT).show();
-                    }else if(notify_content.equals("")) {
+                    }else if(notify_content_string.length() == 0 ) {
                         Toast.makeText(getContext(), "위험 내용을 입력해주세요", Toast.LENGTH_SHORT).show();
                     } else {
-                        
+                        registerNotify (notify_longitude, notify_latitude, notify_content_string);
                     }
 
             }
@@ -526,7 +533,7 @@ public class NotifyFragment extends Fragment implements NotifyFragment_finish, M
     public void onCurrentLocationUpdateCancelled(MapView mapView) {
     }
 
-    public void registerNotify (double notify_longitude, double notify_latitude, String notify_name, String notify_content){
+    public void registerNotify (double notify_longitude, double notify_latitude, String notify_content){
         String url = CommonMethod.ipConfig + "/api/savePositionChild";
 
         try{
@@ -534,14 +541,14 @@ public class NotifyFragment extends Fragment implements NotifyFragment_finish, M
                     .put("userId", ProfileData.getUserId())
                     .put("notify_longitude", notify_longitude)
                     .put("notify_latitude", notify_latitude)
-                    .put("notify_name", notify_name)
+//                    .put("notify_name", notify_name)
                     .put("notify_content", notify_content)
                     .toString();
 
             //REST API
             RequestHttpURLConnection.NetworkAsyncTask networkTask = new RequestHttpURLConnection.NetworkAsyncTask(url, jsonString);
             networkTask.execute().get();
-            Toast.makeText(getContext().getApplicationContext(), "위험지역 신고가 완료되었습니다", Toast.LENGTH_LONG).show();
+            Toast.makeText(getContext().getApplicationContext(), "위험지역 신고가 완료되었습니다", Toast.LENGTH_SHORT).show();
             //Log.i("현재위치 전송", String.format("등록한 현재 위치 : lat " + current_latitude + ", long " + current_longitude));
 
         }catch(Exception e){
