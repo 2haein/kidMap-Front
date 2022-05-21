@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import com.example.safe_map.Child.ChildMain;
+import com.example.safe_map.callback.SessionCallback;
 import com.example.safe_map.common.ProfileData;
 import com.example.safe_map.http.CommonMethod;
 import com.example.safe_map.http.RequestHttpURLConnection;
@@ -20,6 +21,10 @@ import android.widget.TextView;
 
 
 import com.example.safe_map.R;
+import com.kakao.auth.Session;
+import com.kakao.network.ErrorResult;
+import com.kakao.usermgmt.UserManagement;
+import com.kakao.usermgmt.callback.LogoutResponseCallback;
 
 import org.json.JSONObject;
 
@@ -30,6 +35,7 @@ public class ChildLoginActivity extends AppCompatActivity {
     TextView idlist;
     Button ok;
     String ID;
+    private SessionCallback sessionCallback = new SessionCallback();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +55,19 @@ public class ChildLoginActivity extends AppCompatActivity {
                 if (findUUID(ID).equals("true")){
                      intent = new Intent(ChildLoginActivity.this, ChildMain.class);
                      intent.putExtra("childId", ID);
+                     UserManagement.getInstance()
+                            .requestLogout(new LogoutResponseCallback() {
+                                @Override
+                                public void onSessionClosed(ErrorResult errorResult) {
+                                    super.onSessionClosed(errorResult);
+                                }
+                                @Override
+                                public void onCompleteLogout() {
+                                    if (sessionCallback != null) {
+                                        Session.getCurrentSession().removeCallback(sessionCallback);
+                                    }
+                                }
+                            });
                      startActivity(intent);
                      finish();
                 }
@@ -139,28 +158,5 @@ public class ChildLoginActivity extends AppCompatActivity {
         return result;
     }
 
-    //자녀 정보 가져오기 -> Child DB정보 가져옴
-    public String fetchChild(String UUID){
-        String url = CommonMethod.ipConfig + "/api/fetchChild";
-        String rtnStr= "";
 
-        try{
-            String jsonString = new JSONObject()
-                    .put("UUID", UUID)
-                    .toString();
-
-            //REST API
-            RequestHttpURLConnection.NetworkAsyncTask networkTask = new RequestHttpURLConnection.NetworkAsyncTask(url, jsonString);
-            rtnStr = networkTask.execute().get();
-
-//          Toast.makeText(getActivity(), "자녀 등록을 완료하였습니다.", Toast.LENGTH_SHORT).show();
-//           Log.i(TAG, String.format("가져온 Phonenum: (%s)", rtnStr));
-
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-
-        return rtnStr;
-
-    }
 }

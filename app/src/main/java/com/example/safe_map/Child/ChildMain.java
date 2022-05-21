@@ -20,6 +20,7 @@ import com.example.safe_map.Login.ChildLoginActivity;
 import com.example.safe_map.Login.LoginActivity;
 import com.example.safe_map.Login.Signup;
 import com.example.safe_map.R;
+import com.example.safe_map.common.ChildData;
 import com.example.safe_map.http.CommonMethod;
 import com.example.safe_map.http.RequestHttpURLConnection;
 
@@ -44,6 +45,7 @@ public class ChildMain extends AppCompatActivity {
 
         Intent intent = getIntent();
         UUID = intent.getExtras().getString("childId");
+        ChildData.setChildId(UUID);
         Log.i("child ID 22222", UUID);
 
         // 부모 모드로 전환
@@ -58,6 +60,7 @@ public class ChildMain extends AppCompatActivity {
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 // 처리할 코드 작성
+                                ChildData.setChildId("");
                                 Intent intent2 = new Intent(ChildMain.this, LoginActivity.class);
                                 startActivity(intent2);
                                 finish();
@@ -100,25 +103,6 @@ public class ChildMain extends AppCompatActivity {
         });
     }
 
-    public String fetchChild(String UUID){
-        String url = CommonMethod.ipConfig + "/api/fetchChild";
-        String rtnStr= "";
 
-        try{
-            String jsonString = new JSONObject()
-                    .put("UUID", UUID)
-                    .toString();
-
-            //REST API
-            RequestHttpURLConnection.NetworkAsyncTask networkTask = new RequestHttpURLConnection.NetworkAsyncTask(url, jsonString);
-            rtnStr = networkTask.execute().get();
-//          Toast.makeText(getActivity(), "자녀 등록을 완료하였습니다.", Toast.LENGTH_SHORT).show();
-//           Log.i(TAG, String.format("가져온 Phonenum: (%s)", rtnStr));
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-        return rtnStr;
-
-    }
 
 }

@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +21,10 @@ import com.example.safe_map.Login.StdRecyclerAdapter;
 import com.example.safe_map.MainActivity;
 import com.example.safe_map.R;
 import com.example.safe_map.common.ProfileData;
+import com.example.safe_map.http.CommonMethod;
+import com.example.safe_map.http.RequestHttpURLConnection;
+
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -98,5 +103,45 @@ public class HomeFragment extends Fragment {
         //mRecyclerView.setLayoutManager(new LinearLayoutManager(this, RecyclerView.VERTICAL,false));
 
         return view;
+    }
+
+    public String fetchChildNum(String userId){
+        String url = CommonMethod.ipConfig + "/api/fetchChildNum";
+        String rtnStr= "";
+        try{
+            String jsonString = new JSONObject()
+                    .put("userId", userId)
+                    .toString();
+
+            //REST API
+            RequestHttpURLConnection.NetworkAsyncTask networkTask = new RequestHttpURLConnection.NetworkAsyncTask(url, jsonString);
+            rtnStr = networkTask.execute().get();
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return rtnStr;
+
+    }
+
+    public String fetchChild(String UUID){
+        String url = CommonMethod.ipConfig + "/api/fetchChild";
+        String rtnStr= "";
+
+        try{
+            String jsonString = new JSONObject()
+                    .put("UUID", UUID)
+                    .toString();
+
+            //REST API
+            RequestHttpURLConnection.NetworkAsyncTask networkTask = new RequestHttpURLConnection.NetworkAsyncTask(url, jsonString);
+            rtnStr = networkTask.execute().get();
+//          Toast.makeText(getActivity(), "자녀 등록을 완료하였습니다.", Toast.LENGTH_SHORT).show();
+//           Log.i(TAG, String.format("가져온 Phonenum: (%s)", rtnStr));
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return rtnStr;
+
     }
 }

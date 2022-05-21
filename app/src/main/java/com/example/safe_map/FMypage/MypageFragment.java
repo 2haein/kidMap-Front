@@ -288,6 +288,7 @@ public class MypageFragment extends Fragment {
         return rtnStr;
 
     }
+
     public void registerPhone(String phone){
         String url = CommonMethod.ipConfig + "/api/registerTelNum";
 
