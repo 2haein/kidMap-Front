@@ -6,6 +6,7 @@ public class ProfileData {
     private static String profile;
     private static String thumbnail;
     private static Integer childNum;
+    private static Boolean mapFlag= false;
 
     public ProfileData(String userId, String nickName, String profile, String thumbnail) {
         this.userId = userId;
@@ -35,6 +36,15 @@ public class ProfileData {
 
     public static String getThumbnail() {
         return thumbnail;
+    }
+
+
+    public static Boolean getMapFlag() {
+        return mapFlag;
+    }
+
+    public static void setMapFlag(Boolean flag) {
+        mapFlag = flag;
     }
 
 }
