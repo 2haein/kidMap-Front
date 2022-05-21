@@ -129,6 +129,7 @@ public class NotifyFragment extends Fragment implements NotifyFragment_finish, M
     private static final int SEARCH_ADDRESS_ACTIVITY = 40000;
     public double notify_longitude, notify_latitude;
     List<Address> address = null;
+    MapPOIItem tempMarker = new MapPOIItem();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -253,7 +254,9 @@ public class NotifyFragment extends Fragment implements NotifyFragment_finish, M
                     }else if(notify_content_string.length() == 0 ) {
                         Toast.makeText(getContext(), "위험 내용을 입력해주세요", Toast.LENGTH_SHORT).show();
                     } else {
-                        registerNotify (notify_longitude, notify_latitude, notify_content_string);
+                        registerNotify (getPickedLng, getPickedLat, notify_content_string);
+                        markers.clear();
+                        mapView.removePOIItem(tempMarker);
                     }
 
             }
@@ -513,11 +516,16 @@ public class NotifyFragment extends Fragment implements NotifyFragment_finish, M
 
         marker.setCustomImageResourceId(R.drawable.sirenback);
 
+        getPickedLat = marker.getMapPoint().getMapPointGeoCoord().latitude;
+        getPickedLng = marker.getMapPoint().getMapPointGeoCoord().longitude;
+
 
         marker.setCustomImageAutoscale(true);
         marker.setCustomImageAnchor(0.5f, 1.0f);
         marker.setDraggable(true);
         mapView.addPOIItem(marker);
+
+        tempMarker = marker;
 
     }
 
@@ -534,14 +542,14 @@ public class NotifyFragment extends Fragment implements NotifyFragment_finish, M
     }
 
     public void registerNotify (double notify_longitude, double notify_latitude, String notify_content){
-        String url = CommonMethod.ipConfig + "/api/savePositionChild";
+        String url = CommonMethod.ipConfig + "/api/registerNotify";
 
         try{
             String jsonString = new JSONObject()
                     .put("userId", ProfileData.getUserId())
                     .put("notify_longitude", notify_longitude)
                     .put("notify_latitude", notify_latitude)
-//                    .put("notify_name", notify_name)
+                    .put("notify_name", "시민 신고")
                     .put("notify_content", notify_content)
                     .toString();
 
@@ -550,7 +558,7 @@ public class NotifyFragment extends Fragment implements NotifyFragment_finish, M
             networkTask.execute().get();
             Toast.makeText(getContext().getApplicationContext(), "위험지역 신고가 완료되었습니다", Toast.LENGTH_SHORT).show();
             //Log.i("현재위치 전송", String.format("등록한 현재 위치 : lat " + current_latitude + ", long " + current_longitude));
-
+            notify_content_editText.setText("");
         }catch(Exception e){
             e.printStackTrace();
         }
