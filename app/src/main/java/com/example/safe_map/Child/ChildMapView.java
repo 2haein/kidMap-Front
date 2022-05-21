@@ -3,11 +3,15 @@ package com.example.safe_map.Child;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
@@ -31,42 +35,66 @@ import com.example.safe_map.R;
 import com.example.safe_map.common.ProfileData;
 import com.example.safe_map.http.CommonMethod;
 import com.example.safe_map.http.RequestHttpURLConnection;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.skt.Tmap.TMapView;
+import com.skt.Tmap.TMapGpsManager;
+import com.skt.Tmap.TMapMarkerItem;
+import com.skt.Tmap.TMapPoint;
 
 import net.daum.mf.map.api.MapView;
 
 import org.json.JSONObject;
 
 import java.io.File;
+import java.util.ArrayList;
 
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link ChildMapView#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class ChildMapView extends Fragment {
+public class ChildMapView extends Fragment{
     String UUID;
 
     TMapView tMapView;
     RelativeLayout mapView;
+    double latitude, longitude;
 
     ViewGroup mapViewContainer;
-    private LocationManager locationManager;
+    private LocationManager manager;
     private static final int REQUEST_CODE_LOCATION = 2;
 
     ImageButton home, camera, call, qr;
     String number = "0100000000";
     File file;
 
-    LatLng previousPosition = null;
-    Marker addedMarker = null;
-    int tracking = 0;
+    private boolean m_bTrackingMode = true;
+
+    private TMapGpsManager tmapgps = null;
+    //private static String mApiKey = "앱키입력하기"; // 발급받은 appKey
+    private static int mMarkerID;
+
+    private ArrayList<TMapPoint> m_tmapPoint = new ArrayList<TMapPoint>();
+
 
     public ChildMapView() {
         // Required empty public constructor
     }
+
+    /*@Override
+    public void onLocationChange(Location location) {
+        if (m_bTrackingMode) {
+            tMapView.setLocationPoint(location.getLongitude(), location.getLatitude());
+        }
+    }*/
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -83,21 +111,46 @@ public class ChildMapView extends Fragment {
         camera = (ImageButton) v.findViewById(R.id.camera);
         call = (ImageButton) v.findViewById(R.id.call);
 
+        // 아이의 위치 수신을 위한 세팅
+        manager = (LocationManager)getContext().getSystemService(Context.LOCATION_SERVICE);
+        //gpsListener = new GPSListener();
+
+        //startLocationService();
+
+        // 아이의 현재 위치
+        Location userLocation = getMyLocation();
+        if( userLocation != null ) {
+            latitude = userLocation.getLatitude();
+            longitude = userLocation.getLongitude();
+            System.out.println("아이 현재 위치값 : "+latitude+","+longitude);
+            registerChildLocation(UUID, latitude, longitude);
+        }
+
+        //mapview 세팅
         mapView = (RelativeLayout) v.findViewById(R.id.childMapView);
         tMapView = new TMapView(getActivity());
 
+
         tMapView.setSKTMapApiKey("l7xx94f3b9ca30ba4d16850a60f2c3ebfdd5");
-        tMapView.setLocationPoint(126.9559522,37.50372984);
-        tMapView.setCenterPoint(126.9559522,37.50372984);
-        tMapView.setCompassMode(false);
+        //tMapView.setLocationPoint(latitude,longitude);
+        //tMapView.setCenterPoint(latitude,longitude);
+        tMapView.setCompassMode(true);
         tMapView.setIconVisibility(true);
         tMapView.setZoomLevel(18); // 클수록 확대
         tMapView.setMapType(TMapView.MAPTYPE_STANDARD);  //일반지도
         tMapView.setLanguage(TMapView.LANGUAGE_KOREAN);
-        tMapView.setTrackingMode(false);
-        tMapView.setSightVisible(false);
-        mapView.addView(tMapView);
 
+        tmapgps = new TMapGpsManager(getContext());
+        tmapgps.setMinTime(1000);
+        tmapgps.setMinDistance(5);
+        tmapgps.setProvider(tmapgps.NETWORK_PROVIDER); //연결된 인터넷으로 현 위치를 받습니다.
+        //실내일 때 유용합니다.
+        tmapgps.setProvider(tmapgps.GPS_PROVIDER); //gps로 현 위치를 잡습니다.
+        tmapgps.OpenGps();
+
+        tMapView.setTrackingMode(true);
+        tMapView.setSightVisible(true);
+        mapView.addView(tMapView);
 
 
 
@@ -134,16 +187,7 @@ public class ChildMapView extends Fragment {
         });
 
 
-        // 아이의 위치 수신을 위한 세팅
-        locationManager = (LocationManager)getContext().getSystemService(Context.LOCATION_SERVICE);
-        // 아이의 현재 위치
-        Location userLocation = getMyLocation();
-        if( userLocation != null ) {
-            double latitude = userLocation.getLatitude();
-            double longitude = userLocation.getLongitude();
-            System.out.println("아이 현재 위치값 : "+latitude+","+longitude);
-            registerChildLocation(UUID, latitude, longitude);
-        }
+
 
         // 아이의 현재 위치와 가까운 노드와의 거리 재기
 
@@ -155,6 +199,15 @@ public class ChildMapView extends Fragment {
 
         return v;
     }
+
+
+
+
+
+
+
+
+
 
     /*@Override
     public void onResume() {
@@ -195,7 +248,7 @@ public class ChildMapView extends Fragment {
 
             // 수동으로 위치 구하기
             String locationProvider = LocationManager.GPS_PROVIDER;
-            currentLocation = locationManager.getLastKnownLocation(locationProvider);
+            currentLocation = manager.getLastKnownLocation(locationProvider);
             if (currentLocation != null) {
                 double lng = currentLocation.getLongitude();
                 double lat = currentLocation.getLatitude();

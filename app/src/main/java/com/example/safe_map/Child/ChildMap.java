@@ -9,7 +9,7 @@ import android.os.Bundle;
 
 import com.example.safe_map.R;
 
-public class ChildMap extends AppCompatActivity {
+public class ChildMap extends AppCompatActivity{
     Fragment ChildMapView;
 
     @Override
