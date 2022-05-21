@@ -1,68 +1,53 @@
 package com.example.safe_map.Child;
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 
-import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
-import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentContainerView;
 
 import android.os.Environment;
-import android.os.Looper;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
-import com.example.safe_map.MainActivity;
 import com.example.safe_map.R;
+import com.example.safe_map.common.ChildData;
 import com.example.safe_map.common.ProfileData;
 import com.example.safe_map.http.CommonMethod;
 import com.example.safe_map.http.RequestHttpURLConnection;
-import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationResult;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.Circle;
-import com.google.android.gms.maps.model.CircleOptions;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.skt.Tmap.TMapView;
 import com.skt.Tmap.TMapGpsManager;
 import com.skt.Tmap.TMapMarkerItem;
 import com.skt.Tmap.TMapPoint;
 
-import net.daum.mf.map.api.MapView;
-
 import org.json.JSONObject;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link ChildMapView#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class ChildMapView extends Fragment{
+public class ChildMapView extends Fragment {
     String UUID;
+    private Context mContext;
+
 
     TMapView tMapView;
     RelativeLayout mapView;
@@ -112,19 +97,40 @@ public class ChildMapView extends Fragment{
         call = (ImageButton) v.findViewById(R.id.call);
 
         // 아이의 위치 수신을 위한 세팅
-        manager = (LocationManager)getContext().getSystemService(Context.LOCATION_SERVICE);
+        manager = (LocationManager) getContext().getSystemService(Context.LOCATION_SERVICE);
         //gpsListener = new GPSListener();
 
         //startLocationService();
 
         // 아이의 현재 위치
-        Location userLocation = getMyLocation();
-        if( userLocation != null ) {
+        getMyLocation();
+        /*if (userLocation != null) {
             latitude = userLocation.getLatitude();
             longitude = userLocation.getLongitude();
-            System.out.println("아이 현재 위치값 : "+latitude+","+longitude);
+            System.out.println("아이 현재 위치값 : " + latitude + "," + longitude);
             registerChildLocation(UUID, latitude, longitude);
-        }
+        }*/
+
+        /*Timer scheduler = new Timer();
+        TimerTask task = new TimerTask() {
+            private static final int REQUEST_CODE_LOCATION = 2;
+
+            @Override
+            public void run() {
+                Location userLocation = getMyLocation();
+                if (userLocation != null) {
+                    latitude = userLocation.getLatitude();
+                    longitude = userLocation.getLongitude();
+                    System.out.println("아이 현재 위치값 : " + latitude + "," + longitude);
+                    registerChildLocation(UUID, latitude, longitude);
+                }
+                Log.i("아이 현재 위치 ", Double.valueOf(latitude).toString());
+
+                registerChildLocation(ChildData.getChildId(), latitude, longitude);
+            }
+        };
+
+        scheduler.scheduleAtFixedRate(task, 5000, 1000); // 5초 뒤 1초마다 반복실행*/
 
         //mapview 세팅
         mapView = (RelativeLayout) v.findViewById(R.id.childMapView);
@@ -153,7 +159,6 @@ public class ChildMapView extends Fragment{
         mapView.addView(tMapView);
 
 
-
         home.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -176,8 +181,8 @@ public class ChildMapView extends Fragment{
             @Override
             public void onClick(View v) {
                 number = fetchPhone(ProfileData.getUserId());
-                if (number.equals("")){
-                    Toast.makeText(getContext(),"부모님 전화번호가 저장되지 않았습니다.", Toast.LENGTH_LONG).show();
+                if (number.equals("")) {
+                    Toast.makeText(getContext(), "부모님 전화번호가 저장되지 않았습니다.", Toast.LENGTH_LONG).show();
                 } else {
                     Intent tt = new Intent("android.intent.action.DIAL", Uri.parse("tel:" + number));
                     startActivity(tt);
@@ -185,9 +190,6 @@ public class ChildMapView extends Fragment{
 
             }
         });
-
-
-
 
         // 아이의 현재 위치와 가까운 노드와의 거리 재기
 
@@ -199,8 +201,6 @@ public class ChildMapView extends Fragment{
 
         return v;
     }
-
-
 
 
 
@@ -234,19 +234,68 @@ public class ChildMapView extends Fragment{
 
     /**
      * 아이의 위치를 수신
+     * @return
      */
     private Location getMyLocation() {
+        final Location[] currentLocation = {null};
+        // Register the listener with the Location Manager to receive location updates
+        if (ActivityCompat.checkSelfPermission((Activity) getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            System.out.println("////////////사용자에게 권한을 요청해야함");
+            ActivityCompat.requestPermissions((Activity) getContext(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, this.REQUEST_CODE_LOCATION);
+            getMyLocation();
+        } else {
+            System.out.println("////////////권한요청 안해도됨");
+
+            // 수동으로 위치 구하기
+            Timer scheduler = new Timer();
+            TimerTask task = new TimerTask() {
+                private static final int REQUEST_CODE_LOCATION = 2;
+
+                @Override
+                public void run() {
+                    String locationProvider = LocationManager.GPS_PROVIDER;
+                    if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                        // TODO: Consider calling
+                        //    ActivityCompat#requestPermissions
+                        // here to request the missing permissions, and then overriding
+                        //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                        //                                          int[] grantResults)
+                        // to handle the case where the user grants the permission. See the documentation
+                        // for ActivityCompat#requestPermissions for more details.
+                        return;
+                    }
+                    currentLocation[0] = manager.getLastKnownLocation(locationProvider);
+                    latitude = currentLocation[0].getLatitude();
+                    longitude = currentLocation[0].getLongitude();
+                    System.out.println("아이 현재 위치값 : " + latitude + "," + longitude);
+                    registerChildLocation(UUID, latitude, longitude);
+
+                    Log.i("아이 현재 위치 ", Double.valueOf(latitude).toString());
+
+                    registerChildLocation(ChildData.getChildId(), latitude, longitude);
+                }
+            };
+
+            scheduler.scheduleAtFixedRate(task, 5000, 1000); // 5초 뒤 1초마다 반복실행*/
+
+        }
+
+        return currentLocation[0];
+    }
+
+    /*private Location getMyLocation() {
         Location currentLocation = null;
         // Register the listener with the Location Manager to receive location updates
-        if (ActivityCompat.checkSelfPermission(getContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission((Activity) getContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             System.out.println("////////////사용자에게 권한을 요청해야함");
-            ActivityCompat.requestPermissions(getActivity(), new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, this.REQUEST_CODE_LOCATION);
+            ActivityCompat.requestPermissions((Activity) getContext(), new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, this.REQUEST_CODE_LOCATION);
             getMyLocation();
         }
         else {
             System.out.println("////////////권한요청 안해도됨");
 
             // 수동으로 위치 구하기
+
             String locationProvider = LocationManager.GPS_PROVIDER;
             currentLocation = manager.getLastKnownLocation(locationProvider);
             if (currentLocation != null) {
@@ -255,7 +304,7 @@ public class ChildMapView extends Fragment{
             }
         }
         return currentLocation;
-    }
+    }*/
 
     private float getDistance(double lat1, double lon1, double lat2, double lon2) {
         float[] distance = new float[2];
@@ -298,7 +347,7 @@ public class ChildMapView extends Fragment{
     }
 
     // 현재 아이 위치 전송
-    public void registerChildLocation(String UUID, double current_latitude, double current_longitude){
+    public static void registerChildLocation(String UUID, double current_latitude, double current_longitude){
         String url = CommonMethod.ipConfig + "/api/savePositionChild";
 
         try{
