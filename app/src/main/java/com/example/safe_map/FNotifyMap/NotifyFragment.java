@@ -649,6 +649,8 @@ public class NotifyFragment extends Fragment implements NotifyFragment_finish, M
     @Override
     public void onPause() {
         super.onPause();
+        markers.clear();
+        mapView.removePOIItem(tempMarker);
         if(ProfileData.getMapFlag()) {
             mapViewContainer.removeAllViews();
         }
@@ -663,6 +665,8 @@ public class NotifyFragment extends Fragment implements NotifyFragment_finish, M
     @Override
     public void onDestroy() {
         super.onDestroy();
+        markers.clear();
+        mapView.removePOIItem(tempMarker);
     }
 
 //    @Override
