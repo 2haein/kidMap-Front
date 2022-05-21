@@ -18,6 +18,7 @@ import com.example.safe_map.FHome.AddressApiActivity;
 import com.example.safe_map.FHome.HomeFragment;
 import com.example.safe_map.FMypage.MypageFragment;
 import com.example.safe_map.FNotifyMap.NotifyFragment;
+import com.example.safe_map.common.ProfileData;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity {
@@ -52,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
         BottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+                ProfileData.setMapFlag(true);
                 switch (menuItem.getItemId()){
                     //menu_bottom.xml에서 지정해줬던 아이디 값을 받아와서 각 아이디값마다 다른 이벤트를 발생시킵니다.
                     case R.id.home:{

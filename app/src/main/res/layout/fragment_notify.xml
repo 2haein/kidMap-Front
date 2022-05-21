@@ -52,19 +52,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/textView12"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:layout_marginEnd="8dp"
-        android:text="지도에 마커 추가하기"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.951"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/notify_map" />
-
-    <TextView
+    <Button
         android:id="@+id/search_addr"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -72,7 +60,7 @@
         android:text="위험지역 주소로 검색하기"
         app:layout_constraintBottom_toTopOf="@+id/notify_content"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.118"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent" />
 
     <EditText
@@ -81,7 +69,7 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="15dp"
         android:layout_marginRight="15dp"
-        android:layout_marginBottom="48dp"
+        android:layout_marginBottom="30dp"
         android:ems="10"
         android:gravity="start|top"
         android:inputType="textMultiLine"
@@ -109,6 +97,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:text="위험 내용"
+        android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/notify_content"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.087"
@@ -120,6 +109,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="11dp"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
@@ -131,7 +121,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_marginEnd="16dp"
-        android:layout_marginBottom="92dp"
+        android:layout_marginBottom="200dp"
         android:src="@drawable/ic_location_searching_black_24dp"
         app:backgroundTint="#EEE6C4"
         app:elevation="6dp"
