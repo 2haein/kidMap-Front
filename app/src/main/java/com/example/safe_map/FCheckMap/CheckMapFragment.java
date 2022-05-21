@@ -4,6 +4,8 @@ package com.example.safe_map.FCheckMap;
 //==
 
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
@@ -13,10 +15,13 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
+import com.example.safe_map.FHome.AddMissionActivity;
 import com.example.safe_map.FHome.DangerPoint;
 import com.example.safe_map.FHome.jPoint;
+import com.example.safe_map.Login.ChildLoginActivity;
 import com.example.safe_map.R;
 
 import net.daum.mf.map.api.MapCircle;
@@ -109,8 +114,7 @@ public class CheckMapFragment extends Fragment {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_check_map, container, false);
 
-        // json으로부터 심부름 설정 정보 불러옴.
-        GetErrandDataFromJson();
+
 
 
         // 지도 중심을 설정하기 위한 좌표
@@ -129,13 +133,32 @@ public class CheckMapFragment extends Fragment {
         // 줌 레벨 변경
         mapView.setZoomLevel(2, true);
 
+        if (GetErrandDataFromJson()){
+            // json으로부터 심부름 설정 정보 불러옴.
+            GetErrandDataFromJson();
 
-        ParseDangerZone();
-        // 1. 위험 구역, 노드, 링크 파싱 후 위험 구역을 지도에 마커로 띄우기
-        ShowDangerZoneOnMap();
+            ParseDangerZone();
+            // 1. 위험 구역, 노드, 링크 파싱 후 위험 구역을 지도에 마커로 띄우기
+            ShowDangerZoneOnMap();
 
-        // 3. 지도에 안전 경로 띄우기
-        ShowPathOnMap();
+            // 3. 지도에 안전 경로 띄우기
+            ShowPathOnMap();
+        } else {
+            AlertDialog.Builder dlg = new AlertDialog.Builder(getActivity());
+            dlg.setTitle("심부름 설정하기");
+            dlg.setMessage("심부름을 설정해주세요");
+            dlg.setPositiveButton("심부름 보내기",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            // 처리할 코드 작성
+                            Intent intent = new Intent(getActivity(), AddMissionActivity.class); //fragment라서 activity intent와는 다른 방식
+                            intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                            startActivity(intent);
+                        }
+                    });
+            dlg.show();
+        }
+
 
         return v;
     }
@@ -166,7 +189,7 @@ public class CheckMapFragment extends Fragment {
     }
 
 
-    private void GetErrandDataFromJson() {
+    private boolean GetErrandDataFromJson() {
         String jsonString = null;
         try {
             String filename = "PathInfo.json";
@@ -181,6 +204,7 @@ public class CheckMapFragment extends Fragment {
             Log.d("test","Parse jsonString : "+ jsonString);
         } catch (IOException e) {
             e.printStackTrace();
+            return false;
         }
         try{
             safe_path.clear();
@@ -196,9 +220,11 @@ public class CheckMapFragment extends Fragment {
                 MapPoint mp = MapPoint.mapPointWithGeoCoord(lat,lon);
                 safe_path.add(mp);
             }
+            return true;
 
         }catch (JSONException e) {
             e.printStackTrace();
+            return false;
         }
     }
 
