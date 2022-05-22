@@ -118,15 +118,7 @@ public class HomeFragment extends Fragment {
             try {
                 JSONObject Alldata = new JSONObject(childInfo);
                 String childName = Alldata.getString("childName");
-                /*String childName = "";
-                if (i==0){
-                    childName = "첫째 아이";
-                } else if (i==1){
-                    childName = "둘째 아이";
-                } else if (i==2) {
-                    childName = "셋째 아이";
-                } else if
-*/
+
                 System.out.println("* errand *");
                 JSONArray errandData = (JSONArray) Alldata.getJSONArray("errand");
                 for(int j=0; j < errandData.length(); j++){
