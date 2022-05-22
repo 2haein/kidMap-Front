@@ -548,7 +548,7 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
                                double target_latitude, double target_longitude, String target_name,
                                String start_name, List<String> quest,double start_latitude, double start_longitude,
                                boolean checking) throws JSONException {
-        String url = CommonMethod.ipDefault + "/api/registerErrand";
+        String url = CommonMethod.ipConfig + "/api/registerErrand";
 
 //        System.out.println(quest);
 
