@@ -273,9 +273,7 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
                     // 주소결과
                     startActivityForResult(i, SEARCH_ADDRESS_ACTIVITY2);
 
-// 여기서 경로 찾기 및 퀘스트가 이뤄져야 한다.
-                  //  Find_Safe_Path(start_latitude,start_longitude,target_latitude, target_longitude);
-                   // Quest_Maker();
+
 
                 }else {
                     Toast.makeText(getApplicationContext(), "인터넷 연결을 확인해주세요.", Toast.LENGTH_SHORT).show();
@@ -363,7 +361,8 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
                         e.printStackTrace();
                     }
                     Toast.makeText(AddMissionActivity.this, "심부름을 시작합니다", Toast.LENGTH_LONG).show();
-                    finish();
+                     ProfileData.setcheckmapFlag(true);
+                     finish();
                 }
 
   // 여기서 퀘스트 메이커가 이뤄주ㅝ얗 ㅏㄴ다.

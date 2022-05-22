@@ -23,6 +23,7 @@ import com.example.safe_map.FHome.DangerPoint;
 import com.example.safe_map.FHome.jPoint;
 import com.example.safe_map.Login.ChildLoginActivity;
 import com.example.safe_map.R;
+import com.example.safe_map.common.ProfileData;
 
 import net.daum.mf.map.api.MapCircle;
 import net.daum.mf.map.api.MapPOIItem;
@@ -133,7 +134,8 @@ public class CheckMapFragment extends Fragment {
         // 줌 레벨 변경
         mapView.setZoomLevel(2, true);
 
-        if (GetErrandDataFromJson()){
+        // 심부름을 설정 했다면
+        if (ProfileData.getcheckmapFlag() == true){
             // json으로부터 심부름 설정 정보 불러옴.
             GetErrandDataFromJson();
 
@@ -151,6 +153,10 @@ public class CheckMapFragment extends Fragment {
                     new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
                             // 처리할 코드 작성
+                            // 여기에 확인(심부름 보내기) 버튼 누르면 그냥 dlg이 없어지는 동작을 넣어주세요.
+                            // 현재 심부름 보내기를 누르면
+                            // Unable to start activity ComponentInfo{com.example.safe_map/com.example.safe_map.FHome.AddMissionActivity}: java.lang.NumberFormatException: For input string: ""
+                            // 에러가 뜨면서 앱이 종료됩니다.
                             Intent intent = new Intent(getActivity(), AddMissionActivity.class); //fragment라서 activity intent와는 다른 방식
                             intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
                             startActivity(intent);
