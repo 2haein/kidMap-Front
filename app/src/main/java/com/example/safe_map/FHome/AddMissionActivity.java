@@ -357,12 +357,16 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
                      try {
                         registerErrand(childUUID, E_date, E_content,
                                 target_latitude,target_longitude,edit_addr.getText().toString(), edit_addr2.getText().toString(), quest, start_latitude,start_longitude,true);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
+                        Toast.makeText(AddMissionActivity.this, "심부름을 시작합니다", Toast.LENGTH_LONG).show();
+                        ProfileData.setcheckmapFlag(true);
+                        finish();
+
+                     } catch (JSONException e) {
+                         Toast.makeText(AddMissionActivity.this, "error", Toast.LENGTH_LONG).show();
+
+                         e.printStackTrace();
                     }
-                    Toast.makeText(AddMissionActivity.this, "심부름을 시작합니다", Toast.LENGTH_LONG).show();
-                     ProfileData.setcheckmapFlag(true);
-                     finish();
+
                 }
 
   // 여기서 퀘스트 메이커가 이뤄주ㅝ얗 ㅏㄴ다.

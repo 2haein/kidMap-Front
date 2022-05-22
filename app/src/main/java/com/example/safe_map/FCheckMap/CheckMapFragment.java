@@ -166,6 +166,7 @@ public class CheckMapFragment extends Fragment {
         }
 
 
+
         return v;
     }
 
@@ -371,6 +372,8 @@ public class CheckMapFragment extends Fragment {
 
 
     }
+
+
 
 }
 

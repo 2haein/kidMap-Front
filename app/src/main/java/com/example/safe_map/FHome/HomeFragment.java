@@ -24,10 +24,20 @@ import com.example.safe_map.common.ProfileData;
 import com.example.safe_map.http.CommonMethod;
 import com.example.safe_map.http.RequestHttpURLConnection;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.json.JSONException;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -90,12 +100,66 @@ public class HomeFragment extends Fragment {
         /*for(int i=1;i<=5;i++){
             mErrandHome.add(new errandHome(Integer.toString(i), Integer.toString(i), Integer.toString(i),Integer.toString(i)));
         }*/
-        mErrandHome.add(new errandHome("첫째아이", "2022-02-22", "빵 사오기","뚜레쥴"));
-        mErrandHome.add(new errandHome("첫째아이", "2022-02-23", "빵 사오기","뚜레쥴"));
-        mErrandHome.add(new errandHome("둘째아이", "2022-02-24", "빵 사오기","뚜레쥴"));
-        mErrandHome.add(new errandHome("첫째아이", "2022-02-25", "빵 사오기","뚜레쥴"));
-        mErrandHome.add(new errandHome("둘째아이", "2022-02-26", "빵 사오기","뚜레쥴"));
+        //mErrandHome.add(new errandHome("첫째아이", "2022-02-22", "빵 사오기","뚜레쥴"));
+        //mErrandHome.add(new errandHome("첫째아이", "2022-02-23", "빵 사오기","뚜레쥴"));
+        //mErrandHome.add(new errandHome("둘째아이", "2022-02-24", "빵 사오기","뚜레쥴"));
+        //mErrandHome.add(new errandHome("첫째아이", "2022-02-25", "빵 사오기","뚜레쥴"));
+        //mErrandHome.add(new errandHome("둘째아이", "2022-02-26", "빵 사오기","뚜레쥴"));
 
+
+
+
+        // 자녀 목록 불러오기
+        String[] array = fetchUUID(ProfileData.getUserId());
+
+        // 자녀별 심부름 목록 불러오기
+        for(int i=0; i < array.length; i++){
+            String childInfo = fetchChild(array[i]);
+            try {
+                JSONObject Alldata = new JSONObject(childInfo);
+                String childName = Alldata.getString("childName");
+                /*String childName = "";
+                if (i==0){
+                    childName = "첫째 아이";
+                } else if (i==1){
+                    childName = "둘째 아이";
+                } else if (i==2) {
+                    childName = "셋째 아이";
+                } else if
+*/
+                System.out.println("* errand *");
+                JSONArray errandData = (JSONArray) Alldata.getJSONArray("errand");
+                for(int j=0; j < errandData.length(); j++){
+                    Log.i("정보정보 ", errandData.getString(j));
+                    JSONObject key = (JSONObject) errandData.getJSONObject(j);
+                    Log.i("하나 ", key.getString("target_name"));
+
+                    String e_date = key.getString("e_date");
+                    String e_content = key.getString("e_content");
+                    String target_name = key.getString("target_name");
+                    String target_latitude = key.getString("target_latitude");
+                    String target_longitude = key.getString("target_longitude");
+                    String start_name = key.getString("start_name");
+                    String start_latitude = key.getString("start_latitude");
+                    String start_longitude = key.getString("start_longitude");
+                    String quest = key.getString("quest");
+
+
+                    //SimpleDateFormat format = new SimpleDateFormat("yyyy년 MM월 dd일");
+                    //Date tempDate = format.parse(e_date);
+
+                    //String date = format.format(tempDate);
+
+                    String[] date = e_date.split("T");
+                    mErrandHome.add(new errandHome(childName, date[0], e_content,target_name));
+
+                }
+
+            } catch (JSONException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
 
         mRecyclerAdapter.setErrandHome(mErrandHome);
         /* initiate recyclerview */
@@ -103,13 +167,6 @@ public class HomeFragment extends Fragment {
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         //mRecyclerView.setLayoutManager(new LinearLayoutManager(this, RecyclerView.VERTICAL,false));
 
-
-        // 자녀 목록 불러오기
-        String[] array = fetchUUID(ProfileData.getUserId());
-
-        for(int i=0; i < array.length; i++){
-            fetchChild(array[i]);
-        }
 
         return view;
     }
