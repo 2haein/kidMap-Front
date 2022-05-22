@@ -8,6 +8,7 @@ public class ProfileData {
     private static Integer childNum;
     private static Boolean mapFlag= false;
     private static Boolean checkmapFlag = false;
+    private static String errandChildId;
 
     public ProfileData(String userId, String nickName, String profile, String thumbnail) {
         this.userId = userId;
@@ -39,6 +40,8 @@ public class ProfileData {
         return thumbnail;
     }
 
+    public static String getErrandChildId() { return errandChildId; }
+
 
     public static Boolean getMapFlag() {
         return mapFlag;
@@ -55,6 +58,8 @@ public class ProfileData {
     public static void setcheckmapFlag(Boolean flag) {
         checkmapFlag = flag;
     }
+
+    public static void setErrandChildId(String Id) { errandChildId = Id; }
 
 
 }

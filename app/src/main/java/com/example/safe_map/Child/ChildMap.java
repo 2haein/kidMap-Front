@@ -83,37 +83,9 @@ public class ChildMap extends AppCompatActivity{
         manager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         //gpsListener = new GPSListener();
 
-        //startLocationService();
 
         // 아이의 현재 위치
         getMyLocation();
-        /*if (userLocation != null) {
-            latitude = userLocation.getLatitude();
-            longitude = userLocation.getLongitude();
-            System.out.println("아이 현재 위치값 : " + latitude + "," + longitude);
-            registerChildLocation(UUID, latitude, longitude);
-        }*/
-
-        /*Timer scheduler = new Timer();
-        TimerTask task = new TimerTask() {
-            private static final int REQUEST_CODE_LOCATION = 2;
-
-            @Override
-            public void run() {
-                Location userLocation = getMyLocation();
-                if (userLocation != null) {
-                    latitude = userLocation.getLatitude();
-                    longitude = userLocation.getLongitude();
-                    System.out.println("아이 현재 위치값 : " + latitude + "," + longitude);
-                    registerChildLocation(UUID, latitude, longitude);
-                }
-                Log.i("아이 현재 위치 ", Double.valueOf(latitude).toString());
-
-                registerChildLocation(ChildData.getChildId(), latitude, longitude);
-            }
-        };
-
-        scheduler.scheduleAtFixedRate(task, 5000, 1000); // 5초 뒤 1초마다 반복실행*/
 
         //mapview 세팅
         mapView = (RelativeLayout) findViewById(R.id.childMapView2);

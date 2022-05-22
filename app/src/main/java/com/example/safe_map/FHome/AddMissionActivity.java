@@ -311,7 +311,7 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
                 if (quest_name.getText().length()==0){
                     Toast.makeText(mContext, "퀘스트 내용을 입력하세요", Toast.LENGTH_LONG).show();
                 } else {
-                    String quest = quest_name.getText().toString();
+                    String quest = "\"" + quest_name.getText().toString() + "\"";
                     quest_name.setText("");
                     QuestData data = new QuestData(quest);
 
@@ -365,6 +365,7 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
                          e.printStackTrace();
                     }
                     Toast.makeText(AddMissionActivity.this, "심부름을 시작합니다", Toast.LENGTH_LONG).show();
+                    ProfileData.setErrandChildId(childUUID);
                     ProfileData.setcheckmapFlag(true);
                     finish();
 

@@ -3,10 +3,13 @@ package com.example.safe_map.FCheckMap;
 
 //==
 
+import android.Manifest;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -16,14 +19,19 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
 import com.example.safe_map.FHome.AddMissionActivity;
 import com.example.safe_map.FHome.DangerPoint;
+import com.example.safe_map.FHome.errandHome;
 import com.example.safe_map.FHome.jPoint;
 import com.example.safe_map.Login.ChildLoginActivity;
 import com.example.safe_map.R;
+import com.example.safe_map.common.ChildData;
 import com.example.safe_map.common.ProfileData;
+import com.example.safe_map.http.CommonMethod;
+import com.example.safe_map.http.RequestHttpURLConnection;
 
 import net.daum.mf.map.api.MapCircle;
 import net.daum.mf.map.api.MapPOIItem;
@@ -39,6 +47,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -115,9 +125,6 @@ public class CheckMapFragment extends Fragment {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_check_map, container, false);
 
-
-
-
         // 지도 중심을 설정하기 위한 좌표
         double lat_d = 0.0;
         double lon_d = 0.0;
@@ -164,6 +171,46 @@ public class CheckMapFragment extends Fragment {
                     });
             dlg.show();
         }
+
+
+
+        // 5초마다 아이 위치 불러오기
+        Timer scheduler = new Timer();
+        TimerTask task = new TimerTask() {
+            private static final int REQUEST_CODE_LOCATION = 2;
+
+            @Override
+            public void run() {
+                String locationProvider = LocationManager.GPS_PROVIDER;
+                if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    // TODO: Consider calling
+                    //    ActivityCompat#requestPermissions
+                    // here to request the missing permissions, and then overriding
+                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                    //                                          int[] grantResults)
+                    // to handle the case where the user grants the permission. See the documentation
+                    // for ActivityCompat#requestPermissions for more details.
+                    return;
+                }
+                // 현재 자녀 위치 불러오기
+                if (ProfileData.getErrandChildId() != ""){
+                    String childInfo = fetchChild(ProfileData.getErrandChildId());
+                    try {
+                        JSONObject Alldata = new JSONObject(childInfo);
+                        String childName = Alldata.getString("childName");
+                        Double child_lat = Alldata.getDouble("current_latitude");
+                        Double child_long = Alldata.getDouble("current_longitude");
+                        Log.i("Child_lat ", child_lat.toString());
+
+                    } catch (JSONException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+
+        scheduler.scheduleAtFixedRate(task, 0, 5000); // 5초 뒤 1초마다 반복실행*/
 
 
 
@@ -373,6 +420,33 @@ public class CheckMapFragment extends Fragment {
 
     }
 
+    public String fetchChild(String UUID){
+        String url = CommonMethod.ipConfig + "/api/fetchChild";
+        String rtnStr= "";
+        String[] result = new String[0];
+
+        try{
+            String jsonString = new JSONObject()
+                    .put("UUID", UUID)
+                    .toString();
+
+            //REST API
+            RequestHttpURLConnection.NetworkAsyncTask networkTask = new RequestHttpURLConnection.NetworkAsyncTask(url, jsonString);
+            rtnStr = networkTask.execute().get();
+            Log.i("wkwkkwk" , rtnStr);
+            //String result2 = rtnStr.substring(1, rtnStr.length() - 1);
+            //Log.i("data22 " , result2);
+
+            /*result = result2.split(",");
+            for (int i=0; i<result.length; i++){
+                result[i] = result[i].substring(1, result[i].length() - 1);
+            }*/
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return rtnStr;
+
+    }
 
 
 }
