@@ -3,6 +3,8 @@ package com.example.safe_map.FHome;
 import android.content.Context;
 import android.util.Log;
 
+import com.example.safe_map.common.ProfileData;
+
 import net.daum.mf.map.api.MapPoint;
 
 import java.io.File;
@@ -405,6 +407,9 @@ public class Astar {
                 // 이미 인접 노드가 닫힌 리스트에 존재 할 경우 : 무시
                 if (info[0] == int_path.get(i)) {
                     int tp = info[1];
+
+                    // add path information into profile data
+                    ProfileData.setSafe_path_info(tp);
 
                     switch (tp) {
                         case 0:
