@@ -67,6 +67,9 @@ public class CheckMapFragment extends Fragment {
 
    // json에서 받아온다.
     ArrayList<MapPoint> safe_path = new ArrayList<>();
+    // 위험지역
+    ArrayList<DangerPoint> DangerZone = new ArrayList<>();
+
 
     // 출발, 도착 지점 이름
     String src_name = "";
@@ -80,8 +83,6 @@ public class CheckMapFragment extends Fragment {
     Context mContext;
 
 
-    // 위험지역
-    ArrayList<DangerPoint> DangerZone = new ArrayList<>();
 
     ViewGroup mapViewContainer;
 
@@ -382,11 +383,14 @@ public class CheckMapFragment extends Fragment {
 
 
     // 3. 경로를 지도에 폴리라인으로 띄우기
+    // f
     void ShowPathOnMap(){
         MapPolyline pathLine = new MapPolyline();
 
+        // 경로의 길이
         int size =  safe_path.size();
 
+        // safe_path.get(0) = 출발 지점     >> 출발지점, 도착지점 둘 다 선으로 연결하지는 않는다.
         MapPoint mark_point1 = MapPoint.mapPointWithGeoCoord(safe_path.get(0).getMapPointGeoCoord().latitude,safe_path.get(0).getMapPointGeoCoord().longitude);
         MapPOIItem marker1 = new MapPOIItem();
         marker1.setItemName("출발");
@@ -395,6 +399,7 @@ public class CheckMapFragment extends Fragment {
         marker1.setMarkerType(MapPOIItem.MarkerType.RedPin); // 기본으로 제공하는 BluePin 마커 모양.
         marker1.setSelectedMarkerType(MapPOIItem.MarkerType.RedPin); // 마커를 클릭했을때, 기본으로 제공하는 RedPin 마커 모양.
 
+        // safe_path.get(size-1) = 도착 지점  >> 출발지점, 도착지점 둘 다 선으로 연결하지는 않는다.
         MapPoint mark_point2 = MapPoint.mapPointWithGeoCoord(safe_path.get(size-1).getMapPointGeoCoord().latitude,safe_path.get(size-1).getMapPointGeoCoord().longitude);
         MapPOIItem marker2 = new MapPOIItem();
         marker2.setItemName("도착");
@@ -406,10 +411,14 @@ public class CheckMapFragment extends Fragment {
         mapView.addPOIItem(marker1);
         mapView.addPOIItem(marker2);
 
-
+        // index 1 ~ size-2 : A* 알고리즘으로 구한 좌표들. 선으로 이어준다.
         for(int i =1 ; i < safe_path.size()-1 ; i ++){
             MapPoint tmp = MapPoint.mapPointWithGeoCoord(safe_path.get(i).getMapPointGeoCoord().latitude,safe_path.get(i).getMapPointGeoCoord().longitude );
             pathLine.addPoint(tmp);
+
+
+
+
         }
 
         mapView.addPolyline(pathLine);
