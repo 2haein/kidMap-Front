@@ -11,7 +11,7 @@ public class ProfileData {
     private static Boolean mapFlag= false;
     private static Boolean checkmapFlag = false;
     private static String errandChildId;
-    private static ArrayList<Integer> safe_path_info;
+    private static ArrayList<Integer> safe_path_info = new ArrayList<>();
 
     public ProfileData(String userId, String nickName, String profile, String thumbnail) {
         this.userId = userId;
