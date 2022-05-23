@@ -13,6 +13,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.safe_map.FHome.ErrandRecyclerAdapter;
 import com.example.safe_map.FHome.errandHome;
@@ -21,6 +22,7 @@ import com.example.safe_map.Login.LoginActivity;
 import com.example.safe_map.Login.Signup;
 import com.example.safe_map.R;
 import com.example.safe_map.common.ChildData;
+import com.example.safe_map.common.ProfileData;
 import com.example.safe_map.http.CommonMethod;
 import com.example.safe_map.http.RequestHttpURLConnection;
 
@@ -136,9 +138,14 @@ public class ChildMain extends AppCompatActivity {
         errandStart.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getApplicationContext(), beforeCheck.class);
-                intent.putExtra("childId", UUID);
-                startActivity(intent);
+                if (ProfileData.getcheckmapFlag() == false) {
+                    // 심부름이 없다면 알림창을 띄움.
+                    Toast.makeText(ChildMain.this, "설정된 심부름이 없습니다!", Toast.LENGTH_LONG).show();
+                } else {
+                    Intent intent = new Intent(getApplicationContext(), beforeCheck.class);
+                    intent.putExtra("childId", UUID);
+                    startActivity(intent);
+                }
             }
         });
     }
