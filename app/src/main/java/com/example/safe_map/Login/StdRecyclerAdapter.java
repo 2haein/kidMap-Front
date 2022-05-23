@@ -99,10 +99,12 @@ public class StdRecyclerAdapter extends RecyclerView.Adapter<StdRecyclerAdapter.
     }*/
     class ViewHolder extends RecyclerView.ViewHolder{
         TextView childNum;
+        TextView UUID;
 
         public ViewHolder(@NonNull View itemView, final OnItemClickEventListener a_itemClickListener) {
             super(itemView);
             this.childNum = (TextView) itemView.findViewById(R.id.name);
+            this.UUID = (TextView) itemView.findViewById(R.id.uuid);
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -129,6 +131,7 @@ public class StdRecyclerAdapter extends RecyclerView.Adapter<StdRecyclerAdapter.
         }
         void onBind(ChildnumItem item){
             childNum.setText(item.getChildNum());
+            UUID.setText(item.getUUID());
         }
     }
     private void toggleItemSelected(int position) {

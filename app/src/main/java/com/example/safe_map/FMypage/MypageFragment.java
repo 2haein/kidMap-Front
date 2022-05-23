@@ -45,7 +45,7 @@ import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link MypageFragment#newInstance} factory method to
+ * Use the {@link MypageFragment# newInstance} factory method to
  * create an instance of this fragment.
  */
 public class MypageFragment extends Fragment {
@@ -53,6 +53,7 @@ public class MypageFragment extends Fragment {
     private final String TAG = "Mypage logout";
     public String phone = "";
     public double home_longitude, home_latitude;
+    public String[] UUIDArray;
     EditText brand_phone;
     TextView edit_addr;
     List<Address> address = null;
@@ -78,7 +79,7 @@ public class MypageFragment extends Fragment {
         // Inflate the layout for this fragment
         ViewGroup rootview = (ViewGroup)inflater.inflate(R.layout.fragment_mypage, container, false);
         Button logout = (Button)rootview.findViewById(R.id.logout);;
-
+        UUIDArray = fetchUUID(ProfileData.getUserId());
 
         logout.setOnClickListener(v -> {
             UserManagement.getInstance()
@@ -117,17 +118,17 @@ public class MypageFragment extends Fragment {
         mChildnum = new ArrayList<>();
         for(int i = 1; i<= childNum; i++){
             if (i==1){
-                mChildnum.add(new ChildnumItem("첫째아이"));
+                mChildnum.add(new ChildnumItem("첫째아이",UUIDArray[0]) );
             } else if (i==2){
-                mChildnum.add(new ChildnumItem("둘째아이"));
+                mChildnum.add(new ChildnumItem("둘째아이", UUIDArray[1]));
             } else if (i==3){
-                mChildnum.add(new ChildnumItem("셋째아이"));
+                mChildnum.add(new ChildnumItem("셋째아이", UUIDArray[2]));
             } else if (i==4){
-                mChildnum.add(new ChildnumItem("넷째아이"));
+                mChildnum.add(new ChildnumItem("넷째아이", UUIDArray[3]));
             } else if (i==5) {
-                mChildnum.add(new ChildnumItem("다섯째아이"));
+                mChildnum.add(new ChildnumItem("다섯째아이", UUIDArray[4]));
             } else {
-                mChildnum.add(new ChildnumItem("자녀가 없습니다"));
+                mChildnum.add(new ChildnumItem("자녀가 없습니다", "X"));
             }
         }
 
@@ -232,6 +233,33 @@ public class MypageFragment extends Fragment {
                 }
             }
         }
+    }
+
+    public String[] fetchUUID(String userId){
+        String url = CommonMethod.ipConfig + "/api/fetchUUID";
+        List<String> arrayList = new ArrayList<String>();
+        String data = "";
+        String[] result = new String[0];
+        try{
+            String jsonString = new JSONObject()
+                    .put("userId", userId)
+                    .toString();
+
+            //REST API
+            RequestHttpURLConnection.NetworkAsyncTask networkTask = new RequestHttpURLConnection.NetworkAsyncTask(url, jsonString);
+            data = networkTask.execute().get();
+            Log.i("111 " , data);
+            String parsingData = data.substring(1, data.length() - 1);
+            Log.i("112 " , parsingData);
+            result = parsingData.split(",");
+            for (int i=0; i<result.length; i++){
+                result[i] = result[i].substring(1, result[i].length() - 1);
+            }
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return result;
     }
 
     /*@Override

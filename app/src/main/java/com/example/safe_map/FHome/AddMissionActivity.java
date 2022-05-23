@@ -85,6 +85,7 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
 
     // 초기변수설정
     public Integer childnum1 = 0, selectChild = null;
+    public String[] UUIDArray;
     int y1=0, m1=0, d1=0, h1=0, mi1=0;
     int y=0, m=0, d=0, h=0, mi=0;
 
@@ -133,6 +134,7 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_mission);
+        UUIDArray = fetchUUID(ProfileData.getUserId());
 
         mRecyclerView = (RecyclerView) findViewById(R.id.recyclerView2);
         /* initiate adapter */
@@ -144,17 +146,17 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
         mChildnum = new ArrayList<>();
         for(int i = 1; i<= childNum; i++){
             if (i==1){
-                mChildnum.add(new ChildnumItem("첫째아이"));
+                mChildnum.add(new ChildnumItem("첫째아이",UUIDArray[0]) );
             } else if (i==2){
-                mChildnum.add(new ChildnumItem("둘째아이"));
+                mChildnum.add(new ChildnumItem("둘째아이", UUIDArray[1]));
             } else if (i==3){
-                mChildnum.add(new ChildnumItem("셋째아이"));
+                mChildnum.add(new ChildnumItem("셋째아이", UUIDArray[2]));
             } else if (i==4){
-                mChildnum.add(new ChildnumItem("넷째아이"));
+                mChildnum.add(new ChildnumItem("넷째아이", UUIDArray[3]));
             } else if (i==5) {
-                mChildnum.add(new ChildnumItem("다섯째아이"));
+                mChildnum.add(new ChildnumItem("다섯째아이", UUIDArray[4]));
             } else {
-                mChildnum.add(new ChildnumItem("자녀가 없습니다"));
+                mChildnum.add(new ChildnumItem("자녀가 없습니다", "X"));
             }
         }
         //mChildnum.add(new ChildnumItem("첫째아이"));
