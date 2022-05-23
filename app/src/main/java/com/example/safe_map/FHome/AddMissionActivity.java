@@ -428,16 +428,18 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
     // 찾은 결과에 따라 맞는 필수 퀘스트를 지정해준다.
     private void Quest_Maker(){
 
-        String TrafficLight = "초록불일 때 만 길을 건너세요. 불이 깜빡거리면 멈춰서 다음 신호를 기다려요";
-        String CrossWalk = "건너기 전 항상 양 옆을 확인하여 차가 오는지 확인하고 건너세요";
+        String TrafficLight1 = "초록불일 때 만 길을 건너세요. 불이 깜빡거리면 멈춰서 다음 신호를 기다려요 (신호등 : ";
+        String TrafficLight2 = "개 존재)";
+        String CrossWalk1 = "건너기 전 항상 양 옆을 확인하여 차가 오는지 확인하고 건너세요 (횡단보도 : ";
+        String CrossWalk2 = "개 존재)";
         String Alley = "갑자기 차가 튀어나올 수 있습니다. 주변을 살피며 가세요.";
         String DriveWay = "차가 지나다닙니다. 끝에 붙어서 다니세요";
 
         if(trafficLight_num >= 1){
-            mArrayList.add(new QuestData(TrafficLight));
+            mArrayList.add(new QuestData(TrafficLight1+ trafficLight_num +TrafficLight2));
         }
         if(crossWalk_num >= 1){
-            mArrayList.add(new QuestData(CrossWalk));
+            mArrayList.add(new QuestData(CrossWalk1 + crossWalk_num + CrossWalk2));
         }
         if(alley_num >= 1){
             mArrayList.add(new QuestData(Alley));
