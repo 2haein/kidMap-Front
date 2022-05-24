@@ -177,6 +177,7 @@ public class CheckMapFragment extends Fragment {
 
 
         // 5초마다 아이 위치 불러오기
+        /*
         Timer scheduler = new Timer();
         TimerTask task = new TimerTask() {
             private static final int REQUEST_CODE_LOCATION = 2;
@@ -184,7 +185,7 @@ public class CheckMapFragment extends Fragment {
             @Override
             public void run() {
                 String locationProvider = LocationManager.GPS_PROVIDER;
-                if (ActivityCompat.checkSelfPermission((Activity)getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission((Activity)getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     // TODO: Consider calling
                     //    ActivityCompat#requestPermissions
                     // here to request the missing permissions, and then overriding
@@ -212,7 +213,8 @@ public class CheckMapFragment extends Fragment {
             }
         };
 
-        scheduler.scheduleAtFixedRate(task, 0, 5000); // 5초 뒤 1초마다 반복실행*/
+        scheduler.scheduleAtFixedRate(task, 0, 5000); // 5초 뒤 1초마다 반복실행//
+        */
 
 
 

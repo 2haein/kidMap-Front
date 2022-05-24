@@ -1,13 +1,10 @@
 package com.example.safe_map.Child;
 
 import static android.app.PendingIntent.getActivity;
-import static java.security.AccessController.getContext;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 
 import android.Manifest;
 import android.app.Activity;
@@ -20,6 +17,7 @@ import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
@@ -55,8 +53,7 @@ import com.skt.Tmap.TMapGpsManager;
 import com.skt.Tmap.TMapMarkerItem;
 import com.skt.Tmap.TMapPoint;
 
-public class ChildMap extends AppCompatActivity{
-    Fragment ChildMapView;
+public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLocationChangedCallback{
     String UUID;
 
     // json에서 받아온다.
@@ -67,11 +64,11 @@ public class ChildMap extends AppCompatActivity{
     int path_size = 0;
 
 
-    TMapView tMapView;
+    TMapView tMapView = null;
+    private TMapGpsManager tmapgps = null;
     RelativeLayout mapView;
     double latitude, longitude;
 
-    ViewGroup mapViewContainer;
     private LocationManager manager;
     private static final int REQUEST_CODE_LOCATION = 2;
 
@@ -79,21 +76,11 @@ public class ChildMap extends AppCompatActivity{
     String number = "0100000000";
     File file;
 
-    private boolean m_bTrackingMode = true;
-
-    private TMapGpsManager tmapgps = null;
-    //private static String mApiKey = "앱키입력하기"; // 발급받은 appKey
-    private static int mMarkerID;
-
-    //private ArrayList<TMapPoint> m_tmapPoint = new ArrayList<TMapPoint>();
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_child_map);
-        //ChildMapView = new ChildMapView();
 
-        //getSupportFragmentManager().beginTransaction().replace(R.id.fragmentContainerView,ChildMapView).commitAllowingStateLoss();
         home = (ImageButton) findViewById(R.id.homeaddr);
         camera = (ImageButton) findViewById(R.id.camera);
         call = (ImageButton) findViewById(R.id.call);
@@ -102,35 +89,36 @@ public class ChildMap extends AppCompatActivity{
         manager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         //gpsListener = new GPSListener();
 
-
-        // 아이의 현재 위치
-        getMyLocation();
-
         //mapview 세팅
-        mapView = (RelativeLayout) findViewById(R.id.childMapView2);
         tMapView = new TMapView(this);
 
-
         tMapView.setSKTMapApiKey("l7xx94f3b9ca30ba4d16850a60f2c3ebfdd5");
-        //tMapView.setLocationPoint(latitude,longitude);
-        //tMapView.setCenterPoint(latitude,longitude);
+        tMapView.setLocationPoint(latitude,longitude);
+        tMapView.setCenterPoint(latitude,longitude);
         tMapView.setCompassMode(true);
         tMapView.setIconVisibility(true);
         tMapView.setZoomLevel(18); // 클수록 확대
         tMapView.setMapType(TMapView.MAPTYPE_STANDARD);  //일반지도
         tMapView.setLanguage(TMapView.LANGUAGE_KOREAN);
+        tMapView.setTrackingMode(true);
+        tMapView.setSightVisible(true);
+
+        mapView = (RelativeLayout) findViewById(R.id.childMapView2);
+        mapView.addView(tMapView);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            requestPermissions(new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+        }
 
         tmapgps = new TMapGpsManager(this);
         tmapgps.setMinTime(1000);
-        tmapgps.setMinDistance(5);
+        tmapgps.setMinDistance(10);
         tmapgps.setProvider(tmapgps.NETWORK_PROVIDER); //연결된 인터넷으로 현 위치를 받습니다.
+
         //실내일 때 유용합니다.
-        tmapgps.setProvider(tmapgps.GPS_PROVIDER); //gps로 현 위치를 잡습니다.
+        //tmapgps.setProvider(tmapgps.GPS_PROVIDER); //gps로 현 위치를 잡습니다.
         tmapgps.OpenGps();
 
-        tMapView.setTrackingMode(true);
-        tMapView.setSightVisible(true);
-        mapView.addView(tMapView);
 
 
         // 1. 심부름 정보(안전 경로) 받아오기
@@ -145,6 +133,8 @@ public class ChildMap extends AppCompatActivity{
         // 4. 안전 경로 띄우기
         ShowPathOnMap();
 
+        // 아이의 현재 위치 5초 간격 서버에 전송
+        sendLocation();
 
 
         home.setOnClickListener(new View.OnClickListener() {
@@ -180,7 +170,11 @@ public class ChildMap extends AppCompatActivity{
         });
     }
 
-
+    @Override
+    public void onLocationChange(Location location) {
+        tMapView.setLocationPoint(location.getLongitude(), location.getLatitude());
+        tMapView.setCenterPoint(location.getLongitude(), location.getLatitude());
+    }
 
 
 
@@ -212,15 +206,15 @@ public class ChildMap extends AppCompatActivity{
 
     /**
      * 아이의 위치를 수신
-     * @return
      */
-    private Location getMyLocation() {
-        final Location[] currentLocation = {null};
+    private void sendLocation() {
+        final Location[] currentLocation = new Location[1];
+
         // Register the listener with the Location Manager to receive location updates
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             System.out.println("////////////사용자에게 권한을 요청해야함");
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, this.REQUEST_CODE_LOCATION);
-            getMyLocation();
+            sendLocation();
         } else {
             System.out.println("////////////권한요청 안해도됨");
 
@@ -231,6 +225,7 @@ public class ChildMap extends AppCompatActivity{
 
                 @Override
                 public void run() {
+
                     String locationProvider = LocationManager.GPS_PROVIDER;
                     if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                         // TODO: Consider calling
@@ -251,20 +246,20 @@ public class ChildMap extends AppCompatActivity{
                     Log.i("아이 현재 위치 ", Double.valueOf(latitude).toString());
 
                     registerChildLocation(ChildData.getChildId(), latitude, longitude);
+
                 }
             };
 
             scheduler.scheduleAtFixedRate(task, 0, 5000); // 5초 뒤 1초마다 반복실행*/
-
         }
 
-        return currentLocation[0];
+
     }
 
-    /*private Location getMyLocation() {
+    private Location getMyLocation() {
         Location currentLocation = null;
         // Register the listener with the Location Manager to receive location updates
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission((Activity) this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission((Activity) getApplicationContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             System.out.println("////////////사용자에게 권한을 요청해야함");
             ActivityCompat.requestPermissions((Activity) getApplicationContext(), new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, this.REQUEST_CODE_LOCATION);
             getMyLocation();
@@ -282,7 +277,7 @@ public class ChildMap extends AppCompatActivity{
             }
         }
         return currentLocation;
-    }*/
+    }
 
 
 
