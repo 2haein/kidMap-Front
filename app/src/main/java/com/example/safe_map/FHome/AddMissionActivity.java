@@ -570,6 +570,7 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
                     .put("start_latitude", start_latitude)
                     .put("start_longitude", start_longitude)
                     .put("checking", checking)
+                    .put("userId", ProfileData.getUserId())
                     .toString();
             //REST API
             RequestHttpURLConnection.NetworkAsyncTask networkTask = new RequestHttpURLConnection.NetworkAsyncTask(url, jsonString);
