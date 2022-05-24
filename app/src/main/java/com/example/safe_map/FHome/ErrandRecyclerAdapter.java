@@ -1,18 +1,22 @@
 package com.example.safe_map.FHome;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.safe_map.Login.ChildnumItem;
 import com.example.safe_map.Login.StdRecyclerAdapter;
+import com.example.safe_map.MainActivity;
 import com.example.safe_map.R;
 
 import java.util.ArrayList;
@@ -32,6 +36,27 @@ public class ErrandRecyclerAdapter  extends RecyclerView.Adapter<ErrandRecyclerA
     public void onBindViewHolder(@NonNull ErrandRecyclerAdapter.ViewHolder holder, int position){
         errandHome item = mErrandHome.get(position);
         holder.onBind(mErrandHome.get(position));
+
+        holder.onBind(item);
+        holder.cardView.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                int mPosition = holder.getAdapterPosition();
+                Context context = v.getContext();
+
+                Intent detailActivity = new Intent(context, ErrandItemActivity.class);
+
+                detailActivity.putExtra("childname", mErrandHome.get(mPosition).getChildName());
+                detailActivity.putExtra("date", mErrandHome.get(mPosition).getDate());
+                detailActivity.putExtra("content", mErrandHome.get(mPosition).geterrandContent());
+                detailActivity.putExtra("target", mErrandHome.get(mPosition).getDestination());
+                detailActivity.putExtra("start", mErrandHome.get(mPosition).getStartName());
+                detailActivity.putExtra("quest", mErrandHome.get(mPosition).getQuest());
+                //사진 detailActivity
+                ((MainActivity)context).startActivity(detailActivity);
+            }
+        });
     }
     public void setErrandHome(ArrayList<errandHome> mErrandHome){
         this.mErrandHome = mErrandHome;
@@ -59,6 +84,7 @@ public class ErrandRecyclerAdapter  extends RecyclerView.Adapter<ErrandRecyclerA
         TextView date;
         TextView errandContent;
         TextView destination;
+        CardView cardView;
 
         public ViewHolder(@NonNull View itemView, final com.example.safe_map.Login.StdRecyclerAdapter.OnItemClickEventListener a_itemClickListener) {
             super(itemView);
@@ -66,6 +92,7 @@ public class ErrandRecyclerAdapter  extends RecyclerView.Adapter<ErrandRecyclerA
             this.date = (TextView) itemView.findViewById(R.id.date);
             this.errandContent = (TextView) itemView.findViewById(R.id.econtent);
             this.destination = (TextView) itemView.findViewById(R.id.dest);
+            this.cardView = (CardView) itemView.findViewById(R.id.layout_container);
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -84,5 +111,7 @@ public class ErrandRecyclerAdapter  extends RecyclerView.Adapter<ErrandRecyclerA
             errandContent.setText(item.geterrandContent());
             destination.setText(item.getDestination());
         }
+
+
     }
 }

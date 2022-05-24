@@ -31,6 +31,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class ChildMain extends AppCompatActivity {
     ImageButton parentButton, errandStart;
@@ -93,9 +94,9 @@ public class ChildMain extends AppCompatActivity {
             System.out.println("* errand *");
             JSONArray errandData = (JSONArray) Alldata.getJSONArray("errand");
             for(int j=0; j < errandData.length(); j++){
-                Log.i("정보정보 ", errandData.getString(j));
+                //Log.i("정보정보 ", errandData.getString(j));
                 JSONObject key = (JSONObject) errandData.getJSONObject(j);
-                Log.i("하나 ", key.getString("target_name"));
+                //Log.i("하나 ", key.getString("target_name"));
 
                 String e_date = key.getString("e_date");
                 String e_content = key.getString("e_content");
@@ -114,7 +115,7 @@ public class ChildMain extends AppCompatActivity {
                 //String date = format.format(tempDate);
 
                 String[] date = e_date.split("T");
-                mErrandHome.add(new errandHome(childName, date[0], e_content,target_name));
+                mErrandHome.add(new errandHome(childName, date[0], e_content,target_name,start_name));
 
             }
 

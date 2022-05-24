@@ -31,6 +31,8 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -122,9 +124,9 @@ public class HomeFragment extends Fragment {
                 System.out.println("* errand *");
                 JSONArray errandData = (JSONArray) Alldata.getJSONArray("errand");
                 for(int j=0; j < errandData.length(); j++){
-                    Log.i("정보정보 ", errandData.getString(j));
+                    //Log.i("정보정보 ", errandData.getString(j));
                     JSONObject key = (JSONObject) errandData.getJSONObject(j);
-                    Log.i("하나 ", key.getString("target_name"));
+                    //Log.i("하나 ", key.getString("target_name"));
 
                     String e_date = key.getString("e_date");
                     String e_content = key.getString("e_content");
@@ -136,14 +138,26 @@ public class HomeFragment extends Fragment {
                     String start_longitude = key.getString("start_longitude");
                     String quest = key.getString("quest");
 
+                    //List<String> questList = new ArrayList<String>();
 
+
+                    if (quest != "") {
+                        //JSONArray questData = (JSONArray) key.getJSONArray("quest");
+
+                        String[] date = e_date.split("T");
+                        mErrandHome.add(new errandHome(childName, date[0], e_content,target_name,start_name, quest));
+
+                    } else {
+                        String[] date = e_date.split("T");
+                        mErrandHome.add(new errandHome(childName, date[0], e_content,target_name,start_name));
+
+                    }
                     //SimpleDateFormat format = new SimpleDateFormat("yyyy년 MM월 dd일");
                     //Date tempDate = format.parse(e_date);
 
                     //String date = format.format(tempDate);
 
-                    String[] date = e_date.split("T");
-                    mErrandHome.add(new errandHome(childName, date[0], e_content,target_name));
+
 
                 }
 
