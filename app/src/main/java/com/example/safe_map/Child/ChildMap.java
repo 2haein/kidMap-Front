@@ -1,5 +1,6 @@
 package com.example.safe_map.Child;
 
+import static android.app.PendingIntent.getActivity;
 import static java.security.AccessController.getContext;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -103,7 +104,7 @@ public class ChildMap extends AppCompatActivity{
 
 
         // 아이의 현재 위치
-       // getMyLocation();
+        getMyLocation();
 
         //mapview 세팅
         mapView = (RelativeLayout) findViewById(R.id.childMapView2);
@@ -263,9 +264,9 @@ public class ChildMap extends AppCompatActivity{
     /*private Location getMyLocation() {
         Location currentLocation = null;
         // Register the listener with the Location Manager to receive location updates
-        if (ActivityCompat.checkSelfPermission((Activity) getContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             System.out.println("////////////사용자에게 권한을 요청해야함");
-            ActivityCompat.requestPermissions((Activity) getContext(), new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, this.REQUEST_CODE_LOCATION);
+            ActivityCompat.requestPermissions((Activity) getApplicationContext(), new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, this.REQUEST_CODE_LOCATION);
             getMyLocation();
         }
         else {
@@ -282,6 +283,8 @@ public class ChildMap extends AppCompatActivity{
         }
         return currentLocation;
     }*/
+
+
 
     private float getDistance(double lat1, double lon1, double lat2, double lon2) {
         float[] distance = new float[2];
