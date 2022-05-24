@@ -40,7 +40,7 @@ public class ChildMain extends AppCompatActivity {
 
     //심부름 목록
     private RecyclerView mRecyclerView;
-    private ErrandRecyclerAdapter mRecyclerAdapter;
+    private CErrandRecyclerAdapter mRecyclerAdapter;
     private ArrayList<errandHome> mErrandHome;
 
     @Override
@@ -77,7 +77,7 @@ public class ChildMain extends AppCompatActivity {
         //심부름 목록 불러오기
         mRecyclerView = (RecyclerView) findViewById(R.id.recyclerView4);
         /* initiate adapter */
-        mRecyclerAdapter = new ErrandRecyclerAdapter(this);
+        mRecyclerAdapter = new CErrandRecyclerAdapter(this);
 
         /* adapt data */
         mErrandHome = new ArrayList<>();
@@ -114,8 +114,17 @@ public class ChildMain extends AppCompatActivity {
 
                 //String date = format.format(tempDate);
 
-                String[] date = e_date.split("T");
-                mErrandHome.add(new errandHome(childName, date[0], e_content,target_name,start_name));
+                if (quest != "") {
+                    //JSONArray questData = (JSONArray) key.getJSONArray("quest");
+
+                    String[] date = e_date.split("T");
+                    mErrandHome.add(new errandHome(childName, date[0], e_content,target_name,start_name, quest));
+
+                } else {
+                    String[] date = e_date.split("T");
+                    mErrandHome.add(new errandHome(childName, date[0], e_content,target_name,start_name));
+
+                }
 
             }
 
