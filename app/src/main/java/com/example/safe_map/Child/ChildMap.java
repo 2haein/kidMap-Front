@@ -537,7 +537,7 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
             tMapCircle.setLineColor(Color.argb(128, 0, 0, 0));
             tMapCircle.setAreaColor(Color.argb(128, RED, GREEN, BLUE));
             tMapCircle.setAreaAlpha(100);
-            tMapView.addTMapCircle("circle", tMapCircle);
+            tMapView.addTMapCircle("circle"+o, tMapCircle);
 
             // 마커 찍기
             TMapMarkerItem markerItem2 = new TMapMarkerItem();
@@ -546,7 +546,7 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
             markerItem2.setPosition(0.5f, 1.0f); // 마커의 중심점을 중앙, 하단으로 설정
             markerItem2.setTMapPoint( mark_point2 ); // 마커의 좌표 지정
             markerItem2.setName("위험지역"); // 마커의 타이틀 지정
-            tMapView.addMarkerItem("danger", markerItem2); // 지도에 마커 추가
+            tMapView.addMarkerItem("danger"+o, markerItem2); // 지도에 마커 추가
 
         }
     }
