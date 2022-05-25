@@ -80,7 +80,6 @@ public class CheckMapFragment extends Fragment {
     String dst_name = "";
 
     // 디폴트 좌표 : 중앙대 310관 운동장
-    boolean isDefault = true;
     MapPoint mp_default = MapPoint.mapPointWithGeoCoord(37.503619745977055,126.95668175768733);
 
     MapView  mapView;    //MapView  mapView = new MapView(getActivity());
@@ -301,7 +300,7 @@ public class CheckMapFragment extends Fragment {
         }
     }
 
-
+// api호출도 넣을 것.
     void ParseDangerZone(){
         String jsonString = null;
         try {

@@ -5,6 +5,19 @@ public class DangerPoint {
     double type;
     double lat;
     double lng;
+    String tag;
+
+    public DangerPoint() {
+
+    }
+
+    public DangerPoint(double v, double lat, double lon) {
+        type = v;
+        this.lat = lat;
+        this.lng = lon;
+    }
+
+
 
 
     public void SetType(double i){

@@ -11,7 +11,6 @@ public class ProfileData {
     private static Boolean mapFlag= false;
     private static Boolean checkmapFlag = false;
     private static String errandChildId;
-    private static String parent_id;
     private static ArrayList<Integer> safe_path_info = new ArrayList<>();
 
     public ProfileData(String userId, String nickName, String profile, String thumbnail) {
@@ -51,13 +50,15 @@ public class ProfileData {
         return mapFlag;
     }
 
-    public static String getParent_id(){ return parent_id ;}
-
     public static ArrayList<Integer> getSafe_path_info(){ return safe_path_info;}
 
 
 
 
+
+    public static void setUserid(String userid) {
+        ProfileData.userId = userid;
+    }
 
     public static void setChildNum(Integer childNum) {
         ProfileData.childNum = childNum;
@@ -74,7 +75,5 @@ public class ProfileData {
     public static void setErrandChildId(String Id) { errandChildId = Id; }
 
     public static void setSafe_path_info(int i){ safe_path_info.add(i);}
-
-    public static void setParent_id(String p_id){ parent_id = p_id; }
 
 }

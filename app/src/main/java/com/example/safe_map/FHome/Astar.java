@@ -4,6 +4,8 @@ import android.content.Context;
 import android.util.Log;
 
 import com.example.safe_map.common.ProfileData;
+import com.example.safe_map.http.CommonMethod;
+import com.example.safe_map.http.RequestHttpURLConnection;
 
 import net.daum.mf.map.api.MapPoint;
 
@@ -34,12 +36,12 @@ public class Astar {
 
 
     ArrayList<Integer> int_path = new ArrayList<>();  // Node number paths
-    ArrayList<jPoint> jp_path = new ArrayList<>();  // coords paths
+    public ArrayList<jPoint> jp_path = new ArrayList<>();  // coords paths
 
 
     ArrayList<jPoint> nodes = new ArrayList<>();    // nodes
     ArrayList<int[]>[] links = new ArrayList[131];  // links
-    ArrayList<DangerPoint> DangerZone = new ArrayList<>(); // Danger Points
+    public ArrayList<DangerPoint> DangerZone = new ArrayList<>(); // Danger Points
 
     ArrayList<Integer> dangerNodeNum = new ArrayList<>(); // 위험 지역에 속하는 노드 번호들
 
@@ -84,9 +86,35 @@ public class Astar {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+
+        String url = CommonMethod.ipConfig + "/api/fetchNotify";
+        String rtnStr= "";
+
+        try{
+            String jsonString2 = new JSONObject()
+                    .toString();
+
+            //REST API
+            RequestHttpURLConnection.NetworkAsyncTask networkTask = new RequestHttpURLConnection.NetworkAsyncTask(url,jsonString2);
+            rtnStr = networkTask.execute().get();
+
+            Log.d("test123","/api/fetchNotify : "+rtnStr);
+
+            JSONArray Alldata = new JSONArray(rtnStr);
+
+            for(int i = 0; i < Alldata.length() ; i ++) {
+                JSONObject jo = (JSONObject) Alldata.get(i);
+
+                double lat = Double.parseDouble(jo.getString("notify_latitude"));
+                double lon = Double.parseDouble(jo.getString("notify_longitude"));
+
+                DangerZone.add(new DangerPoint(6.0, lat, lon));
+            }
+        }catch(Exception e){
+            e.printStackTrace(); }
     }
 
-    void ParseNode(Context context) {
+    public  void ParseNode(Context context) {
         String jsonString = null;
         try {
             InputStream is = context.getAssets().open("nodes_1.json");
@@ -117,7 +145,7 @@ public class Astar {
         }
     }
 
-    void ParseLinks(Context context) {
+    public  void ParseLinks(Context context) {
         String jsonString = null;
         try {
             InputStream is = context.getAssets().open("links_1.json");
@@ -160,13 +188,13 @@ public class Astar {
     }
 
 
-    // 위험 지역에 속하는 노드 번호 찾기 : 5m 이내에 속하면 위험 지역
-    void FindDangerousNodeNum() {
+    // 위험 지역에 속하는 노드 번호 찾기 : 10m 이내에 속하면 위험 지역
+    public void FindDangerousNodeNum() {
         //Log.d("test","size : "+ dp.size());
 
         for (int i = 0; i < nodes.size(); i++) {
             for (int j = 0; j < DangerZone.size(); j++) {
-// 좌표가 이상하게 찍히면 너가 잘못이다. lat lon 거꾸로
+
                 jPoint tmp = new jPoint(DangerZone.get(j).GetLat(), DangerZone.get(j).GetLng());
                 double res = GetDistanceWithCoords(nodes.get(i), tmp);
                 // Log.d("test","넘버 : "+ i+ "거리 :"+res);
@@ -189,7 +217,7 @@ public class Astar {
     }
 
     // 받은 좌표와 거리가 가장 가까운 노드의 번호를 반환
-    int findCloseNode(jPoint jp_src) {
+    public int findCloseNode(jPoint jp_src) {
         int nodeNum = -1;
         double dist = 999999999.0;
         double cur_dist = 0;
@@ -251,6 +279,7 @@ public class Astar {
 
     //================== A* Algorithm =======================
     public void AstarSearch(int srcNum, int dstNum) {
+
 
         // 첫 번째 노드를 닫힌 리스트에 넣는다.
         CloseTEST[ClosePointer][nodeNum] = srcNum;
@@ -461,10 +490,12 @@ public class Astar {
         System.out.println(": end");
     }
 
-
-    public void CoordPath(double src_lat, double src_lon, double dst_lat, double dst_lon){
+    // 출발지점 + 경로 + 도착 지점 모두를 담은 경로
+    public void GetCoordPath(double src_lat, double src_lon, double dst_lat, double dst_lon){
         jPoint start = new jPoint(src_lat, src_lon);
         jPoint end = new jPoint( dst_lat, dst_lon);
+
+        jp_path.clear();
 
         jp_path.add(start);
 

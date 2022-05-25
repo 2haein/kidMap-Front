@@ -29,6 +29,7 @@ import android.widget.Toast;
 
 import com.example.safe_map.FHome.Astar;
 import com.example.safe_map.FHome.DangerPoint;
+import com.example.safe_map.FHome.jPoint;
 import com.example.safe_map.R;
 import com.example.safe_map.common.ChildData;
 import com.example.safe_map.common.ProfileData;
@@ -55,16 +56,27 @@ import com.skt.Tmap.TMapMarkerItem;
 import com.skt.Tmap.TMapPoint;
 
 public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLocationChangedCallback{
-    String UUID = ChildData.getChildId();
-    String parent_id = ProfileData.getParent_id();
-    Astar astar = new Astar();
 
-    //
-    ArrayList<TMapPoint> safe_path = new ArrayList<>();
-    // 위험지역
-    ArrayList<DangerPoint> DangerZone = new ArrayList<>();
-    // 안전 경로 길이
-    int path_size = 0;
+    String UUID = ChildData.getChildId();
+    String parent_id = ProfileData.getUserId();
+    Astar astar = new Astar();
+    Context mContext = ChildMap.this;
+
+
+    // 경로 정보
+    final int onfoot = 0;
+    final int alley = 1;
+    final int traffic = 2;
+    final int crosswalk= 3;
+
+    // 파싱 용도
+    double src_lat,src_lon, dst_lat, dst_lon;
+    String src_name, dst_name;
+
+    // 지도 마커 용도
+    jPoint jp_src = new jPoint();
+    jPoint jp_dst = new jPoint();
+
 
     TMapView tMapView = null;
     private TMapGpsManager tmapgps = null;
@@ -95,8 +107,8 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
         tMapView = new TMapView(this);
 
         tMapView.setSKTMapApiKey("l7xx94f3b9ca30ba4d16850a60f2c3ebfdd5");
-        tMapView.setLocationPoint(latitude,longitude);
-        tMapView.setCenterPoint(latitude,longitude);
+      //  tMapView.setLocationPoint(latitude,longitude);
+      //  tMapView.setCenterPoint(latitude,longitude);
         tMapView.setCompassMode(true);
         tMapView.setIconVisibility(true);
         tMapView.setZoomLevel(18); // 클수록 확대
@@ -119,23 +131,25 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
 
         //실내일 때 유용합니다.
         //tmapgps.setProvider(tmapgps.GPS_PROVIDER); //gps로 현 위치를 잡습니다.
-        tmapgps.OpenGps();
+      //  tmapgps.OpenGps();
 
         // 1. 심부름 정보(안전 경로) 받아오기
         GetErrandData();
-        GetPathWithAstar();
 
-        // 2. 위험 지역 파싱 : 나중에 db에서 사용사 신고도 받아와야됨
-        ParseDangerZone();
+        // 2. 노드, 링크, 위험 지역 파싱
+        ParseInformations();
 
-        // 3. 위험 지역 띄우기
+        // 3. 안전 경로 찾기
+        FindSafePath();
+
+        // 4. 위험 지역 띄우기
         ShowDangerZoneOnMap();
 
-        // 4. 안전 경로 띄우기
+        // 5. 안전 경로 띄우기
         ShowPathOnMap();
 
         // 아이의 현재 위치 5초 간격 서버에 전송
-        sendLocation();
+      //  sendLocation();
 
         home.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -170,13 +184,70 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
         });
     }
 
-    private void GetPathWithAstar() {
+
+    private void ParseInformations(){
+        astar.ParseNode(mContext);
+        astar.ParseLinks(mContext);
+        astar.ParseDanger(mContext);
+
+    }
+
+    private void FindSafePath() {
+        // 1. 위험 지역을 찾는다.
+        astar.FindDangerousNodeNum();
+
+        // 2. 출발/도착지와 가장 가까운 노드번호를 찾는다.
+        int start = astar.findCloseNode(jp_src);
+        int end = astar.findCloseNode(jp_dst);
+
+        // 3. 두 노드 번호를 이용하여 A* 알고리즘 실행.
+        astar.AstarSearch(start, end);
+
+        // 4. closeList를 탐색하여 경로 찾기
+        astar.FindPath(start, end);
+
+        // 5. 찾은 노드번호 경로를 이용하여 ( 출발 + 경로 + 도착 ) 좌표 리스트 추출.
+        astar.GetCoordPath(jp_src.GetLat(), jp_src.GetLng(), jp_dst.GetLat(), jp_dst.GetLng());
+
+
     }
 
     private void GetErrandData() {
-        // 1. fetchChild를 이용해 부모 id를 가져온다.
+        // 1. 부모 아이디를 이용하여 심부름 좌표를 받아온다.
+        String url = CommonMethod.ipConfig + "/api/fetchRecentErrand";
+        String rtnStr= "";
 
-        // 2. 부모 아이디,
+        try{
+            String jsonString = new JSONObject()
+                    .put("userId", parent_id)
+                    .toString();
+
+            //REST API
+            RequestHttpURLConnection.NetworkAsyncTask networkTask = new RequestHttpURLConnection.NetworkAsyncTask(url, jsonString);
+            rtnStr = networkTask.execute().get();
+
+            Log.d("test123","/api/fetchRecentErrand : "+ rtnStr);
+
+            JSONObject Alldata = new JSONObject(rtnStr);
+
+            // 2. 좌표 추출
+            src_lat = Double.parseDouble(Alldata.getString("start_latitude"));
+            src_lon = Double.parseDouble(Alldata.getString("start_longitude"));
+            dst_lat = Double.parseDouble(Alldata.getString("target_latitude"));
+            dst_lon = Double.parseDouble(Alldata.getString("target_longitude"));
+
+            src_name = Alldata.getString("start_name");
+            dst_name = Alldata.getString("target_name");
+
+            // 3. 출발점, 도착점에 맞는 좌표 넣어줌
+            jp_src.SetLat(src_lat);
+            jp_src.SetLng(src_lon);
+            jp_dst.SetLat(dst_lat);
+            jp_dst.SetLng(dst_lon);
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -296,39 +367,6 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
         return distance[0];
     }
 
-    /*private static double distance_in_meter(final double lat1, final double lon1, final double lat2, final double lon2) {
-        double R = 6371000f; // Radius of the earth in m
-        double dLat = (lat1 - lat2) * Math.PI / 180f;
-        double dLon = (lon1 - lon2) * Math.PI / 180f;
-        double a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                Math.cos(latlong1.latitude * Math.PI / 180f) * Math.cos(latlong2.latitude * Math.PI / 180f) *
-                        Math.sin(dLon/2) * Math.sin(dLon/2);
-        double c = 2f * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-        double d = R * c;
-        return d;
-    }*/
-
-    // 자녀의 정보 불러오기
-    public String fetchChild(String UUID){
-        String url = CommonMethod.ipConfig + "/api/fetchChild";
-        String rtnStr= "";
-
-        try{
-            String jsonString = new JSONObject()
-                    .put("UUID", UUID)
-                    .toString();
-
-            //REST API
-            RequestHttpURLConnection.NetworkAsyncTask networkTask = new RequestHttpURLConnection.NetworkAsyncTask(url, jsonString);
-            rtnStr = networkTask.execute().get();
-//          Toast.makeText(getActivity(), "자녀 등록을 완료하였습니다.", Toast.LENGTH_SHORT).show();
-//           Log.i(TAG, String.format("가져온 Phonenum: (%s)", rtnStr));
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-        return rtnStr;
-
-    }
 
     // 현재 아이 위치 전송
     public static void registerChildLocation(String UUID, double current_latitude, double current_longitude){
@@ -378,50 +416,18 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
 
 
 
-    void ParseDangerZone(){
-        String jsonString = null;
-        try {
-            InputStream is = getAssets().open("test_danger.json");
-            int size = is.available();
-            byte[] buffer = new byte[size];
-            is.read(buffer);
-            is.close();
-            jsonString = new String(buffer, "UTF-8");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        try{
-            JSONObject jsonObject = new JSONObject(jsonString);
-            JSONArray nodeArray = jsonObject.getJSONArray("coords");
-
-            for(int i=0; i< nodeArray.length(); i++)
-            {
-                JSONArray Object =  (JSONArray) nodeArray.get(i);
-                DangerPoint dp = new DangerPoint();
-
-                dp.SetType((double) Object.get(0));
-                dp.SetLat((double) Object.get(1));
-                dp.SetLng((double) Object.get(2));
-                DangerZone.add(dp);
-                Log.d("test","danger lat: "+(double) Object.get(1) +" lon: "+ (double) Object.get(2));
-            }
-
-            // Log.d("test",""+"as.nodes size : " + nodes.size());
-        }catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
-
+    // astar.jp_path를 이용.
+    // 출발(마커) + 경로 (선) + 도착(마커) 로 표시
     void ShowPathOnMap(){
         TMapPolyLine tMapPolyLine = new TMapPolyLine();
+        tMapPolyLine.setLineColor(Color.argb(100,0,0,0));
 
-        // 경로의 길이
-        path_size =  safe_path.size();
+        int size = astar.jp_path.size();
 
         // safe_path.get(0) = 출발 지점     >> 출발지점, 도착지점 둘 다 선으로 연결하지는 않는다.
         TMapMarkerItem markerItem1 = new TMapMarkerItem();
-        TMapPoint mark_point1 = new TMapPoint(safe_path.get(0).getLatitude(),safe_path.get(0).getLongitude());
-        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.house);
+        TMapPoint mark_point1 = new TMapPoint(astar.jp_path.get(0).GetLat(),astar.jp_path.get(0).GetLng());
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.jhouse);
         markerItem1.setIcon(bitmap); // 마커 아이콘 지정
         markerItem1.setPosition(0.5f, 1.0f); // 마커의 중심점을 중앙, 하단으로 설정
         markerItem1.setTMapPoint( mark_point1 ); // 마커의 좌표 지정
@@ -431,8 +437,8 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
 
         // safe_path.get(size-1) = 도착 지점  >> 출발지점, 도착지점 둘 다 선으로 연결하지는 않는다.
         TMapMarkerItem markerItem2 = new TMapMarkerItem();
-        TMapPoint mark_point2 = new TMapPoint(safe_path.get(path_size -1).getLatitude(),safe_path.get(path_size -1).getLongitude());
-        Bitmap bitmap2 = BitmapFactory.decodeResource(getResources(), R.drawable.finish_line);
+        TMapPoint mark_point2 = new TMapPoint(astar.jp_path.get(size-1).GetLat(),astar.jp_path.get(size-1).GetLng());
+        Bitmap bitmap2 = BitmapFactory.decodeResource(getResources(), R.drawable.jfinish_line);
         markerItem2.setIcon(bitmap2); // 마커 아이콘 지정
         markerItem2.setPosition(0.5f, 1.0f); // 마커의 중심점을 중앙, 하단으로 설정
         markerItem2.setTMapPoint( mark_point2 ); // 마커의 좌표 지정
@@ -440,12 +446,12 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
         tMapView.addMarkerItem("markerItem2", markerItem2); // 지도에 마커 추가
 
         // 지도 중심 변경
-        tMapView.setCenterPoint(safe_path.get(path_size/2).getLongitude(),safe_path.get(path_size/2).getLatitude());
+        tMapView.setCenterPoint(astar.jp_path.get(size/2).GetLat(), astar.jp_path.get(size/2).GetLng());
 
 
         // index 1 ~ size-2 : A* 알고리즘으로 구한 좌표들. 선으로 이어준다.
-        for(int i =1 ; i < safe_path.size()-1 ; i ++){
-            tMapPolyLine.addLinePoint(new TMapPoint(safe_path.get(i).getLatitude(),safe_path.get(i).getLongitude()));
+        for(int i =1 ; i < astar.jp_path.size() -1 ; i ++){
+            tMapPolyLine.addLinePoint(new TMapPoint( astar.jp_path.get(i).GetLat(),astar.jp_path.get(i).GetLng()));
         }
         tMapView.addTMapPolyLine("Safe_Path", tMapPolyLine);
 
@@ -459,60 +465,58 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
         String TAG = "";
         Bitmap bitmap;
 
-        for (int o = 0; o < DangerZone.size(); o++) {
+        for (int o = 0; o < astar.DangerZone.size(); o++) {
             // 만약 위험 지역이 성범죄자 거주 구역이라면
-            if (DangerZone.get(o).GetType() == 1.0) {
+            if (astar.DangerZone.get(o).GetType() == 1.0) {
                 RED = 255;
                 GREEN = 0;
                 BLUE = 0;
                 TAG = "성범죄자 거주 구역";
 
                 // 나중에 맞는 마커로 바꿀 것
-                bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.devil);
+                bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.jdevil);
             }
             // 보행자 사고 다발 지역인 경우
-            else if(DangerZone.get(o).GetType() == 2.0){
+            else if(astar.DangerZone.get(o).GetType() == 2.0){
                 RED = 0;
                 GREEN = 255;
                 BLUE = 0;
                 TAG = "보행자 사고 다발 구역";
 
                 // 나중에 맞는 마커로 바꿀 것
-                bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.accident);
+                bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.jaccident);
             }
             // 자전거 사고 다발 지역인 경우
-            else if(DangerZone.get(o).GetType() == 3.0){
+            else if(astar.DangerZone.get(o).GetType() == 3.0){
                 RED = 0;
                 GREEN = 0;
                 BLUE = 255;
                 TAG = "자전거 사고 다발 구역";
 
                 // 나중에 맞는 마커로 바꿀 것
-                bitmap = BitmapFactory.decodeResource(getResources(),R.drawable.cyclist);
+                bitmap = BitmapFactory.decodeResource(getResources(),R.drawable.jcyclist);
             }
             // 교통사고 주의 구간인 경우
-            else{
+            else if(astar.DangerZone.get(o).GetType() == 4.0){
                 RED = 255;
                 GREEN = 255;
                 BLUE = 255;
                 TAG = "교통사고 주의 구역";
-                bitmap = BitmapFactory.decodeResource(getResources(),R.drawable.accident_car);
+                bitmap = BitmapFactory.decodeResource(getResources(),R.drawable.jaccident);
+            }
+            else{
+                RED = 255;
+                GREEN = 255;
+                BLUE = 255;
+                TAG = "시민 신고 지역";
+                bitmap = BitmapFactory.decodeResource(getResources(),R.drawable.sirenback);
+
             }
 
-            // 원 그리기
-            TMapPoint tp = new TMapPoint(DangerZone.get(o).GetLat(), DangerZone.get(o).GetLng());
-            TMapCircle tMapCircle = new TMapCircle();
-            tMapCircle.setCenterPoint( tp );
-            tMapCircle.setRadius(10);    // 단위 : 미터
-            tMapCircle.setCircleWidth(2);
-            tMapCircle.setLineColor(Color.argb(128, 0, 0, 0));
-            tMapCircle.setAreaColor(Color.argb(128, RED, GREEN, BLUE));
-            tMapCircle.setAreaAlpha(100);
-            tMapView.addTMapCircle("circle"+o, tMapCircle);
 
             // 마커 찍기
             TMapMarkerItem markerItem2 = new TMapMarkerItem();
-            TMapPoint mark_point2 = new TMapPoint(DangerZone.get(o).GetLat(), DangerZone.get(o).GetLng());
+            TMapPoint mark_point2 = new TMapPoint(astar.DangerZone.get(o).GetLat(), astar.DangerZone.get(o).GetLng());
             markerItem2.setIcon(bitmap); // 마커 아이콘 지정
             markerItem2.setPosition(0.5f, 1.0f); // 마커의 중심점을 중앙, 하단으로 설정
             markerItem2.setTMapPoint( mark_point2 ); // 마커의 좌표 지정

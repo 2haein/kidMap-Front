@@ -7,7 +7,7 @@ public class jPoint {
     public double lng;
 
 
-    jPoint(){
+    public jPoint(){
 
     }
 

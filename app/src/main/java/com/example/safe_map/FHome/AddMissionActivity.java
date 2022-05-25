@@ -407,7 +407,7 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
         // 1-3) 위에서 찾은 노드 번호를 이용하여 길 찾기 수행
         astar.AstarSearch(start, end);
         astar.FindPath(start, end);
-        astar.CoordPath(start_latitude, start_longitude, target_latitude, target_longitude);
+        astar.GetCoordPath(start_latitude, start_longitude, target_latitude, target_longitude);
         //Log.d("test","2. path size: "+ astar.jp_path.size());
 
         // 1-4) 경로로부터 요소 정보 추출

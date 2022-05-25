@@ -91,7 +91,7 @@ public class ChildMain extends AppCompatActivity {
             JSONObject Alldata = new JSONObject(childInfo);
             String childName = Alldata.getString("childName");
             parent_Id = Alldata.getString("parent_id");
-            ProfileData.setParent_id(parent_Id);
+            ProfileData.setUserid(parent_Id);
 
             System.out.println("* errand *");
             JSONArray errandData = (JSONArray) Alldata.getJSONArray("errand");
