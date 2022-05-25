@@ -359,7 +359,7 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
                      try {
                         registerErrand(childUUID, E_date, E_content,
                                 target_latitude,target_longitude,edit_addr.getText().toString(), edit_addr2.getText().toString(), quest, start_latitude,start_longitude,true);
-
+                        updateErrandChecking();
 
                      } catch (JSONException e) {
                          Toast.makeText(AddMissionActivity.this, "error", Toast.LENGTH_LONG).show();
@@ -368,7 +368,7 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
                     }
                     Toast.makeText(AddMissionActivity.this, "심부름을 시작합니다", Toast.LENGTH_LONG).show();
                     ProfileData.setErrandChildId(childUUID);
-                    ProfileData.setcheckmapFlag(true);
+                    //ProfileData.setcheckmapFlag(true);
                     finish();
 
                 }
@@ -587,6 +587,43 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
             e.printStackTrace();
         }
     }
+
+    public void updateErrandChecking(){
+        String url = CommonMethod.ipConfig + "/api/updateErrandChecking";
+
+        try{
+            String jsonString = new JSONObject()
+                    .put("userId", ProfileData.getUserId())
+                    .put("isErrandComplete", false)
+                    .toString();
+
+            //REST API
+            RequestHttpURLConnection.NetworkAsyncTask networkTask = new RequestHttpURLConnection.NetworkAsyncTask(url, jsonString);
+            networkTask.execute().get();
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    public String fetchErrandChecking(String userId){
+        String url = CommonMethod.ipConfig + "/api/fetchErrandChecking";
+        String rtnStr= "";
+
+        try{
+            String jsonString = new JSONObject()
+                    .put("userId", userId)
+                    .toString();
+
+            //REST API
+            RequestHttpURLConnection.NetworkAsyncTask networkTask = new RequestHttpURLConnection.NetworkAsyncTask(url, jsonString);
+            rtnStr = networkTask.execute().get();
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return rtnStr;
+    }
+
 
     public String fetchChildNum(String userId){
         String url = CommonMethod.ipConfig + "/api/fetchChildNum";

@@ -403,6 +403,8 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
         }
     }
 
+
+
     void ParseDangerZone(){
         String jsonString = null;
         try {
@@ -446,7 +448,7 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
         // safe_path.get(0) = 출발 지점     >> 출발지점, 도착지점 둘 다 선으로 연결하지는 않는다.
         TMapMarkerItem markerItem1 = new TMapMarkerItem();
         TMapPoint mark_point1 = new TMapPoint(safe_path.get(0).getLatitude(),safe_path.get(0).getLongitude());
-        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.jhome);
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.house);
         markerItem1.setIcon(bitmap); // 마커 아이콘 지정
         markerItem1.setPosition(0.5f, 1.0f); // 마커의 중심점을 중앙, 하단으로 설정
         markerItem1.setTMapPoint( mark_point1 ); // 마커의 좌표 지정
@@ -457,7 +459,7 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
         // safe_path.get(size-1) = 도착 지점  >> 출발지점, 도착지점 둘 다 선으로 연결하지는 않는다.
         TMapMarkerItem markerItem2 = new TMapMarkerItem();
         TMapPoint mark_point2 = new TMapPoint(safe_path.get(path_size -1).getLatitude(),safe_path.get(path_size -1).getLongitude());
-        Bitmap bitmap2 = BitmapFactory.decodeResource(getResources(), R.drawable.jmarker);
+        Bitmap bitmap2 = BitmapFactory.decodeResource(getResources(), R.drawable.finish_line);
         markerItem2.setIcon(bitmap2); // 마커 아이콘 지정
         markerItem2.setPosition(0.5f, 1.0f); // 마커의 중심점을 중앙, 하단으로 설정
         markerItem2.setTMapPoint( mark_point2 ); // 마커의 좌표 지정
@@ -493,7 +495,7 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
                 TAG = "성범죄자 거주 구역";
 
                 // 나중에 맞는 마커로 바꿀 것
-                bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.jmarker);
+                bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.devil);
             }
             // 보행자 사고 다발 지역인 경우
             else if(DangerZone.get(o).GetType() == 2.0){
@@ -503,7 +505,7 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
                 TAG = "보행자 사고 다발 구역";
 
                 // 나중에 맞는 마커로 바꿀 것
-                bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.jmarker);
+                bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.accident);
             }
             // 자전거 사고 다발 지역인 경우
             else if(DangerZone.get(o).GetType() == 3.0){
@@ -513,7 +515,7 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
                 TAG = "자전거 사고 다발 구역";
 
                 // 나중에 맞는 마커로 바꿀 것
-                bitmap = BitmapFactory.decodeResource(getResources(),R.drawable.jmarker);
+                bitmap = BitmapFactory.decodeResource(getResources(),R.drawable.cyclist);
             }
             // 교통사고 주의 구간인 경우
             else{
@@ -521,7 +523,7 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
                 GREEN = 255;
                 BLUE = 255;
                 TAG = "교통사고 주의 구역";
-                bitmap = BitmapFactory.decodeResource(getResources(),R.drawable.jmarker);
+                bitmap = BitmapFactory.decodeResource(getResources(),R.drawable.accident_car);
             }
 
             // 원 그리기

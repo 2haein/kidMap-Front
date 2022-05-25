@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -144,7 +145,9 @@ public class CheckMapFragment extends Fragment {
         mapView.setZoomLevel(2, true);
 
         // 심부름을 설정 했다면
-        if (ProfileData.getcheckmapFlag() == true){
+        String result = fetchErrandChecking();
+        Log.i("result ", result);
+        if (result.equals("false")){
             // json으로부터 심부름 설정 정보 불러옴.
             GetErrandDataFromJson();
 
@@ -386,7 +389,6 @@ public class CheckMapFragment extends Fragment {
 
 
     // 3. 경로를 지도에 폴리라인으로 띄우기
-    // f
     void ShowPathOnMap(){
         MapPolyline pathLine = new MapPolyline();
 
@@ -418,18 +420,12 @@ public class CheckMapFragment extends Fragment {
         for(int i =1 ; i < safe_path.size()-1 ; i ++){
             MapPoint tmp = MapPoint.mapPointWithGeoCoord(safe_path.get(i).getMapPointGeoCoord().latitude,safe_path.get(i).getMapPointGeoCoord().longitude );
             pathLine.addPoint(tmp);
-
-
-
-
         }
 
         mapView.addPolyline(pathLine);
 
         MapPoint mid = MapPoint.mapPointWithGeoCoord(safe_path.get((int)size/2).getMapPointGeoCoord().latitude,safe_path.get((int)size/2).getMapPointGeoCoord().longitude );
         mapView.setMapCenterPoint(mid, true);
-
-
     }
 
     public String fetchChild(String UUID){
@@ -460,7 +456,23 @@ public class CheckMapFragment extends Fragment {
 
     }
 
+    public String fetchErrandChecking(){
+        String url = CommonMethod.ipConfig + "/api/fetchErrandChecking";
+        String rtnStr= "";
 
+        try{
+            String jsonString = new JSONObject()
+                    .put("userId", ProfileData.getUserId())
+                    .toString();
+
+            //REST API
+            RequestHttpURLConnection.NetworkAsyncTask networkTask = new RequestHttpURLConnection.NetworkAsyncTask(url, jsonString);
+            rtnStr = networkTask.execute().get();
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return rtnStr;
+    }
 }
 
 
