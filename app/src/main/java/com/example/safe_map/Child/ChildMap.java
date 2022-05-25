@@ -27,6 +27,7 @@ import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.example.safe_map.FHome.Astar;
 import com.example.safe_map.FHome.DangerPoint;
 import com.example.safe_map.R;
 import com.example.safe_map.common.ChildData;
@@ -54,9 +55,11 @@ import com.skt.Tmap.TMapMarkerItem;
 import com.skt.Tmap.TMapPoint;
 
 public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLocationChangedCallback{
-    String UUID;
+    String UUID = ChildData.getChildId();
+    String parent_id = ProfileData.getParent_id();
+    Astar astar = new Astar();
 
-    // json에서 받아온다.
+    //
     ArrayList<TMapPoint> safe_path = new ArrayList<>();
     // 위험지역
     ArrayList<DangerPoint> DangerZone = new ArrayList<>();
@@ -119,7 +122,8 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
         tmapgps.OpenGps();
 
         // 1. 심부름 정보(안전 경로) 받아오기
-        GetErrandDataFromJson();
+        GetErrandData();
+        GetPathWithAstar();
 
         // 2. 위험 지역 파싱 : 나중에 db에서 사용사 신고도 받아와야됨
         ParseDangerZone();
@@ -164,6 +168,15 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
 
             }
         });
+    }
+
+    private void GetPathWithAstar() {
+    }
+
+    private void GetErrandData() {
+        // 1. fetchChild를 이용해 부모 id를 가져온다.
+
+        // 2. 부모 아이디,
     }
 
     @Override
@@ -362,46 +375,6 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
     }
 
 
-
-
-    private boolean GetErrandDataFromJson() {
-        String jsonString = null;
-        try {
-            String filename = "PathInfo.json";
-            FileInputStream fos = new FileInputStream(this.getFilesDir()+"/"+filename);
-            // InputStream is = mContext.getAssets().open(getFilesDir()+ErrandInfo.json");
-            //Log.d("resttt",""+fos.available());
-            int size = fos.available();
-            byte[] buffer = new byte[size];
-            fos .read(buffer);
-            fos .close();
-            jsonString = new String(buffer, "UTF-8");
-            Log.d("test","Parse jsonString : "+ jsonString);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        }
-        try{
-            safe_path.clear();
-            JSONObject jsonObject = new JSONObject(jsonString);
-            JSONArray jsonarray2 = (JSONArray) jsonObject.get("coords");
-            Log.d("test","Parse 2: "+ jsonarray2);
-
-            for (int i = 0; i < jsonarray2.length(); i++) {
-                JSONObject jsonobject = jsonarray2.getJSONObject(i);
-
-                double lat = Double.parseDouble(String.valueOf(jsonobject.getString("lat")));
-                double lon = Double.parseDouble(String.valueOf(jsonobject.getString("lng")));
-                TMapPoint mp = new TMapPoint(lat, lon);
-                safe_path.add(mp);
-            }
-            return true;
-
-        }catch (JSONException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
 
 
 
