@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -24,6 +25,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
+import com.example.safe_map.Child.QuestBeforeCheck;
 import com.example.safe_map.FHome.AddMissionActivity;
 import com.example.safe_map.FHome.DangerPoint;
 import com.example.safe_map.FHome.errandHome;
@@ -84,9 +86,9 @@ public class CheckMapFragment extends Fragment {
     MapView  mapView;    //MapView  mapView = new MapView(getActivity());
     Context mContext;
 
-
-
     ViewGroup mapViewContainer;
+
+    Button quest, finish;
 
 
     /**
@@ -219,6 +221,16 @@ public class CheckMapFragment extends Fragment {
         scheduler.scheduleAtFixedRate(task, 0, 5000); // 5초 뒤 1초마다 반복실행//
         */
 
+
+        finish = (Button) v.findViewById(R.id.finish_errand);
+        finish.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getContext(), CheckingQuestActivity.class);
+                startActivity(intent);
+            }
+        });
 
 
         return v;

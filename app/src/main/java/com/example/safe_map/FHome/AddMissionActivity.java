@@ -300,7 +300,7 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
         mQuestRecyclerView.setLayoutManager(layoutManager);
 
         mArrayList = new ArrayList<>();
-        mArrayList.add(new QuestData("(필수) 중간 지점에서 사진 찍어 보내기"));
+        mArrayList.add(new QuestData("(필수) 중간 지점을 거쳐 경로 따라가기"));
         mArrayList.add(new QuestData("(필수) 심부름 내용 잘 수행하기"));
 
         mQuestAdapter = new QuestAdapter(mContext, mArrayList);
