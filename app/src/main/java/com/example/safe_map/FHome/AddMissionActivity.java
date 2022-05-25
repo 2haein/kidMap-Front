@@ -227,7 +227,7 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
                         mi = minute;
                         time_view.setText(h+"시  "+mi+"분");
                     }
-                }, h1, mi1, true);
+                }, h1, mi1, false);
                 timePickerDialog.setMessage("출발 시각");
                 timePickerDialog.show();
             }
@@ -313,7 +313,7 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
                 if (quest_name.getText().length()==0){
                     Toast.makeText(mContext, "퀘스트 내용을 입력하세요", Toast.LENGTH_LONG).show();
                 } else {
-                    String quest = "\"" + quest_name.getText().toString() + "\"";
+                    String quest = quest_name.getText().toString();
                     quest_name.setText("");
                     QuestData data = new QuestData(quest);
 

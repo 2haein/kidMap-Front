@@ -63,7 +63,6 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
     // 안전 경로 길이
     int path_size = 0;
 
-
     TMapView tMapView = null;
     private TMapGpsManager tmapgps = null;
     RelativeLayout mapView;
@@ -119,8 +118,6 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
         //tmapgps.setProvider(tmapgps.GPS_PROVIDER); //gps로 현 위치를 잡습니다.
         tmapgps.OpenGps();
 
-
-
         // 1. 심부름 정보(안전 경로) 받아오기
         GetErrandDataFromJson();
 
@@ -135,7 +132,6 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
 
         // 아이의 현재 위치 5초 간격 서버에 전송
         sendLocation();
-
 
         home.setOnClickListener(new View.OnClickListener() {
             @Override

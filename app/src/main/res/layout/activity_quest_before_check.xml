@@ -31,9 +31,8 @@
 
     <TextView
         android:id="@+id/textView32"
-        android:layout_width="300dp"
+        android:layout_width="320dp"
         android:layout_height="wrap_content"
-        android:text="TextView"
         android:textSize="24sp"
         app:layout_constraintBottom_toTopOf="@+id/realstart"
         app:layout_constraintEnd_toEndOf="parent"

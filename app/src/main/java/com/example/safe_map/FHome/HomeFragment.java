@@ -20,6 +20,7 @@ import com.example.safe_map.Login.Signup;
 import com.example.safe_map.Login.StdRecyclerAdapter;
 import com.example.safe_map.MainActivity;
 import com.example.safe_map.R;
+import com.example.safe_map.RecyclerDecoration;
 import com.example.safe_map.common.ProfileData;
 import com.example.safe_map.http.CommonMethod;
 import com.example.safe_map.http.RequestHttpURLConnection;
@@ -53,6 +54,7 @@ public class HomeFragment extends Fragment {
     private RecyclerView mRecyclerView;
     private ErrandRecyclerAdapter mRecyclerAdapter;
     private ArrayList<errandHome> mErrandHome;
+    private RecyclerDecoration spaceDecoration;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -94,6 +96,8 @@ public class HomeFragment extends Fragment {
         });
 
         mRecyclerView = (RecyclerView) view.findViewById(R.id.recyclerView);
+        //spaceDecoration = new RecyclerDecoration(10);
+        //mRecyclerView.addItemDecoration(spaceDecoration);
         /* initiate adapter */
         mRecyclerAdapter = new ErrandRecyclerAdapter(getActivity());
 
