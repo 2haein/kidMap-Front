@@ -36,7 +36,7 @@ import java.util.Collections;
 public class ChildMain extends AppCompatActivity {
     ImageButton parentButton, errandStart;
     TextView errandContent, target_name;
-    String UUID;
+    String UUID, parent_Id;
 
     //심부름 목록
     private RecyclerView mRecyclerView;
@@ -90,6 +90,7 @@ public class ChildMain extends AppCompatActivity {
         try {
             JSONObject Alldata = new JSONObject(childInfo);
             String childName = Alldata.getString("childName");
+            parent_Id = Alldata.getString("parent_id");
 
             System.out.println("* errand *");
             JSONArray errandData = (JSONArray) Alldata.getJSONArray("errand");
@@ -148,16 +149,42 @@ public class ChildMain extends AppCompatActivity {
         errandStart.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                if (ProfileData.getcheckmapFlag() == false) {
+                String result = fetchErrandChecking(parent_Id);
+                if (result.equals("true")) {
                     // 심부름이 없다면 알림창을 띄움.
                     Toast.makeText(ChildMain.this, "설정된 심부름이 없습니다!", Toast.LENGTH_LONG).show();
-                } else {
+                } else if (result.equals("false") && (ChildData.getcheckmapFlag()==false)){
+                    // 처음 지도를 켜서 들어간 것
                     Intent intent = new Intent(getApplicationContext(), beforeCheck.class);
                     intent.putExtra("childId", UUID);
+                    intent.putExtra("parentId", parent_Id);
+                    startActivity(intent);
+                } else {
+                    Intent intent = new Intent(getApplicationContext(), ChildMap.class);
+                    intent.putExtra("childId", UUID);
+                    intent.putExtra("parentId", parent_Id);
                     startActivity(intent);
                 }
             }
         });
+    }
+
+    public String fetchErrandChecking(String parent_id){
+        String url = CommonMethod.ipConfig + "/api/fetchErrandChecking";
+        String rtnStr= "";
+
+        try{
+            String jsonString = new JSONObject()
+                    .put("userId", parent_id)
+                    .toString();
+
+            //REST API
+            RequestHttpURLConnection.NetworkAsyncTask networkTask = new RequestHttpURLConnection.NetworkAsyncTask(url, jsonString);
+            rtnStr = networkTask.execute().get();
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return rtnStr;
     }
 
     public String fetchChild(String UUID){

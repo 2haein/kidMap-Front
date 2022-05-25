@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import com.example.safe_map.FHome.errandHome;
 import com.example.safe_map.R;
+import com.example.safe_map.common.ChildData;
 import com.example.safe_map.http.CommonMethod;
 import com.example.safe_map.http.RequestHttpURLConnection;
 
@@ -36,6 +37,7 @@ public class QuestBeforeCheck extends AppCompatActivity {
 
             @Override
             public void onClick(View v) {
+                ChildData.setcheckmapFlag(true);
                 Intent intent = new Intent(getApplicationContext(), ChildMap.class);
                 intent.putExtra("childId", UUID);
                 startActivity(intent);
