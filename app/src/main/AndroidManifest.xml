@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.example.safe_map">
+    package="com.safekid.safe_map">
     <!-- 필요한 권한 생성 -->
     <permission
-        android:name="com.example.safemap.permission.MAPS_RECEIVE"
+        android:name="com.safekid.example.safemap.permission.MAPS_RECEIVE"
         android:protectionLevel="signature" />
 
     <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
@@ -42,7 +42,7 @@
 
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="com.example.safe_map.fileProvider"
+            android:authorities="com.safekid.safe_map.fileProvider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data
