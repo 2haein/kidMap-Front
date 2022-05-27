@@ -484,7 +484,7 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
                                 Log.i("address 변환 ok" , String.valueOf(addr.getLatitude()));
                                 target_latitude = addr.getLatitude();
                                 target_longitude = addr.getLongitude();
-                               // Log.i("test","GEO  lat : "+target_latitude + "lon : "+target_longitude );
+                                Log.i("test123","GEO1  lat : "+target_latitude + "lon : "+target_longitude );
                                 //Toast.makeText(AddMissionActivity.this,"해당되는 주소의 위도, 경도 값을 설정하였습니다",Toast.LENGTH_LONG).show();
                             }
                         }
@@ -513,7 +513,7 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
                                 start_latitude = addr.getLatitude();
                                 start_longitude = addr.getLongitude();
                                 //Toast.makeText(AddMissionActivity.this,"출발지 주소의 위도, 경도 값을 설정하였습니다",Toast.LENGTH_LONG).show();
-                               // Log.i("test","GEO2  lat : "+start_latitude + "lon : "+start_longitude );
+                                Log.i("test123","GEO2  lat : "+start_latitude + "lon : "+start_longitude );
                                 Find_Safe_Path(start_latitude,start_longitude,target_latitude, target_longitude);
                                 Quest_Maker();
                             }

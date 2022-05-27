@@ -37,6 +37,7 @@ public class Astar {
 
     ArrayList<Integer> int_path = new ArrayList<>();  // Node number paths
     public ArrayList<jPoint> jp_path = new ArrayList<>();  // coords paths
+    public ArrayList<Integer> link_info = new ArrayList<>(); // 링크 정보
 
 
     ArrayList<jPoint> nodes = new ArrayList<>();    // nodes
@@ -98,7 +99,7 @@ public class Astar {
             RequestHttpURLConnection.NetworkAsyncTask networkTask = new RequestHttpURLConnection.NetworkAsyncTask(url,jsonString2);
             rtnStr = networkTask.execute().get();
 
-            Log.d("test123","/api/fetchNotify : "+rtnStr);
+            Log.d("Astar","/api/fetchNotify : "+rtnStr);
 
             JSONArray Alldata = new JSONArray(rtnStr);
 
@@ -377,6 +378,8 @@ public class Astar {
 
         }
 
+        Log.d("Astar","길 찾기 완료 노드번호 경로 :: "+ int_path);
+
     }
 
     // 열린 리스트에서 휴리스틱 최솟값을 가지는 노드의 인덱스 반환
@@ -429,13 +432,16 @@ public class Astar {
 
 
     // 퀘스트 용도 : 경로의 정보 반환
-    void GetPathInfo() {
+    public void GetPathInfo() {
 
         for (int i = 1; i < int_path.size(); i++) {
             for (int[] info : links[int_path.get(i - 1)]) {
                 // 이미 인접 노드가 닫힌 리스트에 존재 할 경우 : 무시
                 if (info[0] == int_path.get(i)) {
                     int tp = info[1];
+
+                    // 경로 정보를 담는다.
+                    link_info.add(tp);
 
                     // add path information into profile data
                     ProfileData.setSafe_path_info(tp);
@@ -499,11 +505,21 @@ public class Astar {
 
         jp_path.add(start);
 
-        for(int i : int_path){
-            jPoint jp = new jPoint(nodes.get(i).GetLat(), nodes.get(i).GetLng());
+        // A star 알고리즘은 탐색 완료 후 경로를 찾을 때 도착점에서부터 시작점을 찾으므로 반대로 넣어 준다.
+     // /*
+       for(int i = int_path.size()-1 ; i >= 0 ; i--){
+        //  Log.d("Astar","jp_path : int_path.get(i): "+int_path.get(i) );
+            jPoint jp = new jPoint(nodes.get(int_path.get(i)).GetLat(), nodes.get(int_path.get(i)).GetLng());
             jp_path.add(jp);
         }
-
+       // */
+        /*
+        for(int i = 0 ; i < int_path.size() ; i++){
+            Log.d("Astar","jp_path : int_path.get(i): "+int_path.get(i) );
+            jPoint jp = new jPoint(nodes.get(int_path.get(i)).GetLat(), nodes.get(int_path.get(i)).GetLng());
+            jp_path.add(jp);
+        }
+*/
         jp_path.add(end);
     }
 
