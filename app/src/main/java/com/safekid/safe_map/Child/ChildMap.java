@@ -142,7 +142,7 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
         ShowPathInfoOnMap();
 
         // 아이의 현재 위치 5초 간격 서버에 전송
-        //  sendLocation();
+        sendLocation();
 
         home.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -292,7 +292,6 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
             sendLocation();
         } else {
             System.out.println("////////////권한요청 안해도됨");
-
             // 수동으로 위치 구하기
             Timer scheduler = new Timer();
             TimerTask task = new TimerTask() {
@@ -300,16 +299,8 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
 
                 @Override
                 public void run() {
-
                     String locationProvider = LocationManager.GPS_PROVIDER;
                     if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                        // TODO: Consider calling
-                        //    ActivityCompat#requestPermissions
-                        // here to request the missing permissions, and then overriding
-                        //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                        //                                          int[] grantResults)
-                        // to handle the case where the user grants the permission. See the documentation
-                        // for ActivityCompat#requestPermissions for more details.
                         return;
                     }
                     currentLocation[0] = manager.getLastKnownLocation(locationProvider);

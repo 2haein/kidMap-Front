@@ -1,10 +1,15 @@
 package com.safekid.safe_map.FMypage;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -19,7 +24,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.safekid.safe_map.FHome.AddMissionActivity;
 import com.safekid.safe_map.FHome.AddressApiActivity;
+import com.safekid.safe_map.Login.ChildLoginActivity;
 import com.safekid.safe_map.Login.ChildnumItem;
 import com.safekid.safe_map.Login.LoginActivity;
 import com.safekid.safe_map.Login.StdRecyclerAdapter;
@@ -138,7 +145,29 @@ public class MypageFragment extends Fragment {
         mRecyclerAdapter.setOnItemClickListener(new StdRecyclerAdapter.OnItemClickEventListener() {
             @Override
             public void onItemClick(View a_view, int a_position) {
-                //Toast.makeText(getApplicationContext(), a_position, Toast.LENGTH_LONG).show();
+                AlertDialog.Builder dlg = new AlertDialog.Builder(getContext());
+                dlg.setTitle("자녀 ID 복사하기");
+                dlg.setMessage("자녀 ID를 복사하시겠습니까?");
+                dlg.setPositiveButton("예",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                // 처리할 코드 작성
+                                ClipboardManager clipboard = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+                                int selectChild = a_position;
+                                Toast.makeText(getContext(), "클립보드에 자녀 ID 복사", Toast.LENGTH_SHORT).show();
+
+                                ClipData clip = ClipData.newPlainText("label", UUIDArray[selectChild]);
+                                if (clipboard == null || clip == null) return;
+                                clipboard.setPrimaryClip(clip);
+                            }
+                        });
+                dlg.show();
+            }
+        });
+
+        mRecyclerAdapter.setOnItemLongClickListener(new StdRecyclerAdapter.OnItemLongClickEventListener(){
+            public void onItemLongClick(View a_view, int a_position){
+
             }
         });
 
