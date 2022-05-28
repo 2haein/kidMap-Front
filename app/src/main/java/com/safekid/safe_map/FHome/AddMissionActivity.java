@@ -12,6 +12,7 @@ import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -34,7 +35,14 @@ import com.safekid.safe_map.http.RequestHttpURLConnection;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -87,11 +95,24 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
     private static final int SEARCH_ADDRESS_ACTIVITY = 10000;
     private static final int SEARCH_ADDRESS_ACTIVITY2 = 20000;
 
+    // 주소 좌표 변환
+    String x_a, y_a, x_b, y_b;
+    String addr1, addr2;
+
     @SuppressLint("WrongViewCast")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_mission);
+        int SDK_INT = android.os.Build.VERSION.SDK_INT;
+        if (SDK_INT > 8)
+        {
+            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
+                    .permitAll().build();
+            StrictMode.setThreadPolicy(policy);
+
+        }
+
         UUIDArray = fetchUUID(ProfileData.getUserId());
 
         mRecyclerView = (RecyclerView) findViewById(R.id.recyclerView2);
@@ -213,7 +234,6 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
                     overridePendingTransition(0, 0);
                     // 주소결과
                     startActivityForResult(i, SEARCH_ADDRESS_ACTIVITY);
-
                 }else {
                     Toast.makeText(getApplicationContext(), "인터넷 연결을 확인해주세요.", Toast.LENGTH_SHORT).show();
                 }
@@ -240,6 +260,8 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
                 }
             }
         });
+
+
 
         // 퀘스트 목록 리사이클러뷰
         /*private Context mContext;
@@ -294,22 +316,41 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
                 double target_latitude, double target_longitude,
                 double start_latitude, double start_longitude,
                 boolean checking*/
+
                 String childUUID = "";
                 if(selectChild != null) {
                     childUUID = child[selectChild];
                 }
-                String E_content = edit_content.getText().toString();
+                if (addr1 != null) {
+                    requestGeocode(addr1);
+                    Log.i("addr1 ", addr1);
+                    target_latitude = Double.parseDouble(y_a);
+                    target_longitude = Double.parseDouble(x_a);
+                    Log.i("target lat ", String.valueOf(target_latitude));
+                    Log.i("target lgt ", String.valueOf(target_longitude));
+                }
+                if (addr2 != null) {
+                    requestGeocode2(addr2);
+                    Log.i("addr1 ", addr2);
+                    start_latitude = Double.parseDouble(y_b);
+                    start_longitude = Double.parseDouble(x_b);
+                    Log.i("target lat ", String.valueOf(start_latitude));
+                    Log.i("target lgt ", String.valueOf(start_longitude));
+                }
+                String E_content = "";
+                E_content = edit_content.getText().toString();
+                Log.i("E_content ", E_content);
                 String E_date = y+"-"+m+"-"+d+"T"+h+":"+mi;
                 if (childUUID.equals("")){
                     Toast.makeText(AddMissionActivity.this, "자녀를 선택하세요", Toast.LENGTH_LONG).show();
-                } else if (E_content.equals(null)){
+                } else if (E_content == ""){
                     Toast.makeText(AddMissionActivity.this, "심부름 내용을 입력하세요", Toast.LENGTH_LONG).show();
-                } else if (E_date.equals(null)){
+                } else if (E_date == ""){
                 } else if (target_longitude == 0 && target_latitude == 0){
                     Toast.makeText(AddMissionActivity.this, "목적지 주소의 위도, 경도값이 올바르지 않습니다. 목적지를 다시 입력해주세요.", Toast.LENGTH_LONG).show();
                 } else if (start_latitude == 0 && start_longitude == 0){
                     Toast.makeText(AddMissionActivity.this, "출발지 주소의 위도, 경도값이 올바르지 않습니다. 목적지를 다시 입력해주세요.", Toast.LENGTH_LONG).show();
-                } else if (childUUID != null && E_content != null && E_date != null && target_latitude != 0 && target_longitude != 0 && start_longitude != 0 && start_latitude != 0){
+                } else if (childUUID != null && E_content != "" && E_date != "" && target_latitude != 0 && target_longitude != 0 && start_longitude != 0 && start_latitude != 0){
                     for (int i =0; i < mArrayList.size(); i++) {
                         Log.i("퀘스트 내용 ", String.valueOf(mArrayList.get(i).getQuest()));
                         quest.add("\""+mArrayList.get(i).getQuest().toString()+"\"");
@@ -416,8 +457,32 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
     }
 
 
-
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        super.onActivityResult(requestCode, resultCode, intent);
+        Log.i("test", "onActivityResult");
+        switch (requestCode) {
+            case SEARCH_ADDRESS_ACTIVITY:
+                if (resultCode == RESULT_OK) {
+                    addr1 = intent.getExtras().getString("data");
+                    Log.i("test", "addr1:" + addr1);
+                    if (addr1 != null) {
+                        edit_addr.setText(addr1);
+                    }
+                }
+                break;
+            case SEARCH_ADDRESS_ACTIVITY2:
+                if (resultCode == RESULT_OK) {
+                    addr2 = intent.getExtras().getString("data");
+                    if (addr2 != null) {
+                        Log.i("test", "addr2:" + addr2);
+                        edit_addr2.setText(addr2);
+                    }
+                }
+                break;
+        }
+    }
+
+    /*public void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
         Log.i("test", "onActivityResult");
         switch (requestCode) {
@@ -480,7 +545,7 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
                 }
                 break;
         }
-    }
+    }*/
 
     public String[] fetchUUID(String userId){
         String url = CommonMethod.ipConfig + "/api/fetchUUID";
@@ -604,5 +669,100 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 
+    }
+
+    // naver map api로부터 위도 경도 받아오기
+    public void requestGeocode(String addr){
+        try{
+            BufferedReader bufferedReader;
+            StringBuilder stringBuilder = new StringBuilder();
+            String query = "https://naveropenapi.apigw.ntruss.com/map-geocode/v2/geocode?query=" + URLEncoder.encode(addr,"UTF-8");
+            URL url = new URL(query);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            if (conn != null) {
+                conn.setConnectTimeout(5000);
+                conn.setReadTimeout(5000);
+                conn.setRequestMethod("GET");
+                conn.setRequestProperty("X-NCP-APIGW-API-KEY-ID", "mvjxkqyyom");
+                conn.setRequestProperty("X-NCP-APIGW-API-KEY", "vWS7ifOREQfxmxT4VZfy5VKcGUNGaWhFrTRJ3jTI");
+                conn.setDoInput(true);
+
+                int responseCode = conn.getResponseCode();
+
+                if (responseCode == 200) {
+                    bufferedReader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                } else {
+                    bufferedReader = new BufferedReader(new InputStreamReader(conn.getErrorStream()));
+                }
+
+                String line  = null;
+                while((line = bufferedReader.readLine()) != null) {
+                    stringBuilder.append(line + "\n");
+                }
+                int lat = stringBuilder.indexOf("\"x\":\"");
+                int lgt = stringBuilder.indexOf("\",\"y\":");
+                x_a = stringBuilder.substring(lat + 5, lgt);
+
+                lat = stringBuilder.indexOf("\"y\":\"");
+                lgt = stringBuilder.indexOf("\",\"distance\":");
+                y_a = stringBuilder.substring(lat + 5, lgt);
+
+                bufferedReader.close();
+                conn.disconnect();
+            }
+
+
+        } catch (UnsupportedEncodingException | MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void requestGeocode2(String addr){
+        try{
+            BufferedReader bufferedReader;
+            StringBuilder stringBuilder = new StringBuilder();
+            String query = "https://naveropenapi.apigw.ntruss.com/map-geocode/v2/geocode?query=" + URLEncoder.encode(addr,"UTF-8");
+            URL url = new URL(query);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            if (conn != null) {
+                conn.setConnectTimeout(5000);
+                conn.setReadTimeout(5000);
+                conn.setRequestMethod("GET");
+                conn.setRequestProperty("X-NCP-APIGW-API-KEY-ID", "mvjxkqyyom");
+                conn.setRequestProperty("X-NCP-APIGW-API-KEY", "vWS7ifOREQfxmxT4VZfy5VKcGUNGaWhFrTRJ3jTI");
+                conn.setDoInput(true);
+
+                int responseCode = conn.getResponseCode();
+
+                if (responseCode == 200) {
+                    bufferedReader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                } else {
+                    bufferedReader = new BufferedReader(new InputStreamReader(conn.getErrorStream()));
+                }
+
+                String line  = null;
+                while((line = bufferedReader.readLine()) != null) {
+                    stringBuilder.append(line + "\n");
+                }
+                int lat = stringBuilder.indexOf("\"x\":\"");
+                int lgt = stringBuilder.indexOf("\",\"y\":");
+                x_b = stringBuilder.substring(lat + 5, lgt);
+
+                lat = stringBuilder.indexOf("\"y\":\"");
+                lgt = stringBuilder.indexOf("\",\"distance\":");
+                y_b = stringBuilder.substring(lat + 5, lgt);
+
+                bufferedReader.close();
+                conn.disconnect();
+            }
+
+
+        } catch (UnsupportedEncodingException | MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
