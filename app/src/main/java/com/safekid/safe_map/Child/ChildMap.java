@@ -13,16 +13,20 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.location.Criteria;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.safekid.safe_map.FHome.Astar;
@@ -90,15 +94,16 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
         call = (ImageButton) findViewById(R.id.call);
 
         // 아이의 위치 수신을 위한 세팅
-        manager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+        manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        getLocation();
         //gpsListener = new GPSListener();
 
         //mapview 세팅
         tMapView = new TMapView(this);
 
         tMapView.setSKTMapApiKey("l7xx94f3b9ca30ba4d16850a60f2c3ebfdd5");
-        //  tMapView.setLocationPoint(latitude,longitude);
-        //  tMapView.setCenterPoint(latitude,longitude);
+        //tMapView.setLocationPoint(latitude,longitude);
+        //tMapView.setCenterPoint(latitude,longitude);
         tMapView.setCompassMode(true);
         tMapView.setIconVisibility(true);
         tMapView.setZoomLevel(18); // 클수록 확대
@@ -121,7 +126,7 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
 
         //실내일 때 유용합니다.
         //tmapgps.setProvider(tmapgps.GPS_PROVIDER); //gps로 현 위치를 잡습니다.
-        //  tmapgps.OpenGps();
+        tmapgps.OpenGps();
 
         // 1. 심부름 정보(안전 경로) 받아오기
         GetErrandData();
@@ -251,33 +256,46 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
         tMapView.setCenterPoint(location.getLongitude(), location.getLatitude());
     }
 
+    public void getLocation() {
+        // Get the location manager
+        LocationManager locationManager = (LocationManager)
+                getSystemService(LOCATION_SERVICE);
+        Criteria criteria = new Criteria();
+        String bestProvider = locationManager.getBestProvider(criteria, false);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        Location location = locationManager.getLastKnownLocation(bestProvider);
+        LocationListener loc_listener = new LocationListener() {
 
+            public void onLocationChanged(Location l) {}
 
+            public void onProviderEnabled(String p) {}
 
+            public void onProviderDisabled(String p) {}
 
+            public void onStatusChanged(String p, int status, Bundle extras) {}
+        };
+        locationManager
+                .requestLocationUpdates(bestProvider, 5000, 0, loc_listener);
+        location = locationManager.getLastKnownLocation(bestProvider);
+        try {
+            latitude = location.getLatitude();
+            longitude = location.getLongitude();
 
-    /*@Override
-    public void onResume() {
-        mapView.onResume();
-        super.onResume();
+        } catch (NullPointerException e) {
+            latitude = -1.0;
+            longitude = -1.0;
+        }
+
     }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-    }
-
-    @Override
-    public void onPause(){
-        mapViewContainer.removeView(mapView);
-        getActivity().finish();
-        super.onPause();
-    }
-
-    public void finish() {
-        mapViewContainer.removeView(mapView);
-        getActivity().finish();
-    }*/
 
     /**
      * 아이의 위치를 수신
@@ -299,20 +317,18 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
 
                 @Override
                 public void run() {
-                    String locationProvider = LocationManager.GPS_PROVIDER;
-                    if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    /*if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                         return;
                     }
-                    currentLocation[0] = manager.getLastKnownLocation(locationProvider);
+                    currentLocation[0] = manager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER); // 야외 GPS_PROVIDER, 실내 NETWOR_PROVIDER
                     latitude = currentLocation[0].getLatitude();
                     longitude = currentLocation[0].getLongitude();
                     System.out.println("아이 현재 위치값 : " + latitude + "," + longitude);
-                    registerChildLocation(UUID, latitude, longitude);
-
-                    Log.i("아이 현재 위치 ", Double.valueOf(latitude).toString());
-
+                    registerChildLocation(UUID, latitude, longitude);*/
+                    System.out.println("아이 현재 위치값 : " + latitude + "," + longitude);
+                    //mylocation.setText(latitude + "," + longitude);
+                    //Toast.makeText(getApplicationContext(), "현재 위치" + latitude + "," + longitude, Toast.LENGTH_LONG).show();
                     registerChildLocation(ChildData.getChildId(), latitude, longitude);
-
                 }
             };
 
