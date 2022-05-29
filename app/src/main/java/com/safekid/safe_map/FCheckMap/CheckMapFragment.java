@@ -579,7 +579,7 @@ public class CheckMapFragment extends Fragment {
         else if(type == alley){
             marker.setItemName("골목길");
             marker.setMarkerType(MapPOIItem.MarkerType.CustomImage);
-            marker.setCustomImageResourceId(R.drawable.jmarker);
+            marker.setCustomImageResourceId(R.drawable.jalley);
         }
         else if(type == traffic){
             marker.setItemName("신호등");
