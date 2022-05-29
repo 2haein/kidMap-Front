@@ -352,6 +352,7 @@ public class Astar {
 
     // OpenList에서 Path를 찾아서 "노드번호"로 저장.
     public void FindPath(int srcNum, int dstNum) {
+        int_path.clear();
 
         int node = dstNum;
         int_path.add(node); // 우선 도착 노드를 넣는다.
@@ -432,6 +433,9 @@ public class Astar {
 
     // 퀘스트 용도 : 경로의 정보 반환
     public void GetPathInfo() {
+        link_info_reverse.clear();
+        link_info.clear();
+
 
         for (int i = 1; i < int_path.size(); i++) {
             for (int[] info : links[int_path.get(i - 1)]) {
