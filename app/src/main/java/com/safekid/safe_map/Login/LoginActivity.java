@@ -7,7 +7,7 @@ import android.content.pm.Signature;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
-import com.example.safe_map.http.CommonMethod;
+import com.safekid.safe_map.http.CommonMethod;
 import com.safekid.safe_map.MainActivity;
 import com.safekid.safe_map.common.ProfileData;
 import com.safekid.safe_map.http.RequestHttpURLConnection;

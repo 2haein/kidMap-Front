@@ -21,7 +21,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
-import com.example.safe_map.http.CommonMethod;
+import com.safekid.safe_map.http.CommonMethod;
 import com.safekid.safe_map.FHome.AddMissionActivity;
 import com.safekid.safe_map.FHome.Astar;
 import com.safekid.safe_map.FHome.DangerPoint;

@@ -24,7 +24,7 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
-import com.example.safe_map.http.CommonMethod;
+import com.safekid.safe_map.http.CommonMethod;
 import com.safekid.safe_map.Login.ChildnumItem;
 import com.safekid.safe_map.Login.StdRecyclerAdapter;
 import com.safekid.safe_map.NetworkStatus;

@@ -14,7 +14,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
 
-import com.example.safe_map.http.CommonMethod;
+import com.safekid.safe_map.http.CommonMethod;
 import com.safekid.safe_map.Login.ChildLoginActivity;
 import com.safekid.safe_map.R;
 import com.safekid.safe_map.RecyclerDecoration;
