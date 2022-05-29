@@ -4,7 +4,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 
-import com.example.safe_map.http.CommonMethod;
+import com.safekid.safe_map.http.CommonMethod;
 import com.safekid.safe_map.Child.ChildMain;
 import com.safekid.safe_map.callback.SessionCallback;
 import com.safekid.safe_map.common.ProfileData;

@@ -29,7 +29,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.safe_map.http.CommonMethod;
+import com.safekid.safe_map.http.CommonMethod;
 import com.safekid.safe_map.FHome.Astar;
 import com.safekid.safe_map.FHome.jPoint;
 import com.safekid.safe_map.R;

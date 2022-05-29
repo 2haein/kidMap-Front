@@ -24,7 +24,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.safe_map.http.CommonMethod;
+import com.safekid.safe_map.http.CommonMethod;
 import com.safekid.safe_map.FHome.AddMissionActivity;
 import com.safekid.safe_map.FHome.AddressApiActivity;
 import com.safekid.safe_map.Login.ChildLoginActivity;

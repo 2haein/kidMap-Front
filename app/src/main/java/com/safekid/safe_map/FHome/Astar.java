@@ -3,7 +3,7 @@ package com.safekid.safe_map.FHome;
 import android.content.Context;
 import android.util.Log;
 
-import com.example.safe_map.http.CommonMethod;
+import com.safekid.safe_map.http.CommonMethod;
 import com.safekid.safe_map.common.ProfileData;
 import com.safekid.safe_map.http.RequestHttpURLConnection;
 

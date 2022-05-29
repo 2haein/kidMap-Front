@@ -9,7 +9,7 @@ import android.webkit.WebViewClient;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.safe_map.http.CommonMethod;
+import com.safekid.safe_map.http.CommonMethod;
 import com.safekid.safe_map.R;
 
 

@@ -33,7 +33,7 @@ import androidx.fragment.app.FragmentTransaction;
 import net.daum.mf.map.api.CalloutBalloonAdapter;
 import net.daum.mf.map.api.MapView;
 
-import com.example.safe_map.http.CommonMethod;
+import com.safekid.safe_map.http.CommonMethod;
 import com.safekid.safe_map.FHome.AddressApiActivity;
 import com.safekid.safe_map.MainActivity;
 import com.safekid.safe_map.NetworkStatus;
@@ -163,7 +163,7 @@ public class NotifyFragment extends Fragment implements NotifyFragment_finish, M
         Location loc_Current = getMyLocation();
         mCurrentLat = loc_Current.getLatitude();
         mCurrentLng = loc_Current.getLongitude();
-
+        Log.i("current ", String.valueOf(mCurrentLng));
         // 중심점
         mapView.setMapCenterPoint(MapPoint.mapPointWithGeoCoord(mCurrentLat, mCurrentLng), true);
 
@@ -614,7 +614,7 @@ public class NotifyFragment extends Fragment implements NotifyFragment_finish, M
                 double lat = currentLocation.getLatitude();
             }
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 1, gpsLocationListener);
-            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 1, gpsLocationListener);
+            //locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 1, gpsLocationListener);
 
         }
         return currentLocation;
