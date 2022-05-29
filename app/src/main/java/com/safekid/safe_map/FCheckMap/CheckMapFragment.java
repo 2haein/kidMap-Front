@@ -203,7 +203,6 @@ public class CheckMapFragment extends Fragment {
         child_location.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (current_child != null){
                     String childInfo = fetchChild(current_child);
                     try {
                         JSONObject Alldata = new JSONObject(childInfo);
@@ -226,7 +225,7 @@ public class CheckMapFragment extends Fragment {
                     }
                 }
 
-            }
+
         });
 
         // 5초마다 아이 위치 불러오기
@@ -335,6 +334,7 @@ public class CheckMapFragment extends Fragment {
             dst_lat = Double.parseDouble(Alldata.getString("target_latitude"));
             dst_lon = Double.parseDouble(Alldata.getString("target_longitude"));
             current_child = Alldata.getString("uuid");
+            ProfileData.setErrandChildId(current_child);
 
             src_name = Alldata.getString("start_name");
             dst_name = Alldata.getString("target_name");
