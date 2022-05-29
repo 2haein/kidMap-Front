@@ -67,6 +67,8 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
     double target_longitude, target_latitude;
     double start_longitude, start_latitude;
 
+    Astar astar = new Astar();
+
     // 길 찾기 관련 변수들
     ArrayList<jPoint> safe_path = new ArrayList<>(); // 안전 경로
 
@@ -336,6 +338,8 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
                     start_longitude = Double.parseDouble(x_b);
                     Log.i("target lat ", String.valueOf(start_latitude));
                     Log.i("target lgt ", String.valueOf(start_longitude));
+//=========================
+
                 }
                 String E_content = "";
                 E_content = edit_content.getText().toString();
@@ -411,16 +415,13 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
 
         // 1-4) 경로로부터 요소 정보 추출
         astar.GetPathInfo();
+
+
         trafficLight_num = astar.traffic;
         crossWalk_num = astar.crosswalk;
         onFoot_num = astar.onfoot;
         alley_num = astar.alley;
-      //  Log.d("test","3. t: "+ trafficLight_num);
-      //  Log.d("test","3. c: "+ crossWalk_num);
-       // Log.d("test","3. o: "+ onFoot_num);
 
-        // 1-5) Json에 경로 저장.
-        astar.Save_SafePath_To_Json(getFilesDir());
 
     }
 
