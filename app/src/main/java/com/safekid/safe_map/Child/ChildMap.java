@@ -95,7 +95,7 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
 
         // 아이의 위치 수신을 위한 세팅
         manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        getLocation();
+        getMyLocation();
         //gpsListener = new GPSListener();
 
         //mapview 세팅
@@ -256,7 +256,7 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
         tMapView.setCenterPoint(location.getLongitude(), location.getLatitude());
     }
 
-    public void getLocation() {
+    /*public void getLocation() {
         // Get the location manager
         LocationManager locationManager = (LocationManager)
                 getSystemService(LOCATION_SERVICE);
@@ -295,7 +295,7 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
             longitude = -1.0;
         }
 
-    }
+    }*/
 
     /**
      * 아이의 위치를 수신
@@ -325,6 +325,7 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
                     longitude = currentLocation[0].getLongitude();
                     System.out.println("아이 현재 위치값 : " + latitude + "," + longitude);
                     registerChildLocation(UUID, latitude, longitude);*/
+                    getMyLocation();
                     System.out.println("아이 현재 위치값 : " + latitude + "," + longitude);
                     //mylocation.setText(latitude + "," + longitude);
                     //Toast.makeText(getApplicationContext(), "현재 위치" + latitude + "," + longitude, Toast.LENGTH_LONG).show();
@@ -332,7 +333,7 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
                 }
             };
 
-            scheduler.scheduleAtFixedRate(task, 0, 5000); // 5초 뒤 1초마다 반복실행*/
+            scheduler.scheduleAtFixedRate(task, 0, 5000); // 5초마다 반복실행*/
         }
 
 
@@ -353,8 +354,8 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
             String locationProvider = LocationManager.GPS_PROVIDER;
             currentLocation = manager.getLastKnownLocation(locationProvider);
             if (currentLocation != null) {
-                double lng = currentLocation.getLongitude();
-                double lat = currentLocation.getLatitude();
+                longitude = currentLocation.getLongitude();
+                latitude = currentLocation.getLatitude();
             }
         }
         return currentLocation;

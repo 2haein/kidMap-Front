@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import com.safekid.safe_map.http.CommonMethod;
 import com.safekid.safe_map.Login.ChildLoginActivity;
@@ -77,9 +78,15 @@ public class HomeFragment extends Fragment {
         addmissionbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(getActivity(), AddMissionActivity.class); //fragment라서 activity intent와는 다른 방식
-                intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-                startActivity(intent);
+                if (fetchErrandChecking(ProfileData.getUserId()).equals("true")){
+                    Intent intent = new Intent(getActivity(), AddMissionActivity.class); //fragment라서 activity intent와는 다른 방식
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                    startActivity(intent);
+                } else {
+                    Toast.makeText(getContext(), "현재 심부름 중입니다", Toast.LENGTH_LONG).show();
+
+                }
+
             }
         });
 
@@ -170,22 +177,22 @@ public class HomeFragment extends Fragment {
         return view;
     }
 
-    public void updateErrandChecking(){
-        String url = CommonMethod.ipConfig + "/api/updateErrandChecking";
+    public String fetchErrandChecking(String parent_id){
+        String url = CommonMethod.ipConfig + "/api/fetchErrandChecking";
+        String rtnStr= "";
 
         try{
             String jsonString = new JSONObject()
-                    .put("userId", ProfileData.getUserId())
-                    .put("isErrandComplete", true)
+                    .put("userId", parent_id)
                     .toString();
 
             //REST API
             RequestHttpURLConnection.NetworkAsyncTask networkTask = new RequestHttpURLConnection.NetworkAsyncTask(url, jsonString);
-            networkTask.execute().get();
-
+            rtnStr = networkTask.execute().get();
         }catch(Exception e){
             e.printStackTrace();
         }
+        return rtnStr;
     }
 
     public String fetchChild(String UUID){
