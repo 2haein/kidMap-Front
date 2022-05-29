@@ -347,7 +347,7 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
                 String E_date = y+"-"+m+"-"+d+"T"+h+":"+mi;
                 if (childUUID.equals("")){
                     Toast.makeText(AddMissionActivity.this, "자녀를 선택하세요", Toast.LENGTH_LONG).show();
-                } else if (E_content == ""){
+                } else if (E_content.equals(null)){
                     Toast.makeText(AddMissionActivity.this, "심부름 내용을 입력하세요", Toast.LENGTH_LONG).show();
                 } else if (E_date == ""){
                 } else if (target_longitude == 0 && target_latitude == 0){
@@ -430,12 +430,12 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
     // 찾은 결과에 따라 맞는 필수 퀘스트를 지정해준다.
     private void Quest_Maker(){
 
-        String TrafficLight1 = "초록불일 때 만 길을 건너세요. 불이 깜빡거리면 멈춰서 다음 신호를 기다려요 (신호등 : ";
+        String TrafficLight1 = "초록불일 때만 길을 건너세요. 불이 깜빡거리면 멈춰서 다음 신호를 기다려요 (신호등 : ";
         String TrafficLight2 = "개 존재)";
         String CrossWalk1 = "건너기 전 항상 양 옆을 확인하여 차가 오는지 확인하고 건너세요 (횡단보도 : ";
         String CrossWalk2 = "개 존재)";
         String Alley = "갑자기 차가 튀어나올 수 있습니다. 주변을 살피며 가세요.";
-        String DriveWay = "차가 지나다닙니다. 끝에 붙어서 다니세요";
+        String DriveWay = "차가 지나다닙니다. 인도에 붙어서 다니세요";
 
         if(trafficLight_num >= 1){
             mArrayList.add(new QuestData(TrafficLight1+ trafficLight_num +TrafficLight2));
@@ -468,6 +468,14 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
                     Log.i("test", "addr1:" + addr1);
                     if (addr1 != null) {
                         edit_addr.setText(addr1);
+
+                        requestGeocode(addr1);
+                        Log.i("addr1 ", addr1);
+                        target_latitude = Double.parseDouble(y_a);
+                        target_longitude = Double.parseDouble(x_a);
+                        Log.i("target lat ", String.valueOf(target_latitude));
+                        Log.i("target lgt ", String.valueOf(target_longitude));
+
                     }
                 }
                 break;
@@ -477,11 +485,18 @@ public class AddMissionActivity extends AppCompatActivity implements CompoundBut
                     if (addr2 != null) {
                         Log.i("test", "addr2:" + addr2);
                         edit_addr2.setText(addr2);
-                    }
+                        requestGeocode2(addr2);
+                        Log.i("addr1 ", addr2);
+                        start_latitude = Double.parseDouble(y_b);
+                        start_longitude = Double.parseDouble(x_b);
+                        Log.i("target lat ", String.valueOf(start_latitude));
+                        Log.i("target lgt ", String.valueOf(start_longitude));
+                        Find_Safe_Path(start_latitude, start_longitude, target_latitude, target_longitude);
+                        Quest_Maker();
                 }
                 break;
         }
-    }
+    }}
 
     /*public void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
