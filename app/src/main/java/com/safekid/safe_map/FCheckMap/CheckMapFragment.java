@@ -95,6 +95,7 @@ public class CheckMapFragment extends Fragment {
 
     Button child_location, finish;
 
+    String current_child;
 
     /**
      * Use this factory method to create a new instance of
@@ -198,13 +199,12 @@ public class CheckMapFragment extends Fragment {
         }
 
         // 버튼으로 아이 위치 불러오기
-        /*child_location = (Button) v.findViewById(R.id.location_upd);
+        child_location = (Button) v.findViewById(R.id.location_upd);
         child_location.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (ProfileData.getErrandChildId() != ""){
-                    Log.i("child id ", ProfileData.getErrandChildId());
-                    String childInfo = fetchChild(ProfileData.getErrandChildId());
+                if (current_child != null){
+                    String childInfo = fetchChild(current_child);
                     try {
                         JSONObject Alldata = new JSONObject(childInfo);
                         String childName = Alldata.getString("childName");
@@ -212,14 +212,14 @@ public class CheckMapFragment extends Fragment {
                         Double child_long = Alldata.getDouble("current_longitude");
                         Log.i("Child_lat ", child_lat.toString());
 
-                        MapPoint mark_point = MapPoint.mapPointWithGeoCoord(child_lat, child_long);
-                        MapPOIItem marker = new MapPOIItem();
-                        marker.setItemName(childName);
-                        marker.setTag(0);
-                        marker.setMapPoint(mark_point);
-                        marker.setMarkerType(MapPOIItem.MarkerType.RedPin); // 기본으로 제공하는 BluePin 마커 모양.
-                        marker.setSelectedMarkerType(MapPOIItem.MarkerType.RedPin); // 마커를 클릭했을때, 기본으로 제공하는 RedPin 마커 모양.
-
+                        MapPoint mark_point_child = MapPoint.mapPointWithGeoCoord(child_lat,child_long);
+                        MapPOIItem markerchild = new MapPOIItem();
+                        markerchild.setItemName("우리 아이");
+                        markerchild.setTag(0);
+                        markerchild.setMapPoint(mark_point_child);
+                        markerchild.setMarkerType(MapPOIItem.MarkerType.CustomImage);
+                        markerchild.setCustomImageResourceId(R.drawable.student);
+                        mapView.addPOIItem(markerchild);
                     } catch (JSONException e) {
                         // TODO Auto-generated catch block
                         e.printStackTrace();
@@ -227,7 +227,7 @@ public class CheckMapFragment extends Fragment {
                 }
 
             }
-        });*/
+        });
 
         // 5초마다 아이 위치 불러오기
         /*
@@ -334,6 +334,7 @@ public class CheckMapFragment extends Fragment {
             src_lon = Double.parseDouble(Alldata.getString("start_longitude"));
             dst_lat = Double.parseDouble(Alldata.getString("target_latitude"));
             dst_lon = Double.parseDouble(Alldata.getString("target_longitude"));
+            current_child = Alldata.getString("uuid");
 
             src_name = Alldata.getString("start_name");
             dst_name = Alldata.getString("target_name");
