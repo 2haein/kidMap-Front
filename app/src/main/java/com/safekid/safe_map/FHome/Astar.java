@@ -3,8 +3,8 @@ package com.safekid.safe_map.FHome;
 import android.content.Context;
 import android.util.Log;
 
+import com.example.safe_map.http.CommonMethod;
 import com.safekid.safe_map.common.ProfileData;
-import com.safekid.safe_map.http.CommonMethod;
 import com.safekid.safe_map.http.RequestHttpURLConnection;
 
 import java.io.File;
@@ -35,6 +35,7 @@ public class Astar {
 
     ArrayList<Integer> int_path = new ArrayList<>();  // Node number paths
     public ArrayList<jPoint> jp_path = new ArrayList<>();  // coords paths
+    public ArrayList<Integer> link_info_reverse = new ArrayList<>(); // 링크 정보
     public ArrayList<Integer> link_info = new ArrayList<>(); // 링크 정보
 
 
@@ -439,7 +440,7 @@ public class Astar {
                     int tp = info[1];
 
                     // 경로 정보를 담는다.
-                    link_info.add(tp);
+                    link_info_reverse.add(tp);
 
                     // add path information into profile data
                     ProfileData.setSafe_path_info(tp);
@@ -463,8 +464,14 @@ public class Astar {
                     }
                 }
             }
+
+
+        }
+        for(int t = link_info_reverse.size()-1; t >= 0 ; t -- ){
+            link_info.add(link_info_reverse.get(t));
         }
 
+        Log.d("Astar123","link_info : "+ link_info);
       //  System.out.println("주어진 경로에 신호등 :" + traffic + "개, 횡단보도 :" + crosswalk + "개가 있습니다.");
 
     }

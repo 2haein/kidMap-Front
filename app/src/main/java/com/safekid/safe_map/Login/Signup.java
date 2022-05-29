@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.safekid.safe_map.MainActivity;
 import com.safekid.safe_map.R;
 import com.safekid.safe_map.common.ProfileData;
-import com.safekid.safe_map.http.CommonMethod;
+import com.example.safe_map.http.CommonMethod;
 import com.safekid.safe_map.http.RequestHttpURLConnection;
 
 import org.json.JSONObject;

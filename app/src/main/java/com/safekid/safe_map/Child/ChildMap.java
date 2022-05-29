@@ -29,12 +29,12 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.safe_map.http.CommonMethod;
 import com.safekid.safe_map.FHome.Astar;
 import com.safekid.safe_map.FHome.jPoint;
 import com.safekid.safe_map.R;
 import com.safekid.safe_map.common.ChildData;
 import com.safekid.safe_map.common.ProfileData;
-import com.safekid.safe_map.http.CommonMethod;
 import com.safekid.safe_map.http.RequestHttpURLConnection;
 
 import org.json.JSONObject;
@@ -416,8 +416,6 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
     //
     // 출발, 중간, 도착 지점 마커로 띄우기
     void ShowSrcMidDstOnMap() {
-        TMapPolyLine tMapPolyLine = new TMapPolyLine();
-        tMapPolyLine.setLineColor(Color.argb(100, 0, 0, 0));
 
         int size = astar.jp_path.size();
 
@@ -434,8 +432,8 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
 
         TMapMarkerItem markerItem3 = new TMapMarkerItem();
 
-        TMapPoint mark_point3 = new TMapPoint(astar.jp_path.get(astar.jp_path.size() / 2).GetLat(), astar.jp_path.get(astar.jp_path.size() / 2).GetLng());
-        Bitmap bitmap3 = BitmapFactory.decodeResource(getResources(), R.drawable.jhouse);
+        TMapPoint mark_point3 = new TMapPoint(astar.jp_path.get(size/2 -1).GetLat(), astar.jp_path.get(size/2 -1).GetLng());
+        Bitmap bitmap3 = BitmapFactory.decodeResource(getResources(), R.drawable.jmiddle);
         markerItem3.setIcon(bitmap3); // 마커 아이콘 지정
         markerItem3.setPosition(0.5f, 1.0f); // 마커의 중심점을 중앙, 하단으로 설정
         markerItem3.setTMapPoint(mark_point3); // 마커의 좌표 지정
@@ -453,11 +451,14 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
         // safe_path.get(size-1) = 도착 지점  >> 출발지점, 도착지점 둘 다 선으로 연결하지는 않는다.
         TMapMarkerItem markerItem2 = new TMapMarkerItem();
         TMapPoint mark_point2 = new TMapPoint(astar.jp_path.get(size - 1).GetLat(), astar.jp_path.get(size - 1).GetLng());
-        Bitmap bitmap2 = BitmapFactory.decodeResource(getResources(), R.drawable.jfinish_line);
+        Bitmap bitmap2 = BitmapFactory.decodeResource(getResources(), R.drawable.jend);
         markerItem2.setIcon(bitmap2); // 마커 아이콘 지정
         markerItem2.setPosition(0.5f, 1.0f); // 마커의 중심점을 중앙, 하단으로 설정
         markerItem2.setTMapPoint(mark_point2); // 마커의 좌표 지정
         markerItem2.setName("도착"); // 마커의 타이틀 지정
+        markerItem2.setCanShowCallout(true);
+        markerItem2.setCalloutTitle("골목길");
+        markerItem2.setCalloutSubTitle("주변을 살피며 걸어요!");
         tMapView.addMarkerItem("markerItem2", markerItem2); // 지도에 마커 추가
 
         // 지도 중심 변경 - gps 위치 때문에 안 바뀜
@@ -513,7 +514,7 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
                 GREEN = 255;
                 BLUE = 255;
                 TAG = "교통사고 주의 구역";
-                bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.jaccident);
+                bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.jaccident_car);
             } else {
                 RED = 255;
                 GREEN = 255;
@@ -539,118 +540,136 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
     // 안전 경로의 정보(신호등, 골목, 횡단보도 등)을 지도에 마커를 붙여 띄웁니다.
     private void ShowPathInfoOnMap() {
         int start = 0;
-        int mid = 0;
-        int end = 0;
+        int size = 1;
         int tmp = astar.link_info.get(0);
-        int same = 1;
+        int i;
 
-        Log.d("ChildMap123","astar.link_info.size() :"+astar.link_info.size());
-        Log.d("ChildMap123","astar.link_info:"+astar.link_info);
-
-        for (int i = 1; i < astar.link_info.size(); i++) {
+        for (i = 1; i < astar.link_info.size(); i++) {
             if (tmp == astar.link_info.get(i)) {
+                size += 1;
                 continue;
             }
-            // 다르면 그때 중간 값을 구해.
-            Log.d("ChildMap123","tmp != astar.link_info.get(i) i:"+i);
-            end = i - 1;
-            mid = (start + end) / 2 - 1; // 그래야 경로 중간이랑 겹치지 않는다.
-
-            addmarker(mid, tmp); // 마커를 넣는 함수
-            addPolyLine(start, end, tmp); // 선을 그리는 함수
+            // 다르면 마커로 띄운다.
+            if( size > 1){
+                addmarker(start+ size/2, tmp);
+            }
+            else{
+                addmarker(start, tmp); // 마커를 넣는 함수
+            }
+            addpath(start,i,tmp);
 
             tmp = astar.link_info.get(i);
             start = i;
-
+            size = 1;
 
         }
-
-        // 즉 0000 1111 에서 1111을 인식하기 위해
-        int end_idx = astar.link_info.size()-1;
-
-        if(tmp == astar.link_info.get(end_idx)){
-            mid = (start + astar.link_info.size()-1) / 2 - 1; // 그래야 경로 중간이랑 겹치지 않는다.
-
-            addmarker(mid, tmp); // 마커를 넣는 함수
-            addPolyLine(start, end_idx+1, tmp); // 선을 그리는 함수
-        }
-
+        addpath(i-1,i, tmp);
 
     }
 
-    // start~end까지 type에 맞게 색을 입힌 경로 지도에 띄우기
-    private void addPolyLine(int start, int end, int type) {
 
-        Log.d("ChildMap123","addploy start :"+start+" end:"+end +"type :"+type);
+    // 해당 지점 마커로 타입에 맞게 띄우기
+    private void addmarker(int start, int type) {
 
-        TMapPolyLine tpolyline = new TMapPolyLine();
-        tpolyline.setLineWidth(10);
 
         if(type == onfoot){
-            tpolyline.setLineColor(Color.BLACK);
+
         }
         else if(type == alley){
-            tpolyline.setLineColor(Color.GRAY);
+            Bitmap bitmap2 = null;
+            TMapMarkerItem markerItem4 = new TMapMarkerItem();
+            markerItem4.setCanShowCallout(true);
+            bitmap2 = BitmapFactory.decodeResource(getResources(), R.drawable.jfinish_line);
+            markerItem4.setCalloutTitle("골목길");
+            markerItem4.setCalloutSubTitle("주변을 살피며 걸어요!");
+
+            double mid_lat = (astar.jp_path.get(start+1).GetLat() + astar.jp_path.get(start + 2).GetLat())/2.0;
+            double mid_lon = (astar.jp_path.get(start+1).GetLng() + astar.jp_path.get(start + 2).GetLng())/2.0;
+
+            TMapPoint mark_point2 = new TMapPoint(mid_lat, mid_lon);
+            markerItem4.setIcon(bitmap2); // 마커 아이콘 지정
+            markerItem4.setPosition(0.5f, 1.0f); // 마커의 중심점을 중앙, 하단으로 설정
+            markerItem4.setTMapPoint(mark_point2); // 마커의 좌표 지정
+            tMapView.addMarkerItem("markerItem4" + start, markerItem4); // 지도에 마커 추가
         }
         else if(type == traffic){
-            tpolyline.setLineColor(Color.GREEN);
+            Bitmap bitmap2 = null;
+            TMapMarkerItem markerItem4 = new TMapMarkerItem();
+            markerItem4.setCanShowCallout(true);
+            bitmap2 = BitmapFactory.decodeResource(getResources(), R.drawable.jtraffic_lights);
+            markerItem4.setCalloutTitle("신호등 : 녹색불이 깜빡거리면");
+            markerItem4.setCalloutSubTitle("다음 신호를 기다려요!");
+
+            double mid_lat = (astar.jp_path.get(start+1).GetLat() + astar.jp_path.get(start + 2).GetLat())/2.0;
+            double mid_lon = (astar.jp_path.get(start+1).GetLng() + astar.jp_path.get(start + 2).GetLng())/2.0;
+
+            TMapPoint mark_point2 = new TMapPoint(mid_lat, mid_lon);
+            markerItem4.setIcon(bitmap2); // 마커 아이콘 지정
+            markerItem4.setPosition(0.5f, 1.0f); // 마커의 중심점을 중앙, 하단으로 설정
+            markerItem4.setTMapPoint(mark_point2); // 마커의 좌표 지정
+            tMapView.addMarkerItem("markerItem4" + start, markerItem4); // 지도에 마커 추가
         }
         else if(type == crosswalk){
-            tpolyline.setLineColor(Color.BLUE);
+            Bitmap bitmap2 = null;
+            TMapMarkerItem markerItem4 = new TMapMarkerItem();
+            markerItem4.setCanShowCallout(true);
+            bitmap2 = BitmapFactory.decodeResource(getResources(), R.drawable.jcross);
+            markerItem4.setCalloutTitle("횡단보도");
+            markerItem4.setCalloutSubTitle("어른들과 같이 건너요!");
+            markerItem4.setCalloutLeftImage(bitmap2);
+
+            double mid_lat = (astar.jp_path.get(start+1).GetLat() + astar.jp_path.get(start + 2).GetLat())/2.0;
+            double mid_lon = (astar.jp_path.get(start+1).GetLng() + astar.jp_path.get(start + 2).GetLng())/2.0;
+
+            TMapPoint mark_point2 = new TMapPoint(mid_lat, mid_lon);
+            markerItem4.setIcon(bitmap2); // 마커 아이콘 지정
+            markerItem4.setPosition(0.5f, 1.0f); // 마커의 중심점을 중앙, 하단으로 설정
+            markerItem4.setTMapPoint(mark_point2); // 마커의 좌표 지정
+            tMapView.addMarkerItem("markerItem4" + start, markerItem4); // 지도에 마커 추가
         }
         else{
 
         }
+
+
+       // Log.d("ChildMap123","addTmarker--");
+    }
+
+    void addpath(int start,int end, int type){
+    // 경로를 지도에 띄우기
+
+        Log.d("cm123","길 추가  start : "+ start + " end : "+ end + " type : "+ type);
+
+        TMapPolyLine tpolyline = new TMapPolyLine();
+        tpolyline.setLineWidth(10);
+
+    //    /*
+        if(type == onfoot){
+            tpolyline.setLineColor(Color.argb(255, 0, 0, 0));
+        }
+        else if(type == alley){
+            tpolyline.setLineColor(Color.argb(255, 204, 92, 37));
+        }
+        else if(type == traffic){
+            tpolyline.setLineColor(Color.argb(255, 0,255,0));
+        }
+        else if(type == crosswalk){
+            tpolyline.setLineColor(Color.argb(255, 0, 255, 255));
+        }
+        else{
+
+        }
+//*/
+        //tpolyline.setLineColor(Color.argb(255, 0, 0, 0));
 
         for(int y = start ; y <= end ; y++) {
             TMapPoint tp = new TMapPoint(astar.jp_path.get(y+1).GetLat(),astar.jp_path.get(y+1).GetLng());
             tpolyline.addLinePoint(tp);
         }
 
-
         tMapView.addTMapPolyLine("path"+start,tpolyline);
-        Log.d("ChildMap123","addTMapPoly--");
-    }
-
-    // 해당 지점 마커로 타입에 맞게 띄우기
-    private void addmarker(int mid, int type) {
-
-        Log.d("ChildMap123","addmarker mid :"+mid+" type:"+type);
-
-        Bitmap bitmap2 = null;
-        TMapMarkerItem markerItem4 = new TMapMarkerItem();
-        markerItem4.setCanShowCallout(true);
 
 
-        if(type == onfoot){
+}
 
-        }
-        else if(type == alley){
-            bitmap2 = BitmapFactory.decodeResource(getResources(), R.drawable.jfinish_line);
-            markerItem4.setCalloutTitle("골목길");
-            markerItem4.setCalloutSubTitle("갑자기 차가 튀어 나올 수 있어요. \n 주변을 살피며 걸어요!");
-        }
-        else if(type == traffic){
-            bitmap2 = BitmapFactory.decodeResource(getResources(), R.drawable.jfinish_line);
-            markerItem4.setCalloutTitle("신호등");
-            markerItem4.setCalloutSubTitle("녹색불이 깜빡거리면 다음 신호를 기다려요. \n 한 손을 들고 건너가요!");
-            markerItem4.setCalloutLeftImage(bitmap2);
-        }
-        else if(type == crosswalk){
-            bitmap2 = BitmapFactory.decodeResource(getResources(), R.drawable.jfinish_line);
-            markerItem4.setCalloutTitle("횡단보도");
-            markerItem4.setCalloutSubTitle("도로에 차가 없을 때 건너가요. \n 어른들이 건널 때 같이 건너요!");
-            markerItem4.setCalloutLeftImage(bitmap2);
-        }
-        else{
-
-        }
-
-        TMapPoint mark_point2 = new TMapPoint(astar.jp_path.get(mid + 1).GetLat(), astar.jp_path.get(mid + 1).GetLng());
-        markerItem4.setIcon(bitmap2); // 마커 아이콘 지정
-        markerItem4.setPosition(0.5f, 1.0f); // 마커의 중심점을 중앙, 하단으로 설정
-        markerItem4.setTMapPoint(mark_point2); // 마커의 좌표 지정
-        tMapView.addMarkerItem("markerItem4" + mid, markerItem4); // 지도에 마커 추가
-        Log.d("ChildMap123","addTmarker--");
-    }
 }

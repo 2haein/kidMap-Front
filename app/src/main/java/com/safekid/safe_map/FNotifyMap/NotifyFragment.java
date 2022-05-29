@@ -33,6 +33,7 @@ import androidx.fragment.app.FragmentTransaction;
 import net.daum.mf.map.api.CalloutBalloonAdapter;
 import net.daum.mf.map.api.MapView;
 
+import com.example.safe_map.http.CommonMethod;
 import com.safekid.safe_map.FHome.AddressApiActivity;
 import com.safekid.safe_map.MainActivity;
 import com.safekid.safe_map.NetworkStatus;
@@ -40,7 +41,6 @@ import com.safekid.safe_map.R;
 import com.safekid.safe_map.common.ProfileData;
 import com.safekid.safe_map.databinding.FragmentHomeBinding;
 import com.safekid.safe_map.databinding.FragmentNotifyBinding;
-import com.safekid.safe_map.http.CommonMethod;
 import com.safekid.safe_map.http.RequestHttpURLConnection;
 //import com.google.android.gms.maps.MapView;
 

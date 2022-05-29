@@ -6,6 +6,8 @@ package com.safekid.safe_map.FCheckMap;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
@@ -19,12 +21,18 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
+import com.example.safe_map.http.CommonMethod;
 import com.safekid.safe_map.FHome.AddMissionActivity;
+import com.safekid.safe_map.FHome.Astar;
 import com.safekid.safe_map.FHome.DangerPoint;
+import com.safekid.safe_map.FHome.jPoint;
 import com.safekid.safe_map.R;
 import com.safekid.safe_map.common.ProfileData;
-import com.safekid.safe_map.http.CommonMethod;
+
 import com.safekid.safe_map.http.RequestHttpURLConnection;
+import com.skt.Tmap.TMapMarkerItem;
+import com.skt.Tmap.TMapPoint;
+import com.skt.Tmap.TMapPolyLine;
 
 import net.daum.mf.map.api.MapCircle;
 import net.daum.mf.map.api.MapPOIItem;
@@ -54,13 +62,24 @@ public class CheckMapFragment extends Fragment {
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
+    Astar astar = new Astar();
 
 
-   // json에서 받아온다.
-    ArrayList<MapPoint> safe_path = new ArrayList<>();
-    // 위험지역
-    ArrayList<DangerPoint> DangerZone = new ArrayList<>();
+    // 경로 정보
+    final int onfoot = 0;
+    final int alley = 1;
+    final int traffic = 2;
+    final int crosswalk = 3;
 
+
+    // 출발, 도착 좌표
+    double src_lat;
+    double src_lon;
+    double dst_lat;
+    double dst_lon;
+
+    jPoint jp_src = new jPoint();
+    jPoint jp_dst = new jPoint();
 
     // 출발, 도착 지점 이름
     String src_name = "";
@@ -134,17 +153,30 @@ public class CheckMapFragment extends Fragment {
 
         // 심부름을 설정 했다면
         String result = fetchErrandChecking();
-        Log.i("result ", result);
-        if (result.equals("false")){
-            // json으로부터 심부름 설정 정보 불러옴.
-            GetErrandDataFromJson();
 
-            ParseDangerZone();
-            // 1. 위험 구역, 노드, 링크 파싱 후 위험 구역을 지도에 마커로 띄우기
+        Log.i("result ", result);
+
+        if (result.equals("false")){
+
+            // 1. 심부름 정보(안전 경로) 받아오기
+            GetErrandData();
+
+            // 2. 노드, 링크, 위험 지역 파싱
+            ParseInformations();
+
+            // 3. 안전 경로 찾기
+            FindSafePath();
+
+            // 4. 위험 지역 띄우기
             ShowDangerZoneOnMap();
 
-            // 3. 지도에 안전 경로 띄우기
-            ShowPathOnMap();
+            // 5. 시작, 중간, 도착 지점 띄우기
+            ShowSrcMidDstOnMap();
+
+            // 6. 경로 정보 마커로 띄우기 ( 신호등, 횡단보도 )
+            ShowPathInfoOnMap();
+
+
         } else {
             AlertDialog.Builder dlg = new AlertDialog.Builder(getActivity());
             dlg.setTitle("심부름 설정하기");
@@ -222,6 +254,8 @@ public class CheckMapFragment extends Fragment {
         return v;
     }
 
+
+
     @Override
     public void onResume() {
         Log.d("test",""+"onResume Started");
@@ -248,77 +282,169 @@ public class CheckMapFragment extends Fragment {
     }
 
 
-    private boolean GetErrandDataFromJson() {
-        String jsonString = null;
+    private void GetErrandData() {
+        String url = CommonMethod.ipConfig + "/api/fetchRecentErrand";
+        String rtnStr = "";
+
         try {
-            String filename = "PathInfo.json";
-            FileInputStream fos = new FileInputStream(getActivity().getFilesDir()+"/"+filename);
-           // InputStream is = mContext.getAssets().open(getFilesDir()+ErrandInfo.json");
-            //Log.d("resttt",""+fos.available());
-            int size = fos.available();
-            byte[] buffer = new byte[size];
-            fos .read(buffer);
-            fos .close();
-            jsonString = new String(buffer, "UTF-8");
-            Log.d("test","Parse jsonString : "+ jsonString);
-        } catch (IOException e) {
+            String jsonString = new JSONObject()
+                    .put("userId", ProfileData.getUserId())
+                    .toString();
+
+            //REST API
+            RequestHttpURLConnection.NetworkAsyncTask networkTask = new RequestHttpURLConnection.NetworkAsyncTask(url, jsonString);
+            rtnStr = networkTask.execute().get();
+
+          //  Log.d("ChildMap123", "/api/fetchRecentErrand : " + rtnStr);
+
+            JSONObject Alldata = new JSONObject(rtnStr);
+
+            // 2. 좌표 추출
+            src_lat = Double.parseDouble(Alldata.getString("start_latitude"));
+            src_lon = Double.parseDouble(Alldata.getString("start_longitude"));
+            dst_lat = Double.parseDouble(Alldata.getString("target_latitude"));
+            dst_lon = Double.parseDouble(Alldata.getString("target_longitude"));
+
+            src_name = Alldata.getString("start_name");
+            dst_name = Alldata.getString("target_name");
+
+            // 3. 출발점, 도착점에 맞는 좌표 넣어줌
+            jp_src.SetLat(src_lat);
+            jp_src.SetLng(src_lon);
+            jp_dst.SetLat(dst_lat);
+            jp_dst.SetLng(dst_lon);
+
+        } catch (Exception e) {
             e.printStackTrace();
-            return false;
-        }
-        try{
-            safe_path.clear();
-            JSONObject jsonObject = new JSONObject(jsonString);
-            JSONArray jsonarray2 = (JSONArray) jsonObject.get("coords");
-            Log.d("test","Parse 2: "+ jsonarray2);
-
-            for (int i = 0; i < jsonarray2.length(); i++) {
-                JSONObject jsonobject = jsonarray2.getJSONObject(i);
-
-                double lat = Double.parseDouble(String.valueOf(jsonobject.getString("lat")));
-                double lon = Double.parseDouble(String.valueOf(jsonobject.getString("lng")));
-                MapPoint mp = MapPoint.mapPointWithGeoCoord(lat,lon);
-                safe_path.add(mp);
-            }
-            return true;
-
-        }catch (JSONException e) {
-            e.printStackTrace();
-            return false;
         }
     }
 
-// api호출도 넣을 것.
-    void ParseDangerZone(){
-        String jsonString = null;
-        try {
-            InputStream is = mContext.getAssets().open("test_danger.json");
-            int size = is.available();
-            byte[] buffer = new byte[size];
-            is.read(buffer);
-            is.close();
-            jsonString = new String(buffer, "UTF-8");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        try{
-            JSONObject jsonObject = new JSONObject(jsonString);
-            JSONArray nodeArray = jsonObject.getJSONArray("coords");
+    private void ParseInformations() {
+        astar.ParseNode(mContext);
+        astar.ParseLinks(mContext);
+        astar.ParseDanger(mContext);
+    }
 
-            for(int i=0; i< nodeArray.length(); i++)
-            {
-                JSONArray Object =  (JSONArray) nodeArray.get(i);
-                DangerPoint dp = new DangerPoint();
 
-                dp.SetType((double) Object.get(0));
-                dp.SetLat((double) Object.get(1));
-                dp.SetLng((double) Object.get(2));
-                DangerZone.add(dp);
+    private void FindSafePath(){
+        // 1. 위험 지역을 찾는다.
+        astar.FindDangerousNodeNum();
+
+        // 2. 출발/도착지와 가장 가까운 노드번호를 찾는다.
+        int start = astar.findCloseNode(jp_src);
+        int end = astar.findCloseNode(jp_dst);
+
+        // 3. 두 노드 번호를 이용하여 A* 알고리즘 실행.
+        astar.AstarSearch(start, end);
+
+        // 4. closeList를 탐색하여 경로 찾기
+        astar.FindPath(start, end);
+
+        // 5. 찾은 노드번호 경로를 이용하여 ( 출발 + 경로 + 도착 ) 좌표 리스트 추출.
+        astar.GetCoordPath(jp_src.GetLat(), jp_src.GetLng(), jp_dst.GetLat(), jp_dst.GetLng());
+
+        // 6. 경로 정보 파악.
+        astar.GetPathInfo();
+    }
+
+
+    private void ShowSrcMidDstOnMap(){
+        int size =  astar.jp_path.size();
+
+        // src marker
+        MapPoint mark_point = MapPoint.mapPointWithGeoCoord(astar.jp_path.get(0).GetLat(), astar.jp_path.get(0).GetLng());
+        MapPOIItem marker = new MapPOIItem();
+        marker.setItemName(src_name);
+        marker.setTag(0);
+        marker.setMapPoint(mark_point);
+        marker.setMarkerType(MapPOIItem.MarkerType.CustomImage);
+        marker.setCustomImageResourceId(R.drawable.jhouse);
+        mapView.addPOIItem(marker);
+
+        // middle marker
+        MapPoint mark_point2 = MapPoint.mapPointWithGeoCoord(astar.jp_path.get(size / 2-1).GetLat(), astar.jp_path.get(size / 2-1).GetLng());
+        MapPOIItem marker2 = new MapPOIItem();
+        marker2.setItemName("middle");
+        marker2.setTag(0);
+        marker2.setMapPoint(mark_point2);
+        marker2.setMarkerType(MapPOIItem.MarkerType.CustomImage);
+        marker2.setCustomImageResourceId(R.drawable.jmiddle);
+        mapView.addPOIItem(marker2);
+
+        // dst marker
+        MapPoint mark_point3= MapPoint.mapPointWithGeoCoord(astar.jp_path.get(astar.jp_path.size()-1).GetLat(), astar.jp_path.get(astar.jp_path.size()-1).GetLng());
+        MapPOIItem marker3 = new MapPOIItem();
+        marker3.setItemName(dst_name);
+        marker3.setTag(0);
+        marker3.setMapPoint(mark_point3);
+        marker3.setMarkerType(MapPOIItem.MarkerType.CustomImage);
+        marker3.setCustomImageResourceId(R.drawable.jend);
+        mapView.addPOIItem(marker3);
+
+        mapView.setMapCenterPoint(mark_point2, true);
+    }
+
+
+    private void ShowPathInfoOnMap() {
+        int start = 0;
+        int size = 1;
+        int tmp = astar.link_info.get(0);
+        int i;
+
+        for (i = 1; i < astar.link_info.size(); i++) {
+            if (tmp == astar.link_info.get(i)) {
+                size += 1;
+                continue;
             }
+            // 다르면 마커로 띄운다.
+            if( size > 1){
+                addmarker(start+ size/2, tmp);
+            }
+            else{
+                addmarker(start, tmp); // 마커를 넣는 함수
+            }
+            addpath(start,i,tmp);
 
-            // Log.d("test",""+"as.nodes size : " + nodes.size());
-        }catch (JSONException e) {
-            e.printStackTrace();
+            tmp = astar.link_info.get(i);
+            start = i;
+            size = 1;
+
         }
+        addpath(i-1,i, tmp);
+
+    }
+
+
+    void addpath(int start,int end, int type){
+        // 경로를 지도에 띄우기
+
+        MapPolyline polyline = new MapPolyline();
+
+
+        if(type == onfoot){
+            polyline.setLineColor(Color.BLACK);
+        }
+        else if(type == alley){
+            polyline.setLineColor(Color.GRAY);
+        }
+        else if(type == traffic){
+            polyline.setLineColor(Color.GREEN);
+        }
+        else if(type == crosswalk) {
+            polyline.setLineColor(Color.BLUE);
+        }
+        else{
+
+        }
+
+        for(int y = start ; y <= end ; y++) {
+            MapPoint tp = MapPoint.mapPointWithGeoCoord(astar.jp_path.get(y+1).GetLat(),astar.jp_path.get(y+1).GetLng());
+            polyline.addPoint(tp);
+        }
+
+        mapView.addPolyline(polyline);
+
+
     }
 
 
@@ -331,100 +457,114 @@ public class CheckMapFragment extends Fragment {
         String TAG = "";
 
 
-        for (int o = 0; o < DangerZone.size(); o++) {
+        for (int o = 0; o < astar.DangerZone.size(); o++) {
 
-            // 만약 위험 지역이 성범죄자 거주 구역이라면
-            if (DangerZone.get(o).GetType() == 1.0) {
-               RED = 255;
-               GREEN = 0;
-               BLUE = 0;
-               TAG = "성범죄자 거주 구역";
+            if (astar.DangerZone.get(o).GetType() == 1.0) {
+
+                TAG = "성범죄자 거주 구역";
+
+                MapPoint mark_point = MapPoint.mapPointWithGeoCoord(astar.DangerZone.get(o).GetLat(), astar.DangerZone.get(o).GetLng());
+                MapPOIItem marker = new MapPOIItem();
+                marker.setItemName(TAG);
+                marker.setTag(0);
+                marker.setMapPoint(mark_point);
+                marker.setMarkerType(MapPOIItem.MarkerType.CustomImage);
+                marker.setCustomImageResourceId(R.drawable.jdevil);
+                mapView.addPOIItem(marker);
             }
             // 보행자 사고 다발 지역인 경우
-            else if(DangerZone.get(o).GetType() == 2.0){
-                RED = 0;
-                GREEN = 255;
-                BLUE = 0;
+            else if (astar.DangerZone.get(o).GetType() == 2.0) {
+
                 TAG = "보행자 사고 다발 구역";
+
+                MapPoint mark_point = MapPoint.mapPointWithGeoCoord(astar.DangerZone.get(o).GetLat(), astar.DangerZone.get(o).GetLng());
+                MapPOIItem marker = new MapPOIItem();
+                marker.setItemName(TAG);
+                marker.setTag(0);
+                marker.setMapPoint(mark_point);
+                marker.setMarkerType(MapPOIItem.MarkerType.CustomImage);
+                marker.setCustomImageResourceId(R.drawable.jaccident);
+                mapView.addPOIItem(marker);
             }
             // 자전거 사고 다발 지역인 경우
-            else if(DangerZone.get(o).GetType() == 3.0){
-                RED = 0;
-                GREEN = 0;
-                BLUE = 255;
+            else if (astar.DangerZone.get(o).GetType() == 3.0) {
+
                 TAG = "자전거 사고 다발 구역";
+                MapPoint mark_point = MapPoint.mapPointWithGeoCoord(astar.DangerZone.get(o).GetLat(), astar.DangerZone.get(o).GetLng());
+                MapPOIItem marker = new MapPOIItem();
+                marker.setItemName(TAG);
+                marker.setTag(0);
+                marker.setMapPoint(mark_point);
+                marker.setMarkerType(MapPOIItem.MarkerType.CustomImage);
+                marker.setCustomImageResourceId(R.drawable.jcyclist);
+                mapView.addPOIItem(marker);
             }
             // 교통사고 주의 구간인 경우
-            else{
-                RED = 255;
-                GREEN = 255;
-                BLUE = 255;
+            else if (astar.DangerZone.get(o).GetType() == 4.0) {
+
                 TAG = "교통사고 주의 구역";
+                MapPoint mark_point = MapPoint.mapPointWithGeoCoord(astar.DangerZone.get(o).GetLat(), astar.DangerZone.get(o).GetLng());
+                MapPOIItem marker = new MapPOIItem();
+                marker.setItemName(TAG);
+                marker.setTag(0);
+                marker.setMapPoint(mark_point);
+                marker.setMarkerType(MapPOIItem.MarkerType.CustomImage);
+                marker.setCustomImageResourceId(R.drawable.jaccident_car);
+                mapView.addPOIItem(marker);
             }
+            else {
 
-            MapCircle circle = new MapCircle(
-                    MapPoint.mapPointWithGeoCoord(DangerZone.get(o).GetLat(), DangerZone.get(o).GetLng()),
-                    5, // radius, meter
-                    Color.argb(128, 0, 0, 0), // strokeColor
-                    Color.argb(128, RED, GREEN, BLUE) // fillColor
-            );
+                TAG = "시민 신고 지역";
 
-            MapPoint mark_point = MapPoint.mapPointWithGeoCoord(DangerZone.get(o).GetLat(), DangerZone.get(o).GetLng());
-            MapPOIItem marker = new MapPOIItem();
-            marker.setItemName(TAG);
-            marker.setTag(0);
-            marker.setMapPoint(mark_point);
-            marker.setMarkerType(MapPOIItem.MarkerType.RedPin); // 기본으로 제공하는 BluePin 마커 모양.
-            marker.setSelectedMarkerType(MapPOIItem.MarkerType.RedPin); // 마커를 클릭했을때, 기본으로 제공하는 RedPin 마커 모양.
-
-            mapView.addCircle(circle);
-            mapView.addPOIItem(marker);
+                MapPoint mark_point = MapPoint.mapPointWithGeoCoord(astar.DangerZone.get(o).GetLat(), astar.DangerZone.get(o).GetLng());
+                MapPOIItem marker = new MapPOIItem();
+                marker.setItemName(TAG);
+                marker.setTag(0);
+                marker.setMapPoint(mark_point);
+                marker.setMarkerType(MapPOIItem.MarkerType.CustomImage);
+                marker.setCustomImageResourceId(R.drawable.jsirenback);
+                mapView.addPOIItem(marker);
+            }
         }
     }
 
+    // 해당 지점 마커로 타입에 맞게 띄우기
+    private void addmarker(int start, int type) {
+
+        double mid_lat = (astar.jp_path.get(start+1).GetLat() + astar.jp_path.get(start + 2).GetLat())/2.0;
+        double mid_lon = (astar.jp_path.get(start+1).GetLng() + astar.jp_path.get(start + 2).GetLng())/2.0;
+
+        MapPoint mark_point = MapPoint.mapPointWithGeoCoord(mid_lat, mid_lon);
+        MapPOIItem marker = new MapPOIItem();
 
 
+        if(type == onfoot){
 
+        }
+        else if(type == alley){
+            marker.setItemName("골목길");
+            marker.setMarkerType(MapPOIItem.MarkerType.CustomImage);
+            marker.setCustomImageResourceId(R.drawable.jmarker);
+        }
+        else if(type == traffic){
+            marker.setItemName("신호등");
+            marker.setMarkerType(MapPOIItem.MarkerType.CustomImage);
+            marker.setCustomImageResourceId(R.drawable.jtraffic_lights);
+        }
+        else if(type == crosswalk){
+            marker.setItemName("횡단보도");
+            marker.setMarkerType(MapPOIItem.MarkerType.CustomImage);
+            marker.setCustomImageResourceId(R.drawable.jcross);
+        }
+        else{
 
-    // 3. 경로를 지도에 폴리라인으로 띄우기
-    void ShowPathOnMap(){
-        MapPolyline pathLine = new MapPolyline();
-
-        // 경로의 길이
-        int size =  safe_path.size();
-
-        // safe_path.get(0) = 출발 지점     >> 출발지점, 도착지점 둘 다 선으로 연결하지는 않는다.
-        MapPoint mark_point1 = MapPoint.mapPointWithGeoCoord(safe_path.get(0).getMapPointGeoCoord().latitude,safe_path.get(0).getMapPointGeoCoord().longitude);
-        MapPOIItem marker1 = new MapPOIItem();
-        marker1.setItemName("출발");
-        marker1.setTag(0);
-        marker1.setMapPoint(mark_point1);
-        marker1.setMarkerType(MapPOIItem.MarkerType.RedPin); // 기본으로 제공하는 BluePin 마커 모양.
-        marker1.setSelectedMarkerType(MapPOIItem.MarkerType.RedPin); // 마커를 클릭했을때, 기본으로 제공하는 RedPin 마커 모양.
-
-        // safe_path.get(size-1) = 도착 지점  >> 출발지점, 도착지점 둘 다 선으로 연결하지는 않는다.
-        MapPoint mark_point2 = MapPoint.mapPointWithGeoCoord(safe_path.get(size-1).getMapPointGeoCoord().latitude,safe_path.get(size-1).getMapPointGeoCoord().longitude);
-        MapPOIItem marker2 = new MapPOIItem();
-        marker2.setItemName("도착");
-        marker2.setTag(0);
-        marker2.setMapPoint(mark_point2);
-        marker2.setMarkerType(MapPOIItem.MarkerType.RedPin); // 기본으로 제공하는 BluePin 마커 모양.
-        marker2.setSelectedMarkerType(MapPOIItem.MarkerType.RedPin); // 마커를 클릭했을때, 기본으로 제공하는 RedPin 마커 모양.
-
-        mapView.addPOIItem(marker1);
-        mapView.addPOIItem(marker2);
-
-        // index 1 ~ size-2 : A* 알고리즘으로 구한 좌표들. 선으로 이어준다.
-        for(int i =1 ; i < safe_path.size()-1 ; i ++){
-            MapPoint tmp = MapPoint.mapPointWithGeoCoord(safe_path.get(i).getMapPointGeoCoord().latitude,safe_path.get(i).getMapPointGeoCoord().longitude );
-            pathLine.addPoint(tmp);
         }
 
-        mapView.addPolyline(pathLine);
+        marker.setMapPoint(mark_point);
+        mapView.addPOIItem(marker);
 
-        MapPoint mid = MapPoint.mapPointWithGeoCoord(safe_path.get((int)size/2).getMapPointGeoCoord().latitude,safe_path.get((int)size/2).getMapPointGeoCoord().longitude );
-        mapView.setMapCenterPoint(mid, true);
     }
+
 
     public String fetchChild(String UUID){
         String url = CommonMethod.ipConfig + "/api/fetchChild";
