@@ -520,7 +520,7 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
                 GREEN = 255;
                 BLUE = 255;
                 TAG = "시민 신고 지역";
-                bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.sirenback);
+                bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.jsirenback);
 
             }
 
@@ -564,7 +564,7 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
                 size = 1;
             }
         }
-        addmarker(start, tmp);
+        addmarker(start + size / 2, tmp);
         addpath(start,i, tmp);
 
     }
