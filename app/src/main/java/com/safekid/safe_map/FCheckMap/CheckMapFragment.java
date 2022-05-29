@@ -424,24 +424,26 @@ public class CheckMapFragment extends Fragment {
 
         for (i = 1; i < astar.link_info.size(); i++) {
             if (tmp == astar.link_info.get(i)) {
+                // 같으면 사이즈 늘리고 continue
                 size += 1;
                 continue;
             }
-            // 다르면 마커로 띄운다.
-            if( size > 1){
-                addmarker(start+ size/2, tmp);
-            }
-            else{
-                addmarker(start, tmp); // 마커를 넣는 함수
-            }
-            addpath(start,i,tmp);
+            else {
+                // 다르면 마커로 띄운다.
+                if (size > 1) {
+                    addmarker(start + size / 2, tmp);
+                } else {
+                    addmarker(start, tmp); // 마커를 넣는 함수
+                }
+                addpath(start, i, tmp);
 
-            tmp = astar.link_info.get(i);
-            start = i;
-            size = 1;
-
+                tmp = astar.link_info.get(i);
+                start = i;
+                size = 1;
+            }
         }
-        addpath(i-1,i, tmp);
+        addmarker(start + size / 2, tmp);
+        addpath(start,i, tmp);
 
     }
 
@@ -561,6 +563,8 @@ public class CheckMapFragment extends Fragment {
 
     // 해당 지점 마커로 타입에 맞게 띄우기
     private void addmarker(int start, int type) {
+
+        Log.d("애드마커","start : "+start+" type : "+type);
 
         double mid_lat = (astar.jp_path.get(start+1).GetLat() + astar.jp_path.get(start + 2).GetLat())/2.0;
         double mid_lon = (astar.jp_path.get(start+1).GetLng() + astar.jp_path.get(start + 2).GetLng())/2.0;
