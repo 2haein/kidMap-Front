@@ -546,24 +546,26 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
 
         for (i = 1; i < astar.link_info.size(); i++) {
             if (tmp == astar.link_info.get(i)) {
+                // 같으면 사이즈 늘리고 continue
                 size += 1;
                 continue;
             }
-            // 다르면 마커로 띄운다.
-            if( size > 1){
-                addmarker(start+ size/2, tmp);
-            }
-            else{
-                addmarker(start, tmp); // 마커를 넣는 함수
-            }
-            addpath(start,i,tmp);
+            else {
+                // 다르면 마커로 띄운다.
+                if (size > 1) {
+                    addmarker(start + size / 2, tmp);
+                } else {
+                    addmarker(start, tmp); // 마커를 넣는 함수
+                }
+                addpath(start, i, tmp);
 
-            tmp = astar.link_info.get(i);
-            start = i;
-            size = 1;
-
+                tmp = astar.link_info.get(i);
+                start = i;
+                size = 1;
+            }
         }
-        addpath(i-1,i, tmp);
+        addmarker(start, tmp);
+        addpath(start,i, tmp);
 
     }
 
@@ -579,7 +581,7 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
             Bitmap bitmap2 = null;
             TMapMarkerItem markerItem4 = new TMapMarkerItem();
             markerItem4.setCanShowCallout(true);
-            bitmap2 = BitmapFactory.decodeResource(getResources(), R.drawable.jfinish_line);
+            bitmap2 = BitmapFactory.decodeResource(getResources(), R.drawable.jalley);
             markerItem4.setCalloutTitle("골목길");
             markerItem4.setCalloutSubTitle("주변을 살피며 걸어요!");
 
