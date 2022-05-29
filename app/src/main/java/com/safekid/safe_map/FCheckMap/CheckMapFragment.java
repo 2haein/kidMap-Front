@@ -93,7 +93,7 @@ public class CheckMapFragment extends Fragment {
 
     ViewGroup mapViewContainer;
 
-    Button quest, finish;
+    Button child_location, finish;
 
 
     /**
@@ -181,7 +181,7 @@ public class CheckMapFragment extends Fragment {
             AlertDialog.Builder dlg = new AlertDialog.Builder(getActivity());
             dlg.setTitle("심부름 설정하기");
             dlg.setMessage("심부름을 설정해주세요");
-            dlg.setPositiveButton("심부름 보내기",
+            dlg.setPositiveButton("확인",
                     new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
                             // 처리할 코드 작성
@@ -189,15 +189,45 @@ public class CheckMapFragment extends Fragment {
                             // 현재 심부름 보내기를 누르면
                             // Unable to start activity ComponentInfo{com.safekid.safe_map/com.safekid.safe_map.FHome.AddMissionActivity}: java.lang.NumberFormatException: For input string: ""
                             // 에러가 뜨면서 앱이 종료됩니다.
-                            Intent intent = new Intent(getActivity(), AddMissionActivity.class); //fragment라서 activity intent와는 다른 방식
-                            intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-                            startActivity(intent);
+                            //Intent intent = new Intent(getActivity(), AddMissionActivity.class); //fragment라서 activity intent와는 다른 방식
+                            //intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                            //startActivity(intent);
                         }
                     });
             dlg.show();
         }
 
+        // 버튼으로 아이 위치 불러오기
+        /*child_location = (Button) v.findViewById(R.id.location_upd);
+        child_location.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (ProfileData.getErrandChildId() != ""){
+                    Log.i("child id ", ProfileData.getErrandChildId());
+                    String childInfo = fetchChild(ProfileData.getErrandChildId());
+                    try {
+                        JSONObject Alldata = new JSONObject(childInfo);
+                        String childName = Alldata.getString("childName");
+                        Double child_lat = Alldata.getDouble("current_latitude");
+                        Double child_long = Alldata.getDouble("current_longitude");
+                        Log.i("Child_lat ", child_lat.toString());
 
+                        MapPoint mark_point = MapPoint.mapPointWithGeoCoord(child_lat, child_long);
+                        MapPOIItem marker = new MapPOIItem();
+                        marker.setItemName(childName);
+                        marker.setTag(0);
+                        marker.setMapPoint(mark_point);
+                        marker.setMarkerType(MapPOIItem.MarkerType.RedPin); // 기본으로 제공하는 BluePin 마커 모양.
+                        marker.setSelectedMarkerType(MapPOIItem.MarkerType.RedPin); // 마커를 클릭했을때, 기본으로 제공하는 RedPin 마커 모양.
+
+                    } catch (JSONException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                }
+
+            }
+        });*/
 
         // 5초마다 아이 위치 불러오기
         /*

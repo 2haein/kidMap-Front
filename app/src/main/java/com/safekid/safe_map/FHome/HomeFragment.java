@@ -165,10 +165,28 @@ public class HomeFragment extends Fragment {
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         //mRecyclerView.setLayoutManager(new LinearLayoutManager(this, RecyclerView.VERTICAL,false));
 
+        //updateErrandChecking();
 
         return view;
     }
 
+    public void updateErrandChecking(){
+        String url = CommonMethod.ipConfig + "/api/updateErrandChecking";
+
+        try{
+            String jsonString = new JSONObject()
+                    .put("userId", ProfileData.getUserId())
+                    .put("isErrandComplete", true)
+                    .toString();
+
+            //REST API
+            RequestHttpURLConnection.NetworkAsyncTask networkTask = new RequestHttpURLConnection.NetworkAsyncTask(url, jsonString);
+            networkTask.execute().get();
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+    }
 
     public String fetchChild(String UUID){
         String url = CommonMethod.ipConfig + "/api/fetchChild";
