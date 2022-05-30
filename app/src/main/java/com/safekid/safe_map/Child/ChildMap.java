@@ -22,6 +22,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Looper;
+import android.telephony.SmsManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
@@ -330,6 +331,15 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
                     //mylocation.setText(latitude + "," + longitude);
                     //Toast.makeText(getApplicationContext(), "현재 위치" + latitude + "," + longitude, Toast.LENGTH_LONG).show();
                     registerChildLocation(ChildData.getChildId(), latitude, longitude);
+
+                    // 중간 지점이면 부모님께 메세지 전송
+                    /*float distance = getDistance(latitude, longitude, , );
+                    Log.i("중간지점까지의 거리", String.valueOf(distance));
+                    if (distance < 4.0) { //4m
+                        if (ChildData.getcheckSMS() == false){
+                            sendSMS();
+                        }
+                    }*/
                 }
             };
 
@@ -389,6 +399,20 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void sendSMS () {
+        try {
+            //전송
+            SmsManager smsManager = SmsManager.getDefault();
+            String phoneNo = fetchPhone(ProfileData.getUserId());
+            smsManager.sendTextMessage(phoneNo, null, "우리 아이가 심부름 경로의 중간 지점을 잘 지나갔어요", null, null);
+            Toast.makeText(getApplicationContext(), "부모님께 메세지 전송 완료!", Toast.LENGTH_LONG).show();
+        } catch (Exception e) {
+            Toast.makeText(getApplicationContext(), "메세지 전송 실패", Toast.LENGTH_LONG).show();
+            e.printStackTrace();
+        }
+
     }
 
     public String fetchPhone(String userId) {
