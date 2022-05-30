@@ -459,7 +459,12 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
 
         TMapMarkerItem markerItem3 = new TMapMarkerItem();
 
-        TMapPoint mark_point3 = new TMapPoint(astar.jp_path.get(size/2 -1).GetLat(), astar.jp_path.get(size/2 -1).GetLng());
+       // getMiddleLat
+       // TMapPoint mark_point3 = new TMapPoint(astar.jp_path.get(size/2 -1).GetLat(), astar.jp_path.get(size/2 -1).GetLng());
+       TMapPoint mark_point3 = new TMapPoint(getMiddleLat(), getMiddleLon());
+
+       Log.d("childmap123"," lat : "+getMiddleLat() + " lon : "+ getMiddleLon());
+
         Bitmap bitmap3 = BitmapFactory.decodeResource(getResources(), R.drawable.jmiddle);
         markerItem3.setIcon(bitmap3); // 마커 아이콘 지정
         markerItem3.setPosition(0.5f, 1.0f); // 마커의 중심점을 중앙, 하단으로 설정
@@ -731,4 +736,75 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
 
 }
 
+
+    double getMiddleLat(){
+
+        double total = 0.0;
+        double middle = 0.0;
+        double lat = 0.0;
+
+        int j = 0;
+
+        for(int i = 1 ; i < astar.jp_path.size() - 2 ; i++){
+            total += GetDistance(astar.jp_path.get(i),astar.jp_path.get(i+1));
+        }
+
+        middle = total/2.0;
+
+        for( ; j < astar.jp_path.size() -2 ; j++){
+            total -= GetDistance(astar.jp_path.get(j),astar.jp_path.get(j+1));
+
+            if( middle - total > 0){
+                break;
+            }
+
+        }
+
+        lat = (astar.jp_path.get(j).GetLat() + astar.jp_path.get(j+1).GetLat() )/2.0;
+
+        return lat;
+    }
+
+    double getMiddleLon(){
+
+        double total = 0.0;
+        double middle = 0.0;
+        double lon = 0.0;
+
+        int j = 0;
+
+        for(int i = 1 ; i < astar.jp_path.size() -2 ; i++){
+            total += GetDistance(astar.jp_path.get(i),astar.jp_path.get(i+1));
+        }
+
+        middle = total/2.0;
+
+        for( ; j < astar.jp_path.size() -2 ; j++){
+            total -= GetDistance(astar.jp_path.get(j),astar.jp_path.get(j+1));
+
+            if( middle - total > 0){
+                break;
+            }
+
+        }
+
+        lon = (astar.jp_path.get(j).GetLng() + astar.jp_path.get(j+1).GetLng() )/2.0;
+
+        return lon;
+    }
+
+
+    public double GetDistance(jPoint src, jPoint dst) {
+        Location start = new Location("src");
+        start.setLatitude(src.GetLat());
+        start.setLongitude(src.GetLng());
+
+        Location end = new Location("dst");
+        end.setLatitude(dst.GetLat());
+        end.setLongitude(dst.GetLng());
+
+        double distance = start.distanceTo(end);
+
+        return distance;
+    }
 }

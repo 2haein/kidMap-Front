@@ -1,6 +1,7 @@
 package com.safekid.safe_map.FHome;
 
 import android.content.Context;
+import android.location.Location;
 import android.util.Log;
 
 import com.safekid.safe_map.http.CommonMethod;
@@ -245,6 +246,26 @@ public class Astar {
             weight *= 50.0;
         }
 
+        Location start = new Location("src");
+        start.setLatitude(nodes.get(srcNum).GetLat());
+        start.setLongitude(nodes.get(srcNum).GetLng());
+
+        Location end = new Location("dst");
+        end.setLatitude(nodes.get(dstNum).GetLat());
+        end.setLongitude(nodes.get(dstNum).GetLng());
+
+        double distance = start.distanceTo(end);
+
+        return (int) (distance * weight);
+    }
+
+    public int GetDistanceWithNum2(int srcNum, int dstNum) {
+        double weight = 1.0;
+
+        if (IsInDanger(dstNum) == 1) {
+            weight *= 50.0;
+        }
+
         double a1 = (nodes.get(srcNum).GetLat() - nodes.get(dstNum).GetLat()) * 100000.0;
         double a2 = (nodes.get(srcNum).GetLng() - nodes.get(dstNum).GetLng()) * 100000.0;
 
@@ -253,6 +274,23 @@ public class Astar {
 
     // 위험 지역에 속하는지 계산 용 : 좌표로 거리 계산
     double GetDistanceWithCoords(jPoint src, jPoint dst) {
+        Location start = new Location("src");
+        start.setLatitude(src.GetLat());
+        start.setLongitude(src.GetLng());
+
+        Location end = new Location("dst");
+        end.setLatitude(dst.GetLat());
+        end.setLongitude(dst.GetLng());
+
+        double distance = start.distanceTo(end);
+        double distance2 = end.distanceTo(start);
+
+       // Log.d("astar123","dist :"+distance+" dist2 :"+distance2);
+
+        return distance;
+    }
+
+    double GetDistanceWithCoords2(jPoint src, jPoint dst) {
 
         final int EARTH_RADIUS = 6371; // Approx Earth radius in KM
 
@@ -282,6 +320,8 @@ public class Astar {
 
     //================== A* Algorithm =======================
     public void AstarSearch(int srcNum, int dstNum) {
+
+
 
 
         // 첫 번째 노드를 닫힌 리스트에 넣는다.
