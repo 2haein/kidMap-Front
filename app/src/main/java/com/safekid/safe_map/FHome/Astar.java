@@ -57,6 +57,9 @@ public class Astar {
     // json 파싱
 
     public void ParseDanger(Context mContext) {
+
+        Log.d("testest","aaaaaaaaaaaaaaaaaaa");
+
         String jsonString = null;
         try {
             InputStream is = mContext.getAssets().open("test_danger.json");

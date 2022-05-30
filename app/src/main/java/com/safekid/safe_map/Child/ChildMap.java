@@ -427,7 +427,9 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
         markerItem1.setIcon(bitmap); // 마커 아이콘 지정
         markerItem1.setPosition(0.5f, 1.0f); // 마커의 중심점을 중앙, 하단으로 설정
         markerItem1.setTMapPoint(mark_point1); // 마커의 좌표 지정
-        markerItem1.setName("출발"); // 마커의 타이틀 지정
+        markerItem1.setCanShowCallout(true);
+        markerItem1.setCalloutTitle("출발!");
+        markerItem1.setCalloutSubTitle("출발 지점이에요!");
         tMapView.addMarkerItem("markerItem1", markerItem1); // 지도에 마커 추가
 
 
@@ -442,8 +444,8 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
 
         // 풍션뷰
         markerItem3.setCanShowCallout(true);
-        markerItem3.setCalloutTitle("중간 지점 가나다라마사바아자차카타파하");
-        markerItem3.setCalloutSubTitle("중간 지점이에요!" + "\n" + "t스트 내용 여기에에1234567");
+        markerItem3.setCalloutTitle("중간 지점");
+        markerItem3.setCalloutSubTitle("퀘스트를 잘 수행하고 있나요?");
         //markerItem3.setCalloutRightButtonImage(bitmap3);
 
         tMapView.addMarkerItem("markerItem3", markerItem3); // 지도에 마커 추가
@@ -458,8 +460,8 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
         markerItem2.setTMapPoint(mark_point2); // 마커의 좌표 지정
         markerItem2.setName("도착"); // 마커의 타이틀 지정
         markerItem2.setCanShowCallout(true);
-        markerItem2.setCalloutTitle("골목길");
-        markerItem2.setCalloutSubTitle("주변을 살피며 걸어요!");
+        markerItem2.setCalloutTitle("도착!");
+        markerItem2.setCalloutSubTitle("도착 지점이에요!");
         tMapView.addMarkerItem("markerItem2", markerItem2); // 지도에 마커 추가
 
         // 지도 중심 변경 - gps 위치 때문에 안 바뀜
@@ -481,59 +483,89 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
         for (int o = 0; o < astar.DangerZone.size(); o++) {
             // 만약 위험 지역이 성범죄자 거주 구역이라면
             if (astar.DangerZone.get(o).GetType() == 1.0) {
-                RED = 255;
-                GREEN = 0;
-                BLUE = 0;
-                TAG = "성범죄자 거주 구역";
 
-                // 나중에 맞는 마커로 바꿀 것
                 bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.jdevil);
+
+                TMapMarkerItem markerItem2 = new TMapMarkerItem();
+                TMapPoint mark_point2 = new TMapPoint(astar.DangerZone.get(o).GetLat(), astar.DangerZone.get(o).GetLng());
+                markerItem2.setIcon(bitmap); // 마커 아이콘 지정
+                markerItem2.setPosition(0.5f, 1.0f); // 마커의 중심점을 중앙, 하단으로 설정
+                markerItem2.setTMapPoint(mark_point2); // 마커의 좌표 지정
+                markerItem2.setCanShowCallout(true);
+                markerItem2.setCalloutTitle("위험 지역");
+                markerItem2.setCalloutSubTitle("성범죄자 거주 구역");
+
+                tMapView.addMarkerItem("danger" + o, markerItem2); // 지도에 마커 추가
             }
             // 보행자 사고 다발 지역인 경우
             else if (astar.DangerZone.get(o).GetType() == 2.0) {
-                RED = 0;
-                GREEN = 255;
-                BLUE = 0;
-                TAG = "보행자 사고 다발 구역";
 
-                // 나중에 맞는 마커로 바꿀 것
                 bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.jaccident);
+
+                TMapMarkerItem markerItem2 = new TMapMarkerItem();
+                TMapPoint mark_point2 = new TMapPoint(astar.DangerZone.get(o).GetLat(), astar.DangerZone.get(o).GetLng());
+                markerItem2.setIcon(bitmap); // 마커 아이콘 지정
+                markerItem2.setPosition(0.5f, 1.0f); // 마커의 중심점을 중앙, 하단으로 설정
+                markerItem2.setTMapPoint(mark_point2); // 마커의 좌표 지정
+                markerItem2.setCanShowCallout(true);
+                markerItem2.setCalloutTitle("사고 다발 지점");
+                markerItem2.setCalloutSubTitle("보행자 사고 구역");
+
+                tMapView.addMarkerItem("danger" + o, markerItem2); // 지도에 마커 추가
+
             }
             // 자전거 사고 다발 지역인 경우
             else if (astar.DangerZone.get(o).GetType() == 3.0) {
-                RED = 0;
-                GREEN = 0;
-                BLUE = 255;
+
                 TAG = "자전거 사고 다발 구역";
 
                 // 나중에 맞는 마커로 바꿀 것
                 bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.jcyclist);
+
+                TMapMarkerItem markerItem2 = new TMapMarkerItem();
+                TMapPoint mark_point2 = new TMapPoint(astar.DangerZone.get(o).GetLat(), astar.DangerZone.get(o).GetLng());
+                markerItem2.setIcon(bitmap); // 마커 아이콘 지정
+                markerItem2.setPosition(0.5f, 1.0f); // 마커의 중심점을 중앙, 하단으로 설정
+                markerItem2.setTMapPoint(mark_point2); // 마커의 좌표 지정
+                markerItem2.setCanShowCallout(true);
+                markerItem2.setCalloutTitle("사고 다발 지점");
+                markerItem2.setCalloutSubTitle("자전거 사고 구역");
+
+               tMapView.addMarkerItem("danger" + o, markerItem2); // 지도에 마커 추가
             }
             // 교통사고 주의 구간인 경우
             else if (astar.DangerZone.get(o).GetType() == 4.0) {
-                RED = 255;
-                GREEN = 255;
-                BLUE = 255;
+
                 TAG = "교통사고 주의 구역";
                 bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.jaccident_car);
+
+                TMapMarkerItem markerItem2 = new TMapMarkerItem();
+                TMapPoint mark_point2 = new TMapPoint(astar.DangerZone.get(o).GetLat(), astar.DangerZone.get(o).GetLng());
+                markerItem2.setIcon(bitmap); // 마커 아이콘 지정
+                markerItem2.setPosition(0.5f, 1.0f); // 마커의 중심점을 중앙, 하단으로 설정
+                markerItem2.setTMapPoint(mark_point2); // 마커의 좌표 지정
+                markerItem2.setCanShowCallout(true);
+                markerItem2.setCalloutTitle("사고 다발 지점");
+                markerItem2.setCalloutSubTitle("교통사고 구역");
+
+                tMapView.addMarkerItem("danger" + o, markerItem2); // 지도에 마커 추가
             } else {
-                RED = 255;
-                GREEN = 255;
-                BLUE = 255;
+
                 TAG = "시민 신고 지역";
                 bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.jsirenback);
 
+                TMapMarkerItem markerItem2 = new TMapMarkerItem();
+                TMapPoint mark_point2 = new TMapPoint(astar.DangerZone.get(o).GetLat(), astar.DangerZone.get(o).GetLng());
+                markerItem2.setIcon(bitmap); // 마커 아이콘 지정
+                markerItem2.setPosition(0.5f, 1.0f); // 마커의 중심점을 중앙, 하단으로 설정
+                markerItem2.setTMapPoint(mark_point2); // 마커의 좌표 지정
+                markerItem2.setCanShowCallout(true);
+                markerItem2.setCalloutTitle("시민 신고 지역");
+               // markerItem2.setCalloutSubTitle("교통사고 구역");
+
+                tMapView.addMarkerItem("danger" + o, markerItem2); // 지도에 마커 추가
+
             }
-
-
-            // 마커 찍기
-            TMapMarkerItem markerItem2 = new TMapMarkerItem();
-            TMapPoint mark_point2 = new TMapPoint(astar.DangerZone.get(o).GetLat(), astar.DangerZone.get(o).GetLng());
-            markerItem2.setIcon(bitmap); // 마커 아이콘 지정
-            markerItem2.setPosition(0.5f, 1.0f); // 마커의 중심점을 중앙, 하단으로 설정
-            markerItem2.setTMapPoint(mark_point2); // 마커의 좌표 지정
-            markerItem2.setName("위험지역"); // 마커의 타이틀 지정
-            tMapView.addMarkerItem("danger" + o, markerItem2); // 지도에 마커 추가
 
         }
     }
