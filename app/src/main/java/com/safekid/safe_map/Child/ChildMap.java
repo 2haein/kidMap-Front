@@ -85,6 +85,8 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
     String number = "0100000000";
     File file;
 
+    private TimerTask task;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -313,7 +315,7 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
             System.out.println("////////////권한요청 안해도됨");
             // 수동으로 위치 구하기
             Timer scheduler = new Timer();
-            TimerTask task = new TimerTask() {
+            task = new TimerTask() {
                 private static final int REQUEST_CODE_LOCATION = 2;
 
                 @Override
@@ -347,6 +349,14 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
         }
 
 
+    }
+
+    public void onBackPressed() {
+        if (task != null) {
+            task.cancel();
+            Log.i("timer", "종료");
+        }
+        finish();
     }
 
     private Location getMyLocation() {
