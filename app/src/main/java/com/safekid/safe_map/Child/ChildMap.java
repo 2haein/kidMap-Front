@@ -4,9 +4,13 @@ import static android.app.PendingIntent.getActivity;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationCompat;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -86,6 +90,12 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
     File file;
 
     private TimerTask task;
+    NotificationManager Nmanager;
+    NotificationCompat.Builder builder;
+
+    private static String CHANNEL_ID = "channel1";
+    private static String CHANEL_NAME = "Channel1";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -335,13 +345,15 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
                     registerChildLocation(ChildData.getChildId(), latitude, longitude);
 
                     // 중간 지점이면 부모님께 메세지 전송
-                    /*float distance = getDistance(latitude, longitude, , );
+                    float distance = getDistance(latitude, longitude,latitude, longitude);
                     Log.i("중간지점까지의 거리", String.valueOf(distance));
                     if (distance < 4.0) { //4m
                         if (ChildData.getcheckSMS() == false){
+                            ChildData.setCheckSMS(true);
                             sendSMS();
+                            showNoti();
                         }
-                    }*/
+                    }
                 }
             };
 
@@ -417,12 +429,44 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
             SmsManager smsManager = SmsManager.getDefault();
             String phoneNo = fetchPhone(ProfileData.getUserId());
             smsManager.sendTextMessage(phoneNo, null, "우리 아이가 심부름 경로의 중간 지점을 잘 지나갔어요", null, null);
-            Toast.makeText(getApplicationContext(), "부모님께 메세지 전송 완료!", Toast.LENGTH_LONG).show();
+            //Toast.makeText(getApplicationContext(), "부모님께 메세지 전송 완료!", Toast.LENGTH_LONG).show();
         } catch (Exception e) {
-            Toast.makeText(getApplicationContext(), "메세지 전송 실패", Toast.LENGTH_LONG).show();
+            //Toast.makeText(getApplicationContext(), "메세지 전송 실패", Toast.LENGTH_LONG).show();
             e.printStackTrace();
         }
 
+    }
+
+    public void showNoti(){
+        builder = null;
+        Nmanager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        //버전 오레오 이상일 경우
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+            Nmanager.createNotificationChannel(
+                    new NotificationChannel(CHANNEL_ID, CHANEL_NAME, NotificationManager.IMPORTANCE_DEFAULT)
+            );
+
+            builder = new NotificationCompat.Builder(this,CHANNEL_ID);
+
+            //하위 버전일 경우
+        }else{
+            builder = new NotificationCompat.Builder(this);
+        }
+
+        //알림창 제목
+        builder.setContentTitle("우리 아이 심부름을 부탁해");
+
+        //알림창 메시지
+        builder.setContentText("심부름 경로의 중간 위치를 지났어요");
+
+        //알림창 아이콘
+        builder.setSmallIcon(R.drawable.simbu_logo);
+
+
+        Notification notification = builder.build();
+
+        //알림창 실행
+        Nmanager.notify(1,notification);
     }
 
     public String fetchPhone(String userId) {
