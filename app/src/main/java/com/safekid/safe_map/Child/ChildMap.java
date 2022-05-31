@@ -60,6 +60,8 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
     String UUID = ChildData.getChildId();
     String parent_id = ProfileData.getUserId();
     Astar astar = new Astar();
+    Astar astar_t = new Astar();
+
     Context mContext = ChildMap.this;
 
 
@@ -202,6 +204,9 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
         astar.ParseLinks(mContext);
         astar.ParseDanger(mContext);
 
+        astar_t.ParseNode(mContext);
+        astar_t.ParseLinks(mContext);
+        astar_t.ParseDanger(mContext);
     }
 
     private void FindSafePath() {
@@ -212,14 +217,19 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
         int start = astar.findCloseNode(jp_src);
         int end = astar.findCloseNode(jp_dst);
 
+
         // 3. 두 노드 번호를 이용하여 A* 알고리즘 실행.
         astar.AstarSearch(start, end);
+        astar_t.AstarSearch(start, end);
 
         // 4. closeList를 탐색하여 경로 찾기
         astar.FindPath(start, end);
+        astar_t.FindPath(start, end);
+
 
         // 5. 찾은 노드번호 경로를 이용하여 ( 출발 + 경로 + 도착 ) 좌표 리스트 추출.
         astar.GetCoordPath(jp_src.GetLat(), jp_src.GetLng(), jp_dst.GetLat(), jp_dst.GetLng());
+        astar_t.GetCoordPath(jp_src.GetLat(), jp_src.GetLng(), jp_dst.GetLat(), jp_dst.GetLng());
 
         // 6. 경로 정보 파악.
         astar.GetPathInfo();
@@ -705,6 +715,7 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
         int tmp = astar.link_info.get(0);
         int i;
 
+
         for (i = 1; i < astar.link_info.size(); i++) {
             if (tmp == astar.link_info.get(i)) {
                 // 같으면 사이즈 늘리고 continue
@@ -798,8 +809,9 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
        // Log.d("ChildMap123","addTmarker--");
     }
 
-    void addpath(int start,int end, int type){
     // 경로를 지도에 띄우기
+    void addpath(int start,int end, int type){
+
 
         Log.d("cm123","길 추가  start : "+ start + " end : "+ end + " type : "+ type);
 
@@ -859,7 +871,7 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
 
         }
 
-        lat = (astar.jp_path.get(j).GetLat() + astar.jp_path.get(j+1).GetLat() )/2.0;
+        lat = (astar.jp_path.get(j).GetLat())/3.0 * 2.0 + (astar.jp_path.get(j+1).GetLat() )/3.0 * 1.0;
 
         return lat;
     }
@@ -887,7 +899,7 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
 
         }
 
-        lon = (astar.jp_path.get(j).GetLng() + astar.jp_path.get(j+1).GetLng() )/2.0;
+        lon =  (astar.jp_path.get(j).GetLng())/3.0 * 2.0 + (astar.jp_path.get(j+1).GetLng() )/3.0 * 1.0;
 
         return lon;
     }

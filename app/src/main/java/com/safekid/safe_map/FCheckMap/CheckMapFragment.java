@@ -64,7 +64,7 @@ public class CheckMapFragment extends Fragment {
     private static final String ARG_PARAM2 = "param2";
 
     Astar astar = new Astar();
-
+    Astar astar_t = new Astar();
 
     // 경로 정보
     final int onfoot = 0;
@@ -355,6 +355,12 @@ public class CheckMapFragment extends Fragment {
         astar.ParseNode(mContext);
         astar.ParseLinks(mContext);
         astar.ParseDanger(mContext);
+
+
+        astar_t.ParseNode(mContext);
+        astar_t.ParseLinks(mContext);
+        astar_t.ParseDanger(mContext);
+
     }
 
 
@@ -366,14 +372,19 @@ public class CheckMapFragment extends Fragment {
         int start = astar.findCloseNode(jp_src);
         int end = astar.findCloseNode(jp_dst);
 
+
+
         // 3. 두 노드 번호를 이용하여 A* 알고리즘 실행.
         astar.AstarSearch(start, end);
+        astar_t.AstarSearch(start, end);
 
         // 4. closeList를 탐색하여 경로 찾기
         astar.FindPath(start, end);
+        astar_t.FindPath(start, end);
 
         // 5. 찾은 노드번호 경로를 이용하여 ( 출발 + 경로 + 도착 ) 좌표 리스트 추출.
         astar.GetCoordPath(jp_src.GetLat(), jp_src.GetLng(), jp_dst.GetLat(), jp_dst.GetLng());
+        astar_t.GetCoordPath(jp_src.GetLat(), jp_src.GetLng(), jp_dst.GetLat(), jp_dst.GetLng());
 
         // 6. 경로 정보 파악.
         astar.GetPathInfo();
@@ -423,6 +434,41 @@ public class CheckMapFragment extends Fragment {
         int tmp = astar.link_info.get(0);
         int i;
 
+
+        int diff = -1;
+        MapPolyline polyline2 = new MapPolyline();
+        polyline2.setLineColor(Color.GRAY);
+
+        for(int v = 1 ; v < astar_t.jp_path.size()-1 ; v++){
+            polyline2.addPoint(MapPoint.mapPointWithGeoCoord(astar_t.jp_path.get(v).GetLat(),astar_t.jp_path.get(v).GetLng()));
+           // Log.d("testest","addd");
+        }
+
+        for(int v = 1 ; v< astar_t.jp_path.size()-1 ; v++){
+            if(astar_t.jp_path.get(v).GetLat() != astar.jp_path.get(v).GetLat()){
+                if(astar_t.jp_path.get(v).GetLng() != astar.jp_path.get(v).GetLng()){
+                    diff = v;
+                    break;
+                }
+            }
+        }
+        mapView.addPolyline(polyline2);
+
+        MapPoint mark_point2 = MapPoint.mapPointWithGeoCoord(astar_t.jp_path.get(diff).GetLat(),astar_t.jp_path.get(diff).GetLng());
+        MapPOIItem marker2 = new MapPOIItem();
+        marker2.setItemName("회색 : 원래 경로");
+        marker2.setTag(0);
+        marker2.setMapPoint(mark_point2);
+        marker2.setMarkerType(MapPOIItem.MarkerType.CustomImage);
+        marker2.setCustomImageResourceId(R.drawable.jdevil);
+        mapView.addPOIItem(marker2);
+
+
+
+
+
+
+
         for (i = 1; i < astar.link_info.size(); i++) {
             if (tmp == astar.link_info.get(i)) {
                 // 같으면 사이즈 늘리고 continue
@@ -459,7 +505,7 @@ public class CheckMapFragment extends Fragment {
             polyline.setLineColor(Color.BLACK);
         }
         else if(type == alley){
-            polyline.setLineColor(Color.GRAY);
+            polyline.setLineColor(Color.argb(255, 204, 92, 37));
         }
         else if(type == traffic){
             polyline.setLineColor(Color.GREEN);
