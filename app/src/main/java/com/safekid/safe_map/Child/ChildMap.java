@@ -338,14 +338,19 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
                     longitude = currentLocation[0].getLongitude();
                     System.out.println("아이 현재 위치값 : " + latitude + "," + longitude);
                     registerChildLocation(UUID, latitude, longitude);*/
-                    getMyLocation();
+                    Location loc = getMyLocation();
+                    latitude = loc.getLatitude();
+                    longitude = loc.getLongitude();
                     System.out.println("아이 현재 위치값 : " + latitude + "," + longitude);
                     //mylocation.setText(latitude + "," + longitude);
                     //Toast.makeText(getApplicationContext(), "현재 위치" + latitude + "," + longitude, Toast.LENGTH_LONG).show();
                     registerChildLocation(ChildData.getChildId(), latitude, longitude);
 
                     // 중간 지점이면 부모님께 메세지 전송
-                    float distance = getDistance(latitude, longitude,latitude, longitude);
+                    double middle_lat = getMiddleLat();
+                    double middle_lon = getMiddleLon();
+
+                    float distance = getDistance(latitude, longitude, middle_lat, middle_lon);
                     Log.i("중간지점까지의 거리", String.valueOf(distance));
                     if (distance < 4.0) { //4m
                         if (ChildData.getcheckSMS() == false){
@@ -380,15 +385,13 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
             getMyLocation();
         } else {
             System.out.println("////////////권한요청 안해도됨");
-
             // 수동으로 위치 구하기
-
             String locationProvider = LocationManager.GPS_PROVIDER;
             currentLocation = manager.getLastKnownLocation(locationProvider);
-            if (currentLocation != null) {
+            /*if (currentLocation != null) {
                 longitude = currentLocation.getLongitude();
                 latitude = currentLocation.getLatitude();
-            }
+            }*/
         }
         return currentLocation;
     }
