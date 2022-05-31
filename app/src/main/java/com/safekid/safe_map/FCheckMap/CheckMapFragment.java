@@ -493,6 +493,45 @@ public class CheckMapFragment extends Fragment {
 
         for (int o = 0; o < astar.DangerZone.size(); o++) {
 
+            MapCircle circle1 = new MapCircle(
+                    MapPoint.mapPointWithGeoCoord(astar.DangerZone.get(o).GetLat(), astar.DangerZone.get(o).GetLng()), // center
+                    20, // radius
+                    Color.argb(128, 255, 255, 255), // strokeColor
+                    Color.argb(20, 255, 0, 0) // fillColor
+
+            );
+            circle1.setTag(1234);
+            mapView.addCircle(circle1);
+
+            MapCircle circle2 = new MapCircle(
+                    MapPoint.mapPointWithGeoCoord(astar.DangerZone.get(o).GetLat(), astar.DangerZone.get(o).GetLng()), // center
+                    15, // radius
+                    Color.argb(128, 255, 255, 255), // strokeColor
+                    Color.argb(50, 255, 0, 0) // fillColor
+            );
+            circle2.setTag(1234);
+            mapView.addCircle(circle2);
+
+            MapCircle circle3 = new MapCircle(
+                    MapPoint.mapPointWithGeoCoord(astar.DangerZone.get(o).GetLat(), astar.DangerZone.get(o).GetLng()), // center
+                    10, // radius
+                    Color.argb(128, 255, 255, 255), // strokeColor
+                    Color.argb(128, 255, 0, 0) // fillColor
+            );
+            circle3.setTag(1234);
+            mapView.addCircle(circle3);
+
+            MapCircle circle4 = new MapCircle(
+                    MapPoint.mapPointWithGeoCoord(astar.DangerZone.get(o).GetLat(), astar.DangerZone.get(o).GetLng()), // center
+                    5, // radius
+                    Color.argb(128, 255, 255, 255), // strokeColor
+                    Color.argb(255, 255, 0, 0) // fillColor
+            );
+            circle4.setTag(1234);
+            mapView.addCircle(circle4);
+
+
+
             if (astar.DangerZone.get(o).GetType() == 1.0) {
 
                 TAG = "성범죄자 거주 구역";
