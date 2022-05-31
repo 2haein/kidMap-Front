@@ -122,15 +122,15 @@ public class MypageFragment extends Fragment {
         mChildnum = new ArrayList<>();
         for(int i = 1; i<= childNum; i++){
             if (i==1){
-                mChildnum.add(new ChildnumItem("첫째아이",UUIDArray[0]) );
+                mChildnum.add(new ChildnumItem("이준",UUIDArray[0]) );
             } else if (i==2){
-                mChildnum.add(new ChildnumItem("둘째아이", UUIDArray[1]));
+                mChildnum.add(new ChildnumItem("이연", UUIDArray[1]));
             } else if (i==3){
-                mChildnum.add(new ChildnumItem("셋째아이", UUIDArray[2]));
+                mChildnum.add(new ChildnumItem("이진혁", UUIDArray[2]));
             } else if (i==4){
-                mChildnum.add(new ChildnumItem("넷째아이", UUIDArray[3]));
+                mChildnum.add(new ChildnumItem("이지연", UUIDArray[3]));
             } else if (i==5) {
-                mChildnum.add(new ChildnumItem("다섯째아이", UUIDArray[4]));
+                mChildnum.add(new ChildnumItem("이시연", UUIDArray[4]));
             } else {
                 mChildnum.add(new ChildnumItem("자녀가 없습니다", "X"));
             }
