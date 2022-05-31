@@ -1,6 +1,7 @@
 package com.safekid.safe_map.FHome;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -87,6 +88,28 @@ public class HomeFragment extends Fragment {
 
                 }
 
+            }
+        });
+
+        view.findViewById(R.id.imageView3).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String url = "https://www.youtube.com/watch?v=Ju-A4LxHxK4&ab_channel=%EB%A6%AC%ED%8B%80%ED%99%88%EB%9F%B0LittleHomeLearn";
+
+                Intent i = new Intent(Intent.ACTION_VIEW);
+                i.setData(Uri.parse(url));
+                startActivity(i);
+            }
+        });
+
+        view.findViewById(R.id.imageView4).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String url = "https://www.youtube.com/watch?v=kjzFCRKdjkU&ab_channel=%ED%82%A4%EB%93%9C%ED%82%A4%EC%A6%88%EB%84%B7";
+
+                Intent i = new Intent(Intent.ACTION_VIEW);
+                i.setData(Uri.parse(url));
+                startActivity(i);
             }
         });
 
