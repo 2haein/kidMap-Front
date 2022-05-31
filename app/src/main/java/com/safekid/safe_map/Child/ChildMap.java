@@ -48,6 +48,7 @@ import java.io.File;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import com.skt.Tmap.TMapCircle;
 import com.skt.Tmap.TMapPolyLine;
 import com.skt.Tmap.TMapView;
 import com.skt.Tmap.TMapGpsManager;
@@ -160,7 +161,7 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
         ShowPathInfoOnMap();
 
         // 아이의 현재 위치 5초 간격 서버에 전송
-        sendLocation();
+   //     sendLocation();
 
         home.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -501,6 +502,7 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
 
         int size = astar.jp_path.size();
 
+
         // safe_path.get(0) = 출발 지점     >> 출발지점, 도착지점 둘 다 선으로 연결하지는 않는다.
         TMapMarkerItem markerItem1 = new TMapMarkerItem();
         TMapPoint mark_point1 = new TMapPoint(astar.jp_path.get(0).GetLat(), astar.jp_path.get(0).GetLng());
@@ -567,6 +569,46 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
 
 
         for (int o = 0; o < astar.DangerZone.size(); o++) {
+
+            TMapPoint cmid = new TMapPoint(astar.DangerZone.get(o).GetLat(), astar.DangerZone.get(o).GetLng());
+            TMapCircle tMapCircle = new TMapCircle();
+            tMapCircle.setCenterPoint( cmid );
+            tMapCircle.setRadius(20);
+            tMapCircle.setCircleWidth(2);
+            tMapCircle.setLineColor(Color.argb(0,255,255,255));
+            tMapCircle.setAreaColor(Color.RED);
+            tMapCircle.setAreaAlpha(20);
+            tMapView.addTMapCircle("circle1"+o, tMapCircle);
+
+            TMapCircle tMapCircle2 = new TMapCircle();
+            tMapCircle2.setCenterPoint( cmid );
+            tMapCircle2.setRadius(15);
+            tMapCircle2.setCircleWidth(2);
+            tMapCircle2.setLineColor(Color.argb(0,255,255,255));
+            tMapCircle2.setAreaColor(Color.RED);
+            tMapCircle2.setAreaAlpha(75);
+            tMapView.addTMapCircle("circle2"+o, tMapCircle2);
+
+            TMapCircle tMapCircle3 = new TMapCircle();
+            tMapCircle3.setCenterPoint( cmid );
+            tMapCircle3.setRadius(10);
+            tMapCircle3.setCircleWidth(2);
+            tMapCircle3.setLineColor(Color.argb(0,255,255,255));
+            tMapCircle3.setAreaColor(Color.RED);
+            tMapCircle3.setAreaAlpha(125);
+            tMapView.addTMapCircle("circle3"+o, tMapCircle3);
+
+            TMapCircle tMapCircle4 = new TMapCircle();
+            tMapCircle4.setCenterPoint( cmid );
+            tMapCircle4.setRadius(5);
+            tMapCircle4.setCircleWidth(2);
+            tMapCircle4.setLineColor(Color.argb(0,255,255,255));
+            tMapCircle4.setAreaColor(Color.RED);
+            tMapCircle4.setAreaAlpha(255);
+            tMapView.addTMapCircle("circle4"+o, tMapCircle4);
+
+
+
             // 만약 위험 지역이 성범죄자 거주 구역이라면
             if (astar.DangerZone.get(o).GetType() == 1.0) {
 
