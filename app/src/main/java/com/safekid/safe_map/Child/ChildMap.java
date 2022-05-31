@@ -163,7 +163,7 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
         ShowPathInfoOnMap();
 
         // 아이의 현재 위치 5초 간격 서버에 전송
-   //     sendLocation();
+        sendLocation();
 
         home.setOnClickListener(new View.OnClickListener() {
             @Override

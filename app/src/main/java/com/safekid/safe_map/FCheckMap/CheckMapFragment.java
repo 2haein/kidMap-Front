@@ -454,14 +454,17 @@ public class CheckMapFragment extends Fragment {
         }
         mapView.addPolyline(polyline2);
 
-        MapPoint mark_point2 = MapPoint.mapPointWithGeoCoord(astar_t.jp_path.get(diff).GetLat(),astar_t.jp_path.get(diff).GetLng());
-        MapPOIItem marker2 = new MapPOIItem();
-        marker2.setItemName("회색 : 원래 경로");
-        marker2.setTag(0);
-        marker2.setMapPoint(mark_point2);
-        marker2.setMarkerType(MapPOIItem.MarkerType.CustomImage);
-        marker2.setCustomImageResourceId(R.drawable.jdevil);
-        mapView.addPOIItem(marker2);
+        if (diff  != -1){
+            MapPoint mark_point2 = MapPoint.mapPointWithGeoCoord(astar_t.jp_path.get(diff).GetLat(),astar_t.jp_path.get(diff).GetLng());
+            MapPOIItem marker2 = new MapPOIItem();
+            marker2.setItemName("회색 : 원래 경로");
+            marker2.setTag(0);
+            marker2.setMapPoint(mark_point2);
+            marker2.setMarkerType(MapPOIItem.MarkerType.CustomImage);
+            marker2.setCustomImageResourceId(R.drawable.jdevil);
+            mapView.addPOIItem(marker2);
+        }
+
 
 
 

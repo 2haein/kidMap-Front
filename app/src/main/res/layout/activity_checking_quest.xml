@@ -21,24 +21,28 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView5"
         android:layout_width="320dp"
-        android:layout_height="379dp"
-        android:layout_marginBottom="68dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:layout_marginBottom="8dp"
         app:layout_constraintBottom_toTopOf="@+id/button2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.494"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView33" />
 
     <TextView
         android:id="@+id/textView35"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="24dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="8dp"
         android:text="심부름 가면서 수행한 퀘스트를 체크해보아요"
         android:textSize="16sp"
         app:layout_constraintBottom_toTopOf="@+id/recyclerView5"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.495"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView33" />
 
     <Button
         android:id="@+id/button2"
@@ -55,9 +59,12 @@
         android:id="@+id/textView37"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
         android:layout_marginBottom="4dp"
         android:text="아이와 같이"
         app:layout_constraintBottom_toTopOf="@+id/textView35"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView33" />
 </androidx.constraintlayout.widget.ConstraintLayout>
