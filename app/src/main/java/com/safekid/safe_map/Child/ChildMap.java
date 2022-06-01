@@ -138,7 +138,7 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
         tmapgps = new TMapGpsManager(this);
         tmapgps.setMinTime(1000);
         tmapgps.setMinDistance(10);
-        tmapgps.setProvider(tmapgps.NETWORK_PROVIDER); //연결된 인터넷으로 현 위치를 받습니다.
+        tmapgps.setProvider(tmapgps.GPS_PROVIDER); //연결된 인터넷으로 현 위치를 받습니다.
 
         //실내일 때 유용합니다.
         //tmapgps.setProvider(tmapgps.GPS_PROVIDER); //gps로 현 위치를 잡습니다.
@@ -341,21 +341,21 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
 
                 @Override
                 public void run() {
-                    /*if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                         return;
                     }
-                    currentLocation[0] = manager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER); // 야외 GPS_PROVIDER, 실내 NETWOR_PROVIDER
+                    currentLocation[0] = manager.getLastKnownLocation(LocationManager.GPS_PROVIDER); // 야외 GPS_PROVIDER, 실내 NETWOR_PROVIDER
                     latitude = currentLocation[0].getLatitude();
                     longitude = currentLocation[0].getLongitude();
                     System.out.println("아이 현재 위치값 : " + latitude + "," + longitude);
-                    registerChildLocation(UUID, latitude, longitude);*/
-                    Location loc = getMyLocation();
+                    registerChildLocation(UUID, latitude, longitude);
+
+                    /*Location loc = getMyLocation();
                     latitude = loc.getLatitude();
                     longitude = loc.getLongitude();
                     System.out.println("아이 현재 위치값 : " + latitude + "," + longitude);
-                    //mylocation.setText(latitude + "," + longitude);
-                    //Toast.makeText(getApplicationContext(), "현재 위치" + latitude + "," + longitude, Toast.LENGTH_LONG).show();
-                    registerChildLocation(ChildData.getChildId(), latitude, longitude);
+                    */
+                    //registerChildLocation(ChildData.getChildId(), latitude, longitude);
 
                     // 중간 지점이면 부모님께 메세지 전송
                     double middle_lat = getMiddleLat();
@@ -363,7 +363,7 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
 
                     float distance = getDistance(latitude, longitude, middle_lat, middle_lon);
                     Log.i("중간지점까지의 거리", String.valueOf(distance));
-                    if (distance < 4.0) { //4m
+                    if (distance < 10.0) { //3m
                         if (ChildData.getcheckSMS() == false){
                             ChildData.setCheckSMS(true);
                             sendSMS();
@@ -390,7 +390,7 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
     private Location getMyLocation() {
         Location currentLocation = null;
         // Register the listener with the Location Manager to receive location updates
-        if (ActivityCompat.checkSelfPermission((Activity) this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission((Activity) getApplicationContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             System.out.println("////////////사용자에게 권한을 요청해야함");
             ActivityCompat.requestPermissions((Activity) getApplicationContext(), new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, this.REQUEST_CODE_LOCATION);
             getMyLocation();

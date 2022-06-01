@@ -151,6 +151,7 @@ public class ChildMain extends AppCompatActivity {
                     Toast.makeText(ChildMain.this, "설정된 심부름이 없습니다!", Toast.LENGTH_LONG).show();
                 } else if (result.equals("false") && (ChildData.getcheckmapFlag()==false)){
                     // 처음 지도를 켜서 들어간 것
+                    ChildData.setCheckSMS(false);
                     Intent intent = new Intent(getApplicationContext(), beforeCheck.class);
                     intent.putExtra("childId", UUID);
                     intent.putExtra("parentId", parent_Id);
