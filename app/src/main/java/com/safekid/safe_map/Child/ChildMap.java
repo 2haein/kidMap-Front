@@ -5,6 +5,7 @@ import static android.app.PendingIntent.getActivity;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
+import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.app.Activity;
@@ -57,6 +58,7 @@ import com.skt.Tmap.TMapPoint;
 
 public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLocationChangedCallback {
 
+    private static final int PERMISSION_RQST_SEND = 8282;
     String UUID = ChildData.getChildId();
     String parent_id = ProfileData.getUserId();
     Astar astar = new Astar();
@@ -105,8 +107,8 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_child_map);
 
-        home = (ImageButton) findViewById(R.id.homeaddr);
-        camera = (ImageButton) findViewById(R.id.camera);
+        //home = (ImageButton) findViewById(R.id.homeaddr);
+        //camera = (ImageButton) findViewById(R.id.camera);
         call = (ImageButton) findViewById(R.id.call);
 
         // 아이의 위치 수신을 위한 세팅
@@ -165,7 +167,7 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
         // 아이의 현재 위치 5초 간격 서버에 전송
         sendLocation();
 
-        home.setOnClickListener(new View.OnClickListener() {
+        /*home.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
@@ -177,11 +179,11 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
         camera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                /*Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                *//*Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                 intent.putExtra(MediaStore.EXTRA_OUTPUT, FileProvider.getUriForFile(getContext(), "com.safekid.safe_map.fileProvider",file));
-                startActivityForResult(intent, 101);*/
+                startActivityForResult(intent, 101);*//*
             }
-        });
+        });*/
 
         call.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -363,17 +365,21 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
 
                     float distance = getDistance(latitude, longitude, middle_lat, middle_lon);
                     Log.i("중간지점까지의 거리", String.valueOf(distance));
-                    if (distance < 10.0) { //3m
+                    if (distance < 7.0) { //3m
+
                         if (ChildData.getcheckSMS() == false){
+                            Log.i("ㄱㄷㅁ", "False");
                             ChildData.setCheckSMS(true);
                             sendSMS();
                             showNoti();
+                        } else {
+                            Log.i("ㄱㄷㅁ", "TRUE");
                         }
                     }
                 }
             };
 
-            scheduler.scheduleAtFixedRate(task, 0, 5000); // 5초마다 반복실행*/
+            scheduler.scheduleAtFixedRate(task, 0, 1000); // 1초마다 반복실행*/
         }
 
 
@@ -439,16 +445,46 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
 
     public void sendSMS () {
         try {
-            //전송
-            SmsManager smsManager = SmsManager.getDefault();
-            String phoneNo = fetchPhone(ProfileData.getUserId());
-            smsManager.sendTextMessage(phoneNo, null, "우리 아이가 심부름 경로의 중간 지점을 잘 지나갔어요", null, null);
+            if (ContextCompat.checkSelfPermission(this,Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
+                if (ActivityCompat.shouldShowRequestPermissionRationale(this,Manifest.permission.SEND_SMS)) {
+                    Log.i("kkk", "no");
+                }
+                else { ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.SEND_SMS}, PERMISSION_RQST_SEND);
+                    Log.i("ddd", "n");
+                }
+            } else {
+                //ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.SEND_SMS}, PERMISSION_RQST_SEND);
+
+            }
             //Toast.makeText(getApplicationContext(), "부모님께 메세지 전송 완료!", Toast.LENGTH_LONG).show();
+
         } catch (Exception e) {
             //Toast.makeText(getApplicationContext(), "메세지 전송 실패", Toast.LENGTH_LONG).show();
             e.printStackTrace();
         }
 
+    }
+
+    //Now once the permission is there or not would be checked
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case PERMISSION_RQST_SEND: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    //전송
+                    SmsManager smsManager = SmsManager.getDefault();
+                    String phoneNo = fetchPhone(ProfileData.getUserId());
+                    smsManager.sendTextMessage(phoneNo, null, "우리 아이가 심부름 경로의 중간 지점을 잘 지나갔어요", null, null);
+                    Log.i("sms", "성공");
+//                    Toast.makeText(getApplicationContext(), "SMS sent.",Toast.LENGTH_LONG).show();
+                } else {
+                    Log.i("sms", "실패");
+//                    Toast.makeText(getApplicationContext(), "SMS failed, you may try again later.", Toast.LENGTH_LONG).show();
+                    return;
+                }
+            }
+        }
     }
 
     public void showNoti(){

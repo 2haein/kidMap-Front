@@ -22,24 +22,6 @@
                 android:layout_weight="1" />
 
             <ImageButton
-                android:id="@+id/homeaddr"
-                android:layout_width="45dp"
-                android:layout_height="match_parent"
-                android:layout_margin="5dp"
-                android:background="@android:color/transparent"
-                android:scaleType="fitXY"
-                android:src="@drawable/markerhome" />
-
-            <ImageButton
-                android:id="@+id/camera"
-                android:layout_width="45dp"
-                android:layout_height="match_parent"
-                android:layout_margin="5dp"
-                android:background="@android:color/transparent"
-                android:scaleType="fitXY"
-                android:src="@drawable/camera" />
-
-            <ImageButton
                 android:id="@+id/call"
                 android:layout_width="45dp"
                 android:layout_height="match_parent"

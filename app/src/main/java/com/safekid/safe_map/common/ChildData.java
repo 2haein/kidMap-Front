@@ -15,7 +15,7 @@ public class ChildData {
     public static void setcheckmapFlag(Boolean flag) {
         checkmapFlag = flag;
     }
-    public static void setCheckSMS(Boolean flag) { checkSMS = true; }
+    public static void setCheckSMS(Boolean flag) { checkSMS = flag; }
 
     public static String getChildId() {return childId; }
     public static Boolean getcheckmapFlag() {

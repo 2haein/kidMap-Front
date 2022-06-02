@@ -98,6 +98,8 @@ public class CheckMapFragment extends Fragment {
 
     String current_child;
 
+    MapPOIItem tempMarker = new MapPOIItem();
+
     /**
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
@@ -214,12 +216,14 @@ public class CheckMapFragment extends Fragment {
 
                         MapPoint mark_point_child = MapPoint.mapPointWithGeoCoord(child_lat,child_long);
                         MapPOIItem markerchild = new MapPOIItem();
+                        mapView.removePOIItem(tempMarker);
                         markerchild.setItemName("우리 아이");
                         markerchild.setTag(0);
                         markerchild.setMapPoint(mark_point_child);
                         markerchild.setMarkerType(MapPOIItem.MarkerType.CustomImage);
                         markerchild.setCustomImageResourceId(R.drawable.student);
                         mapView.addPOIItem(markerchild);
+                        tempMarker = markerchild;
                     } catch (JSONException e) {
                         // TODO Auto-generated catch block
                         e.printStackTrace();
