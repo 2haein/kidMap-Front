@@ -162,17 +162,18 @@ public class CheckMapFragment extends Fragment {
 
         if (result.equals("false")){
 
-            // 1. 심부름 정보(안전 경로) 받아오기
-            GetErrandData();
+            if(astar.jp_path.size() == 0) {
+                // 1. 심부름 정보(안전 경로) 받아오기
+                GetErrandData();
 
-            // 2. 노드, 링크, 위험 지역 파싱
-            ParseInformations();
+                // 2. 노드, 링크, 위험 지역 파싱
+                ParseInformations();
 
-            // 3. 안전 경로 찾기
-            FindSafePath();
-
-            // 4. 위험 지역 띄우기
-            ShowDangerZoneOnMap();
+                // 3. 안전 경로 찾기
+                FindSafePath();
+            }
+                // 4. 위험 지역 띄우기
+                ShowDangerZoneOnMap();
 
             // 5. 시작, 중간, 도착 지점 띄우기
             ShowSrcMidDstOnMap();
