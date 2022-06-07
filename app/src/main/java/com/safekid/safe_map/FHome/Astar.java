@@ -25,9 +25,9 @@ public class Astar {
 
     final int nodeNum = 0;
     final int parent = 1;
-    final int F = 2;
+    final int F = 2;// F = G + H
     final int G = 3;
-    final int H = 4; // F = G + H
+    final int H = 4;
 
     int onfoot = 0;    // 0
     int alley = 0;  // 1
@@ -50,8 +50,8 @@ public class Astar {
     int ClosePointer = 0; // 닫힌 리스트 pointer
     int OpenPointer = 0;  // 열린 리스트 pointer
 
-    int[][] OpenTEST = new int[80][5];  // 열린 리스트 : 들어오고, 삭제되는 것이 있다.
-    int[][] CloseTEST = new int[80][5]; // 닫힌 리스트 : 들어오는 것 만 있고, 삭제는 이뤄지지 않는다.
+    int[][] OpenTEST = new int[100][5];  // 열린 리스트 : 들어오고, 삭제되는 것이 있다.
+    int[][] CloseTEST = new int[100][5]; // 닫힌 리스트 : 들어오는 것 만 있고, 삭제는 이뤄지지 않는다.
 
 
     //=================== 메소드 ===========================
@@ -204,6 +204,7 @@ public class Astar {
                 double res = GetDistanceWithCoords(nodes.get(i), tmp);
                 // Log.d("test","넘버 : "+ i+ "거리 :"+res);
                 if (res <= 10.0) {
+                    Log.d("test","넘버 : "+ i+ "거리 :"+res);
                     dangerNodeNum.add(i);
                 }
             }
@@ -284,7 +285,6 @@ public class Astar {
         end.setLongitude(dst.GetLng());
 
         double distance = start.distanceTo(end);
-        double distance2 = end.distanceTo(start);
 
        // Log.d("astar123","dist :"+distance+" dist2 :"+distance2);
 
@@ -331,170 +331,64 @@ public class Astar {
         // 첫 번째 노드를 닫힌 리스트에 넣는다.
         CloseTEST[ClosePointer][nodeNum] = srcNum;
         CloseTEST[ClosePointer][parent] = srcNum;
-
+        CloseTEST[ClosePointer][F] = getDistance(srcNum,dstNum);
+        CloseTEST[ClosePointer][G] = 0;
+        CloseTEST[ClosePointer][H] = getDistance(srcNum,dstNum);
 
 
         System.out.println("===== 에이스타 시작 ================================");
 
-        int curNum = CloseTEST[ClosePointer][nodeNum];
-        System.out.println("현재 노드는 "+ curNum +"입니다.");
-
-
-        // 현재 노드에 대한 인접 노드들의 휴리스틱 값 계산
-        for(int[] info : links[curNum]) {
-            System.out.print("          "+ curNum + "과 연결된 노드는 " + info[0] +" 입니다.");
-            // 이미 인접 노드가 닫힌 리스트에 존재 할 경우 : 무시
-            if (IsInClose(info[0]) == 1) {
-                System.out.println("          " + info[0] +"이 닫힌 리스트에 존재 ");
-                continue;
-            }
-
-            // 이 인접 노드가 열린 리스트에 이미 존재하는지 체크
-            IndexOpen = IsInOpen(info[0]);
-            g = getDistance(curNum, info[0]);// 다음 노드와 현재 노드의 거리
-            h = getDistance(info[0], dstNum); // 다음 노드와 도착지까지의 직선 거리
-            heuristic = g + h;
-
-
-            // 1. 인접 노드가 열린 리스트에 존재하지 않는다면
-            if (IndexOpen == -1) {
-                // 열린 리스트에 삽입.
-                System.out.println("          "+ info[0] +" 이 열린 리스트에 존재 안 함, 삽입 ");
-                OpenTEST[OpenPointer][parent] = curNum;
-                OpenTEST[OpenPointer][nodeNum] = info[0];
-                OpenTEST[OpenPointer][F] = heuristic;
-                OpenTEST[OpenPointer][G] = g;
-                OpenTEST[OpenPointer][H] = h;
-
-                System.out.println("           nodenum :"+ OpenTEST[OpenPointer][nodeNum] + "  parent : "+
-                        OpenTEST[OpenPointer][parent] + " 열린 리스트에 삽입" );
-                OpenPointer++;
-
-            }
-            // 2. 이미 인접 노드가 열린 리스트에 존재 할 경우
-            else {
-                // 해당 노드와의 휴리스틱 비교하여 업데이트
-                System.out.println("          "+ info[0] +" 이 열린 리스트에 존재, 비교 ");
-                if (heuristic < OpenTEST[IndexOpen][F]) {
-                    System.out.println("            "+ info[0] +"의 휴리스틱 업데이트 ");
-                    System.out.print("               "+ info[0] +"의 부모노드 : "+OpenTEST[IndexOpen][parent]);
-                    OpenTEST[IndexOpen][F] = heuristic;
-                    OpenTEST[IndexOpen][parent] = curNum;
-                    OpenTEST[IndexOpen][G] = g;
-                    OpenTEST[IndexOpen][H] = h;
-
-                    System.out.println(" >> "+ curNum +"로 변경");
-                }
-            }
-        }
-        // 열린 리스트 중 F값이 가장 작은 노드의 인덱스 찾기.
-        int indexMin = GetIndexMinFromOpen();
-    //    System.out.println("휴리스틱 최소값을 가진 노드는 "  + OpenTEST[indexMin][nodeNum] +"입니다.");
-      //  System.out.println("휴리스틱 최소값 :"  + OpenTEST[indexMin][F] );
-      //  System.out.println("G :"  + OpenTEST[indexMin][G] +" H :" + OpenTEST[indexMin][H]+ "\n");
-        // 찾은 노드를 닫힌 리스트에 삽입 후 열린 리스트에서 제거.
-        CloseTEST[++ClosePointer][nodeNum] = OpenTEST[indexMin][nodeNum];
-        // CloseTEST[ClosePointer][parent] = curNum으로 해서 계속 뛰어넘기가 나왓다.
-        CloseTEST[ClosePointer][parent] = OpenTEST[indexMin][parent];
-        CloseTEST[ClosePointer][F] = OpenTEST[indexMin][F];
-        CloseTEST[ClosePointer][G] =OpenTEST[indexMin][G];
-        CloseTEST[ClosePointer][H] =OpenTEST[indexMin][H];
-
-
-        System.out.println("[ nodenum :"+OpenTEST[indexMin][nodeNum]+
-                " parent :+" + CloseTEST[ClosePointer][parent] + "] 를 열린 리스트에서 제거, 닫힌 리스트에 삽입.");
-
-
-
-
-        RemoveNodeFromOpen(indexMin);
-
-      /*  System.out.print("열린 :");
-        for(int i =0 ; i < OpenPointer ; i ++){
-            System.out.print( OpenTEST[i][nodeNum]);
-            System.out.print(" ");
-        }
-        System.out.print("\n휴리 :");
-        for(int i =0 ; i < OpenPointer ; i ++){
-            System.out.print( OpenTEST[i][F]);
-            System.out.print(" ");
-        }
-        System.out.print("\n닫힌 :");
-        for(int i =0 ; i <= ClosePointer ; i ++){
-            System.out.print( CloseTEST[i][nodeNum]);
-            System.out.print(" ");
-        }
-        System.out.print("\n33 F: "+ OpenTEST[0][F]+" G:"+OpenTEST[0][G] +" H:"+OpenTEST[0][H]);
-
-
-        System.out.print("\n");
-        System.out.println("  \n");
-*/
-
         while(true){
-            curNum = CloseTEST[ClosePointer][nodeNum];
-       //     System.out.println("현재 노드는 "+ curNum +"입니다.");
-
+            int curNum = CloseTEST[ClosePointer][nodeNum];
+            int curNumG =  CloseTEST[ClosePointer][G];
 
             // 만약 닫힌 리스트에 마지막으로 들어온 노드가 도착지라면 탈출
             if(curNum == dstNum){
-              //  System.out.println("현재 노드 "+curNum+"이 도착 노드 입니다. 탈출!");
-              //  System.out.println("===== 에이스타 종료 ================================\n");
                 break;
             }
 
             // 현재 노드에 대한 인접 노드들의 휴리스틱 값 계산
             for(int[] info : links[curNum]) {
-              //  System.out.print("          "+ curNum + "과 연결된 노드는 " + info[0] +" 입니다.");
                 // 이미 인접 노드가 닫힌 리스트에 존재 할 경우 : 무시
                 if (IsInClose(info[0]) == 1) {
-                 //   System.out.println("          " + info[0] +"이 닫힌 리스트에 존재 ");
                     continue;
                 }
 
                 // 이 인접 노드가 열린 리스트에 이미 존재하는지 체크
                 IndexOpen = IsInOpen(info[0]);
                 // int heuristic = getDistance(curNum, info[0]) + getDistance(info[0], dstNum);
-                g = (int) getG(info[0],curNum);// 부모 노드와 현재 노드의 거리
+
+                // 현재 g = 부모 노드의 g + (부모+현재까지의 길이)
+                g = curNumG + getDistance(curNum,info[0]);   // 부모 노드와 현재 노드의 거리
                 h = getDistance(info[0], dstNum); // 현재 노드와 도착지까지의 직선 거리
                 heuristic = g+h;
-
 
                 // 1. 인접 노드가 열린 리스트에 존재하지 않는다면
                 if (IndexOpen == -1) {
                     // 열린 리스트에 삽입.
-                   // System.out.println("          "+ info[0] +" 이 열린 리스트에 존재 안 함, 삽입 ");
                     OpenTEST[OpenPointer][parent] = curNum;
                     OpenTEST[OpenPointer][nodeNum] = info[0];
                     OpenTEST[OpenPointer][F] = heuristic;
                     OpenTEST[OpenPointer][G] = g;
                     OpenTEST[OpenPointer][H] = h;
-                   // System.out.println("           nodenum :"+ OpenTEST[OpenPointer][nodeNum] + "  parent : "+
-                  //          OpenTEST[OpenPointer][parent] + " 열린 리스트에 삽입" );
+
                     OpenPointer++;
 
                 }
                 // 2. 이미 인접 노드가 열린 리스트에 존재 할 경우
                 else {
                     // 해당 노드와의 휴리스틱 비교하여 업데이트
-                   // System.out.println("          "+ info[0] +" 이 열린 리스트에 존재, 비교 ");
                     if (heuristic < OpenTEST[IndexOpen][F]) {
-                       // System.out.println("            "+ info[0] +"의 휴리스틱 업데이트 ");
-                       // System.out.print("               "+ info[0] +"의 부모노드 : "+OpenTEST[IndexOpen][parent]);
                         OpenTEST[IndexOpen][F] = heuristic;
                         OpenTEST[IndexOpen][G] = g;
                         OpenTEST[IndexOpen][H] = h;
                         OpenTEST[IndexOpen][parent] = curNum;
-                       // System.out.println(" >> "+ curNum +"로 변경");
                     }
                 }
             }
             // 열린 리스트 중 F값이 가장 작은 노드의 인덱스 찾기.
-            indexMin = GetIndexMinFromOpen();
-       //     System.out.println("휴리스틱 최소값을 가진 노드는 "  + OpenTEST[indexMin][nodeNum] +"입니다.");
-        //    System.out.println("휴리스틱 최소값 :"  + OpenTEST[indexMin][F] );
+            int indexMin = GetIndexMinFromOpen();
 
-          //  System.out.println("G :"  + OpenTEST[indexMin][G] +" H :" + OpenTEST[indexMin][H]+ "\n");
             // 찾은 노드를 닫힌 리스트에 삽입 후 열린 리스트에서 제거.
             CloseTEST[++ClosePointer][nodeNum] = OpenTEST[indexMin][nodeNum];
             // CloseTEST[ClosePointer][parent] = curNum으로 해서 계속 뛰어넘기가 나왓다.
@@ -503,30 +397,12 @@ public class Astar {
             CloseTEST[ClosePointer][G] = OpenTEST[indexMin][G];
             CloseTEST[ClosePointer][H] = OpenTEST[indexMin][H];
 
-          //  System.out.println("[ nodenum :"+OpenTEST[indexMin][nodeNum]+
-           //         " parent :+" + CloseTEST[ClosePointer][parent] + "] 를 열린 리스트에서 제거, 닫힌 리스트에 삽입.");
 
 
-            RemoveNodeFromOpen(indexMin);
+            removeNodeFromOpen(indexMin);
+            //TEST_PRINT_OPEN();
 
-           /* System.out.print("열린 :");
-            for(int i =0 ; i < OpenPointer ; i ++){
-              //  System.out.print( OpenTEST[i][nodeNum]);
-               / System.out.print(" ");
-            }
-            System.out.print("\n휴리 :");
-            for(int i =0 ; i < OpenPointer ; i ++){
-                System.out.print( OpenTEST[i][F]);
-                System.out.print(" ");
-            }
 
-            System.out.print("\n닫힌 :");
-            for(int i =0 ; i <= ClosePointer ; i ++){
-                System.out.print( CloseTEST[i][nodeNum]);
-                System.out.print(" ");
-            }
-            System.out.print("\n");
-            System.out.println("  \n"); */
         }
 
 
@@ -540,7 +416,7 @@ public class Astar {
         double weight = 1.0;
 
         if( IsInDanger(dstNum) == 1){
-            weight *= 50.0;
+            weight *= 100.0;
         }
 
         double a1 = (nodes.get(srcNum).GetLat() - nodes.get(dstNum).GetLat())*1000000.0;
@@ -550,15 +426,15 @@ public class Astar {
     }
 
     // 휴리스틱 최솟값을 가지는 노드의 인덱스를 받아 그 위치 삭제
-    private void RemoveNodeFromOpen(int indexMin) {
+    private void removeNodeFromOpen(int indexMin) {
         // 1. 맨 뒤의 인덱스의 정보를 그 인덱스에 저장한다.
         // 2. 포인터를 맨 뒤로 옮긴다.
-        OpenTEST[indexMin][nodeNum] = OpenTEST[OpenPointer - 1][nodeNum];
-        OpenTEST[indexMin][parent] = OpenTEST[OpenPointer - 1][parent];
-        OpenTEST[indexMin][F] = OpenTEST[OpenPointer - 1][F];
-
+        OpenTEST[indexMin][nodeNum] = OpenTEST[OpenPointer-1][nodeNum];
+        OpenTEST[indexMin][parent] = OpenTEST[OpenPointer-1][parent];
+        OpenTEST[indexMin][F] = OpenTEST[OpenPointer-1][F];
+        OpenTEST[indexMin][H] = OpenTEST[OpenPointer-1][H];
+        OpenTEST[indexMin][G] = OpenTEST[OpenPointer-1][G];
         OpenPointer--;
-
     }
 
     // OpenList에서 Path를 찾아서 "노드번호"로 저장.
@@ -573,7 +449,6 @@ public class Astar {
         while (true) {
             // 그 다음 현재 노드의 부모 노드 번호를 찾는다.
             parent = getParentFromClose(node);
-            jPoint pa_node = new jPoint();
 
             // 만약 부모 노드가 출발 노드라면 넣고 탈출
             if (parent == srcNum) {
@@ -589,7 +464,7 @@ public class Astar {
 
         }
 
-        Log.d("Astar","길 찾기 완료 노드번호 경로 :: "+ int_path);
+      //  Log.d("Astar","길 찾기 완료 노드번호 경로 :: "+ int_path);
 
     }
 
@@ -599,9 +474,9 @@ public class Astar {
         int min = 987654321;
         int idx = 0;
 
-        for (int j = 0; j < OpenPointer; j++) {
+        for(int j = 0 ; j < OpenPointer ; j ++){
             // null에러 날거같은데? >> 포인터 선언시 그 초기화? 클래스 내에서 하는거 하면 됨.
-            if (OpenTEST[j][F] < min) {
+            if( OpenTEST[j][F] < min){
                 min = OpenTEST[j][F];
                 idx = j;
             }
@@ -686,7 +561,7 @@ public class Astar {
             link_info.add(link_info_reverse.get(t));
         }
 
-        Log.d("Astar123","link_info : "+ link_info);
+      //  Log.d("Astar123","link_info : "+ link_info);
       //  System.out.println("주어진 경로에 신호등 :" + traffic + "개, 횡단보도 :" + crosswalk + "개가 있습니다.");
 
     }
