@@ -42,7 +42,7 @@ public class Astar {
 
 
     ArrayList<jPoint> nodes = new ArrayList<>();    // nodes
-    ArrayList<int[]>[] links = new ArrayList[131];  // links
+    ArrayList<int[]>[] links = new ArrayList[484];  // links
     public ArrayList<DangerPoint> DangerZone = new ArrayList<>(); // Danger Points
 
     ArrayList<Integer> dangerNodeNum = new ArrayList<>(); // 위험 지역에 속하는 노드 번호들
@@ -50,8 +50,8 @@ public class Astar {
     int ClosePointer = 0; // 닫힌 리스트 pointer
     int OpenPointer = 0;  // 열린 리스트 pointer
 
-    int[][] OpenTEST = new int[100][5];  // 열린 리스트 : 들어오고, 삭제되는 것이 있다.
-    int[][] CloseTEST = new int[100][5]; // 닫힌 리스트 : 들어오는 것 만 있고, 삭제는 이뤄지지 않는다.
+    int[][] OpenTEST = new int[300][5];  // 열린 리스트 : 들어오고, 삭제되는 것이 있다.
+    int[][] CloseTEST = new int[300][5]; // 닫힌 리스트 : 들어오는 것 만 있고, 삭제는 이뤄지지 않는다.
 
 
     //=================== 메소드 ===========================
@@ -204,7 +204,7 @@ public class Astar {
                 double res = GetDistanceWithCoords(nodes.get(i), tmp);
                 // Log.d("test","넘버 : "+ i+ "거리 :"+res);
                 if (res <= 10.0) {
-                    Log.d("test","넘버 : "+ i+ "거리 :"+res);
+                   // Log.d("test","넘버 : "+ i+ "거리 :"+res);
                     dangerNodeNum.add(i);
                 }
             }
@@ -322,6 +322,7 @@ public class Astar {
     //================== A* Algorithm =======================
     public void AstarSearch(int srcNum, int dstNum){
 
+        //Log.d("test","src :"+srcNum+" dst:"+dstNum);
 
         int IndexOpen;
         int g = 0;
@@ -341,6 +342,9 @@ public class Astar {
         while(true){
             int curNum = CloseTEST[ClosePointer][nodeNum];
             int curNumG =  CloseTEST[ClosePointer][G];
+
+            Log.d("test","cur : " + curNum);
+
 
             // 만약 닫힌 리스트에 마지막으로 들어온 노드가 도착지라면 탈출
             if(curNum == dstNum){
