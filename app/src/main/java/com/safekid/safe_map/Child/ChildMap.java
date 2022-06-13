@@ -370,7 +370,7 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
                         if (ChildData.getcheckSMS() == false){
                             Log.i("ㄱㄷㅁ", "False");
                             ChildData.setCheckSMS(true);
-                            sendSMS();
+//                            sendSMS();
                             showNoti();
                         } else {
                             Log.i("ㄱㄷㅁ", "TRUE");
@@ -443,27 +443,27 @@ public class ChildMap extends AppCompatActivity implements TMapGpsManager.onLoca
         }
     }
 
-    public void sendSMS () {
-        try {
-            if (ContextCompat.checkSelfPermission(this,Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
-                if (ActivityCompat.shouldShowRequestPermissionRationale(this,Manifest.permission.SEND_SMS)) {
-                    Log.i("kkk", "no");
-                }
-                else { ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.SEND_SMS}, PERMISSION_RQST_SEND);
-                    Log.i("ddd", "n");
-                }
-            } else {
-                //ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.SEND_SMS}, PERMISSION_RQST_SEND);
-
-            }
-            //Toast.makeText(getApplicationContext(), "부모님께 메세지 전송 완료!", Toast.LENGTH_LONG).show();
-
-        } catch (Exception e) {
-            //Toast.makeText(getApplicationContext(), "메세지 전송 실패", Toast.LENGTH_LONG).show();
-            e.printStackTrace();
-        }
-
-    }
+//    public void sendSMS () {
+//        try {
+//            if (ContextCompat.checkSelfPermission(this,Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
+//                if (ActivityCompat.shouldShowRequestPermissionRationale(this,Manifest.permission.SEND_SMS)) {
+//                    Log.i("kkk", "no");
+//                }
+//                else { ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.SEND_SMS}, PERMISSION_RQST_SEND);
+//                    Log.i("ddd", "n");
+//                }
+//            } else {
+//                //ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.SEND_SMS}, PERMISSION_RQST_SEND);
+//
+//            }
+//            //Toast.makeText(getApplicationContext(), "부모님께 메세지 전송 완료!", Toast.LENGTH_LONG).show();
+//
+//        } catch (Exception e) {
+//            //Toast.makeText(getApplicationContext(), "메세지 전송 실패", Toast.LENGTH_LONG).show();
+//            e.printStackTrace();
+//        }
+//
+//    }
 
     //Now once the permission is there or not would be checked
     @Override
